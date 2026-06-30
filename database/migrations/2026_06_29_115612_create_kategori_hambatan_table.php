@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('nama');
             $table->string('bobot_keparahan');
             $table->string('warna_hex');
-            $tabel->text('deskripsi');
+            $table->text('deskripsi');
             $table->timestamps();
         });
     }
