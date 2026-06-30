@@ -15,6 +15,7 @@ return new class extends Migration
             $table->bigIncrements('prioritas_id');
             $table->string('nama_prioritas', 100);
             $table->decimal('bobot', 5, 2);
+            $table->text('deskripsi')->nullable(); 
             $table->timestamps();
         });
     }

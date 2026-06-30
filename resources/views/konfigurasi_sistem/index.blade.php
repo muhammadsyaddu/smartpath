@@ -38,14 +38,14 @@
                 <td>
                     <a href="{{ route('konfigurasi_sistem.edit', $item->konfigurasi_id) }}">Edit</a>
                     @if ($errors->any())
-    <div style="color: red;">
-        <ul>
-            @foreach ($errors->all() as $error)
-                <li>{{ $error }}</li>
-            @endforeach
-        </ul>
-    </div>
-@endif  
+                    <div style="color: red;">
+                        <ul>
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif  
                     <form action="{{ route('konfigurasi_sistem.destroy', $item->konfigurasi_id) }}" method="POST" style="display:inline;">
                         @csrf
                         @method('DELETE')

@@ -12,7 +12,8 @@ class PengaturanController extends Controller
      */
     public function index()
     {
-        //
+        $prioritas = PengaturanPrioritas::all();
+        return view('pengaturan_prioritas.index', compact('prioritas'));
     }
 
     /**
@@ -44,7 +45,8 @@ class PengaturanController extends Controller
      */
     public function edit(string $id)
     {
-        //
+        $prioritas = PengaturanPrioritas::findOrFail($id);
+        return view('pengaturan_prioritas.edit', compact('prioritas'));
     }
 
     /**
@@ -52,7 +54,20 @@ class PengaturanController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $request ->validate([
+            'nama_prioritas' => 'required|string|max:100',
+            'bobot' => 'required|numeric',
+            'deskripsi' => 'nullable|string',
+            [
+                'nama_prioritas' => 'Nama prioritas tidak boleh kosong.',
+                'bobot' => 'Bobot nilai wajib diisi.',
+                'bobot.numeric' => 'Bobot harus berupa angka/desimal.',
+            ]
+        ]);
+
+        $prioritas = PengaturanPrioritas::findOrFail($id);
+        $prioritas->update($request->all());
+        return redirect()->route('pengaturan_prioritas.index')->with('success', 'Prioritas berhasil diperbarui.');
     }
 
     /**
@@ -60,6 +75,6 @@ class PengaturanController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+    
     }
 }
