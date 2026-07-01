@@ -11,10 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('pengaturan_prioritas', function (Blueprint $table) {
-            $table->bigIncrements('prioritas_id');
-            $table->string('nama_prioritas', 100);
-            $table->decimal('bobot', 5, 2);
+        Schema::create('view_laporan_dashboard', function (Blueprint $table) {
+            $table->id();
             $table->timestamps();
         });
     }
@@ -24,6 +22,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('pengaturan_prioritas');
+        Schema::dropIfExists('view_laporan_dashboard');
     }
 };

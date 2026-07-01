@@ -11,12 +11,17 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('konfigurasi_sistem', function (Blueprint $table) {
-            $table->bigIncrements('konfigurasi_id');
-            $table->string('kunci', 100)->uniqiue();
-            $table->string('nilai', 255);
-            $table->string('deskripsi')->nullable();
+         Schema::create('konfigurasi_sistem', function (Blueprint $table) {
+            $table->id();
+            $table->string('kunci', 100)->unique()->comment('Nama parameter unik');
+            $table->text('nilai')->comment('Nilai parameter dalam bentuk string');
+            $table->enum('tipe_nilai', ['teks', 'angka', 'desimal', 'boolean', 'json'])
+                  ->default('teks');
+            $table->string('keterangan', 255)->nullable();
+            $table->boolean('dapat_diedit_ui')->default(true);
             $table->timestamps();
+            
+            $table->index('kunci');
         });
     }
 
