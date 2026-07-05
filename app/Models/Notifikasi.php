@@ -53,7 +53,7 @@ class Notifikasi extends Model
     }
 
     /**
-     * Mark notification as read
+     * Tandai Notifikasi sudah di baca
      */
     public function markAsRead(): void
     {
@@ -64,7 +64,7 @@ class Notifikasi extends Model
     }
 
     /**
-     * Get jenis label
+     * Dapet jenis label
      */
     public function getJenisLabelAttribute(): string
     {

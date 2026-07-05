@@ -30,7 +30,7 @@ class KategoriHambatan extends Model
     ];
 
     /**
-     * Laporan with this category
+     * Laporan dengan kategori ini
      */
     public function laporan(): HasMany
     {

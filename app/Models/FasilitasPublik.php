@@ -34,7 +34,7 @@ class FasilitasPublik extends Model
     ];
 
     /**
-     * Wilayah of this facility
+     * Wilayah dari fasilitas ini
      */
     public function wilayah(): BelongsTo
     {

@@ -45,7 +45,7 @@ class VerifikasiLaporan extends Model
     }
 
     /**
-     * Get keputusan label
+     * dapet keputusan label
      */
     public function getKeputusanLabelAttribute(): string
     {
@@ -58,7 +58,7 @@ class VerifikasiLaporan extends Model
     }
 
     /**
-     * Get keputusan badge color
+     * dapet keputusan badge color
      */
     public function getKeputusanWarnaAttribute(): string
     {

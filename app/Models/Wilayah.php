@@ -46,7 +46,7 @@ class Wilayah extends Model
     }
 
     /**
-     * Users in this wilayah
+     * Users di dalam wilayah
      */
     public function users(): HasMany
     {
@@ -54,7 +54,7 @@ class Wilayah extends Model
     }
 
     /**
-     * Laporan in this wilayah
+     * Laporan di dalam wilayah
      */
     public function laporan(): HasMany
     {
@@ -62,7 +62,7 @@ class Wilayah extends Model
     }
 
     /**
-     * Fasilitas publik in this wilayah
+     * Fasilitas publik di dalam wilayah
      */
     public function fasilitasPublik(): HasMany
     {
@@ -86,7 +86,7 @@ class Wilayah extends Model
     }
 
     /**
-     * Get full hierarchical name
+     * dapetin semua nama hierarki
      */
     public function getNamaLengkapAttribute(): string
     {

@@ -47,7 +47,7 @@ class User extends Authenticatable
     ];
 
     /**
-     * Get the password for the user.
+     * dapet password untuk user
      */
     public function getAuthPassword(): string
     {
@@ -55,7 +55,7 @@ class User extends Authenticatable
     }
 
     /**
-     * Get the wilayah of the user
+     * dapet wilayah untuk user
      */
     public function wilayah(): BelongsTo
     {
@@ -63,7 +63,7 @@ class User extends Authenticatable
     }
 
     /**
-     * Laporan created by this user
+     * Laporan dibuat user ini
      */
     public function laporanDibuat(): HasMany
     {
@@ -135,7 +135,7 @@ class User extends Authenticatable
     }
 
     /**
-     * Check if user is admin
+     * Periksa user ini jika Admin
      */
     public function isAdmin(): bool
     {
@@ -143,7 +143,7 @@ class User extends Authenticatable
     }
 
     /**
-     * Check if user is dinas
+     * Periksa jika user adalah Dinas
      */
     public function isDinas(): bool
     {
@@ -151,7 +151,7 @@ class User extends Authenticatable
     }
 
     /**
-     * Check if user is warga
+     * Periksa jika user adalah warga
      */
     public function isWarga(): bool
     {
@@ -159,7 +159,7 @@ class User extends Authenticatable
     }
 
     /**
-     * Get full name attribute
+     * Dapetin semua nama atribut
      */
     public function getNamaLengkapAttribute(): string
     {

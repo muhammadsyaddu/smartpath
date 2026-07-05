@@ -185,7 +185,7 @@ class Laporan extends Model
     }
 
     /**
-     * Get priority level
+     * Dapetin semua prioritas level
      */
     public function getTingkatPrioritasAttribute(): string
     {

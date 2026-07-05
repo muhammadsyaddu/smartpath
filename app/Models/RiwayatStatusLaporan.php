@@ -29,7 +29,7 @@ class RiwayatStatusLaporan extends Model
     }
 
     /**
-     * User who changed the status
+     * User siapa yang mengganti status
      */
     public function diubahOleh(): BelongsTo
     {
@@ -37,7 +37,7 @@ class RiwayatStatusLaporan extends Model
     }
 
     /**
-     * Get status label
+     * Dapatin label status
      */
     public function getStatusBaruLabelAttribute(): string
     {
