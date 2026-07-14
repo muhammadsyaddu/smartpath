@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="id" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@yield('title', 'Dashboard') - Admin SmartPath</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @stack('styles')
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="h-full bg-slate-50 text-slate-900 antialiased">
+    <div class="flex h-full">
+        @include('partials.sidebar-admin')
+
+        <div class="flex-1 flex flex-col min-w-0">
+            @include('partials.header-admin')
+
+            <main id="main-content" class="flex-1 p-6 lg:p-8 overflow-y-auto" role="main">
+                @if(session('sukses'))
+                    <div class="mb-6 bg-emerald-50 border border-emerald-200 text-emerald-800 px-6 py-3 rounded-xl shadow-sm flex items-center gap-2" role="alert" aria-live="polite">
+                        <svg class="w-5 h-5 text-emerald-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                        {{ session('sukses') }}
+                    </div>
+                @endif
+                @if(session('galat'))
+                    <div class="mb-6 bg-red-50 border border-red-200 text-red-800 px-6 py-3 rounded-xl shadow-sm flex items-center gap-2" role="alert" aria-live="polite">
+                        <svg class="w-5 h-5 text-red-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                        {{ session('galat') }}
+                    </div>
+                @endif
+
+                @yield('content')
+            </main>
+        </div>
+    </div>
+
+    @stack('scripts')
+</body>
+</html>
