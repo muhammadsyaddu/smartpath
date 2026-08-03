@@ -4,47 +4,64 @@ namespace App\Http\Controllers;
 
 use App\Models\Laporan;
 use App\Models\KategoriHambatan;
-use App\Models\Wilayah;
-use App\Models\FasilitasPublik;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class BerandaController extends Controller
 {
     /**
-     * Tampilkan halaman beranda publik.
+     * Menampilkan Halaman Beranda Utama (Landing Page)
      */
     public function index()
     {
-        $totalLaporan = Laporan::induk()->count();
-        $totalTerverifikasi = Laporan::terverifikasi()->count();
-        $totalDalamPerbaikan = Laporan::status('dalam_perbaikan')->count();
-        $totalSelesai = Laporan::status('selesai')->count();
-        $kategoriHambatan = KategoriHambatan::aktif()->urutTampil()->get();
-        $wilayah = Wilayah::aktif()->level('kota_kabupaten')->first();
+        // 1. Statistik Laporan
+        $totalLaporan = Laporan::induk()->aktif()->count();
+        
+        $totalTerverifikasi = Laporan::induk()->aktif()
+            ->whereIn('status', ['diverifikasi', 'dalam_perbaikan', 'selesai'])
+            ->count();
+            
+        $totalDalamPerbaikan = Laporan::induk()->aktif()
+            ->status('dalam_perbaikan')
+            ->count();
+            
+        $totalSelesai = Laporan::induk()->aktif()
+            ->status('selesai')
+            ->count();
 
-        $laporanTerbaru = Laporan::induk()
-            ->with(['kategoriHambatan', 'pelapor', 'wilayah', 'foto'])
-            ->terverifikasi()
-            ->orderByDesc('created_at')
-            ->limit(5)
-            ->get();
-
-        $laporanPrioritasTinggi = Laporan::induk()
-            ->with(['kategoriHambatan', 'wilayah'])
-            ->terverifikasi()
-            ->where('skor_prioritas', '>=', 70)
+        // 2. Laporan Prioritas Tinggi (Top 3 berdasarkan skor_prioritas)
+        $laporanPrioritas = Laporan::induk()
+            ->aktif()
+            ->with(['kategoriHambatan', 'foto'])
             ->orderByDesc('skor_prioritas')
-            ->limit(5)
+            ->orderByDesc('created_at')
+            ->take(3)
             ->get();
 
-        return view('beranda.index', compact(
+        // 3. Kategori Hambatan Aktif
+        $kategoriHambatan = KategoriHambatan::aktif()
+            ->urutTampil()
+            ->get();
+
+        return view('beranda', compact(
             'totalLaporan',
             'totalTerverifikasi',
             'totalDalamPerbaikan',
             'totalSelesai',
-            'kategoriHambatan',
-            'wilayah',
-            'laporanTerbaru',
-            'laporanPrioritasTinggi'
+            'laporanPrioritas',
+            'kategoriHambatan'
         ));
+    }
+
+    /**
+     * Mengelola Langganan Newsletter
+     */
+    public function subscribeNewsletter(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email|max:255',
+        ]);
+
+        return redirect()->back()->with('success', 'Terima kasih telah berlangganan newsletter SmartPath!');
     }
 }

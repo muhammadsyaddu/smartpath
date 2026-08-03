@@ -19,19 +19,16 @@ use App\Http\Controllers\AuditController;
 
 /*
 |--------------------------------------------------------------------------
-| Web Routes - SmartPath
+| Web Routes - SmartPath Platform Pemetaan Aksesibilitas Disabilitas
 |--------------------------------------------------------------------------
-|
-| Rute publik, warga, dinas, dan administrator untuk platform
-| SmartPath: Sistem Otomatis Pemetaan Aksesibilitas dan Prioritas
-| Infrastruktur Disabilitas Berbasis Smart City.
-|
 */
 
 // ============================================
 // RUTE PUBLIK (Tanpa Autentikasi)
 // ============================================
 Route::get('/', [BerandaController::class, 'index'])->name('beranda');
+Route::post('/newsletter/subscribe', [BerandaController::class, 'subscribeNewsletter'])->name('newsletter.subscribe');
+
 Route::get('peta', [PetaController::class, 'index'])->name('peta.index');
 Route::get('peta/data', [PetaController::class, 'getLaporanData'])->name('peta.data');
 Route::get('peta/fasilitas', [PetaController::class, 'getFasilitasData'])->name('peta.fasilitas');

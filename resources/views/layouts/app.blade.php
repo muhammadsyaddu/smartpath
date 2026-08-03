@@ -1,40 +1,78 @@
 <!DOCTYPE html>
-<html lang="id" class="h-full">
+<html lang="id" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="SmartPath - Sistem Otomatis Pemetaan Aksesibilitas dan Prioritas Infrastruktur Disabilitas Berbasis Smart City">
-    <title>@yield('title', 'SmartPath') - SmartPath</title>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>@yield('title', 'SmartPath - Pemetaan Aksesibilitas Infrastruktur Disabilitas')</title>
+
+    <!-- Google Fonts: Inter (WCAG Readability) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-    @stack('styles')
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Tailwind CSS (CDN Standalone - Tanpa Perlu Vite / Node.js di Laragon) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        emerald: {
+                            50: '#ecfdf5',
+                            100: '#d1fae5',
+                            500: '#10b981',
+                            600: '#059669',
+                            700: '#047857',
+                            800: '#065f46',
+                            900: '#064e3b',
+                            950: '#022c22',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
     <style>
         body { font-family: 'Inter', sans-serif; }
+        .line-clamp-1 { display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; }
+        .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
     </style>
 </head>
-<body class="h-full bg-slate-50 text-slate-900 antialiased">
-    @include('partials.nav-public')
+<body class="bg-white text-slate-800 dark:bg-slate-950 dark:text-slate-100 antialiased min-h-screen flex flex-col justify-between transition-colors duration-200">
 
-    <main id="main-content" role="main">
-        @if(session('sukses'))
-            <div class="fixed top-4 right-4 z-50 bg-emerald-50 border border-emerald-200 text-emerald-800 px-6 py-3 rounded-xl shadow-sm flex items-center gap-2" role="alert" aria-live="polite">
-                <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-                {{ session('sukses') }}
-            </div>
-        @endif
-        @if(session('galat'))
-            <div class="fixed top-4 right-4 z-50 bg-red-50 border border-red-200 text-red-800 px-6 py-3 rounded-xl shadow-sm flex items-center gap-2" role="alert" aria-live="polite">
-                <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-                {{ session('galat') }}
-            </div>
-        @endif
+    <!-- Flash Message Notification -->
+    @if(session('success_newsletter'))
+        <div id="flash-banner" class="bg-emerald-600 text-white px-4 py-3 text-sm font-semibold text-center sticky top-0 z-50 flex items-center justify-between shadow-md">
+            <span class="mx-auto flex items-center gap-2">
+                <i data-lucide="check-circle" class="w-5 h-5"></i>
+                {{ session('success_newsletter') }}
+            </span>
+            <button onclick="document.getElementById('flash-banner').remove()" class="text-white hover:text-slate-200">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+        </div>
+    @endif
 
+    <!-- Content View -->
+    <main class="flex-grow">
         @yield('content')
     </main>
 
-    @include('partials.footer')
+    <!-- Lucide Icons Initialization -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            lucide.createIcons();
+        });
+    </script>
 
     @stack('scripts')
 </body>
