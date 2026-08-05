@@ -27,8 +27,11 @@ use App\Http\Controllers\AuditController;
 // RUTE PUBLIK (Tanpa Autentikasi)
 // ============================================
 Route::get('/', [BerandaController::class, 'index'])->name('beranda');
+
+// Rute Newsletter
 Route::post('/newsletter/subscribe', [BerandaController::class, 'subscribeNewsletter'])->name('newsletter.subscribe');
 
+// Rute Peta Interaktif Leaflet.js & GIS
 Route::get('peta', [PetaController::class, 'index'])->name('peta.index');
 Route::get('peta/data', [PetaController::class, 'getLaporanData'])->name('peta.data');
 Route::get('peta/fasilitas', [PetaController::class, 'getFasilitasData'])->name('peta.fasilitas');
@@ -41,7 +44,7 @@ Route::post('login', [AuthController::class, 'login'])->name('login.post');
 Route::post('logout', [AuthController::class, 'logout'])->name('logout');
 
 // ============================================
-// RUTE WARGA (Autentikasi Diperlukan)
+// RUTE WARGA / TERAUTENTIKASI
 // ============================================
 Route::middleware(['auth'])->group(function () {
     // Laporan
@@ -60,7 +63,7 @@ Route::middleware(['auth'])->group(function () {
 });
 
 // ============================================
-// RUTE ADMIN & DINAS (Autentikasi + Role)
+// RUTE ADMIN & DINAS (Autentikasi + Role Dinas)
 // ============================================
 Route::middleware(['auth', 'dinas'])->prefix('admin')->name('admin.')->group(function () {
     // Dashboard
@@ -78,7 +81,7 @@ Route::middleware(['auth', 'dinas'])->prefix('admin')->name('admin.')->group(fun
 });
 
 // ============================================
-// RUTE ADMIN SAJA (Autentikasi + Administrator)
+// RUTE ADMINISTRATOR SAJA
 // ============================================
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
     // Kategori Hambatan
