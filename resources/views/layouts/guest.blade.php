@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="id" class="h-full">
+
 <head>
     <meta charset="UTF-8">
 
@@ -35,7 +36,8 @@
     >
 
     {{-- Tailwind CDN
-         Dipakai karena project tidak menggunakan Vite. --}}
+         Digunakan karena halaman autentikasi tidak bergantung
+         pada Vite untuk CSS/JS utamanya. --}}
     <script src="https://cdn.tailwindcss.com"></script>
 
     <script>
@@ -66,7 +68,7 @@
         };
     </script>
 
-    {{-- Custom CSS khusus halaman autentikasi --}}
+    {{-- Custom CSS halaman autentikasi --}}
     <link
         rel="stylesheet"
         href="{{ asset('css/smartpath-auth.css') }}"
@@ -81,7 +83,7 @@
         href="#main-content"
         class="skip-link"
     >
-    
+        Lewati ke konten utama
     </a>
 
     <main
@@ -92,6 +94,7 @@
         @yield('content')
     </main>
 
+    {{-- Custom JavaScript halaman autentikasi --}}
     <script
         src="{{ asset('js/smartpath-auth.js') }}"
         defer
@@ -100,4 +103,5 @@
     @stack('scripts')
 
 </body>
+
 </html>

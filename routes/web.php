@@ -39,10 +39,24 @@ Route::get('peta/fasilitas', [PetaController::class, 'getFasilitasData'])->name(
 // ============================================
 // RUTE AUTENTIKASI
 // ============================================
-Route::get('login', [AuthController::class, 'showLoginForm'])->name('login');
-Route::post('login', [AuthController::class, 'login'])->name('login.post');
-Route::post('logout', [AuthController::class, 'logout'])->name('logout');
+Route::get('login', [AuthController::class, 'showLoginForm'])
+    ->name('login');
 
+Route::post('login', [AuthController::class, 'login'])
+    ->middleware('throttle:6,1')
+    ->name('login.post');
+
+Route::get('register', [AuthController::class, 'showRegisterForm'])
+    ->name('register');
+
+Route::post('register', [AuthController::class, 'register'])
+    ->middleware('throttle:5,10')
+    ->name('register.post');
+
+Route::post('logout', [AuthController::class, 'logout'])
+    ->name('logout');
+
+    
 // ============================================
 // RUTE WARGA / TERAUTENTIKASI
 // ============================================
