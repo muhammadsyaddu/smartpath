@@ -7,7 +7,8 @@ use App\Models\Notifikasi;
 
 class NotifikasiController extends Controller
 {
-    Daftar notifikasi pengguna.
+     /**
+     * Daftar notifikasi pengguna.
      */
     public function index(Request $request)
     {
