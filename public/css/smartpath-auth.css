@@ -1,0 +1,160 @@
+-auth/* ==========================================================
+   SMARTPATH AUTHENTICATION
+   Custom CSS
+   ========================================================== */
+
+:root {
+    color-scheme: light;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    min-width: 320px;
+}
+
+/* ----------------------------------------------------------
+   Accessibility
+   ---------------------------------------------------------- */
+
+.skip-link {
+    position: fixed;
+    top: -100px;
+    left: 16px;
+    z-index: 9999;
+
+    padding: 10px 16px;
+
+    background: #064e3b;
+    color: #ffffff;
+
+    border-radius: 8px;
+
+    font-size: 14px;
+    font-weight: 600;
+
+    text-decoration: none;
+
+    transition:
+        top 160ms ease,
+        box-shadow 160ms ease;
+}
+
+.skip-link:focus {
+    top: 16px;
+
+    outline: none;
+
+    box-shadow:
+        0 0 0 3px rgba(255, 255, 255, 1),
+        0 0 0 6px rgba(5, 150, 105, 0.55);
+}
+
+
+/* ----------------------------------------------------------
+   Form Input
+   ---------------------------------------------------------- */
+
+.auth-input {
+    min-height: 50px;
+}
+
+.auth-input::placeholder {
+    opacity: 1;
+}
+
+.auth-input:focus {
+    outline: none;
+}
+
+.auth-input[aria-invalid="true"] {
+    border-color: #ef4444;
+}
+
+.auth-input[aria-invalid="true"]:focus {
+    border-color: #ef4444;
+
+    box-shadow:
+        0 0 0 4px rgba(239, 68, 68, 0.10);
+}
+
+
+/* ----------------------------------------------------------
+   Checkbox
+   ---------------------------------------------------------- */
+
+.auth-checkbox {
+    accent-color: #059669;
+}
+
+.auth-checkbox:focus {
+    outline: none;
+
+    box-shadow:
+        0 0 0 3px rgba(5, 150, 105, 0.18);
+}
+
+
+/* ----------------------------------------------------------
+   Selection
+   ---------------------------------------------------------- */
+
+::selection {
+    background: rgba(5, 150, 105, 0.18);
+    color: #064e3b;
+}
+
+
+/* ----------------------------------------------------------
+   Reduced Motion
+   WCAG friendly
+   ---------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+
+    html {
+        scroll-behavior: auto;
+    }
+
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}
+
+
+/* ----------------------------------------------------------
+   Mobile
+   ---------------------------------------------------------- */
+
+@media (max-width: 640px) {
+
+    body {
+        background: #ffffff;
+    }
+
+}
+
+
+/* ----------------------------------------------------------
+   Print
+   ---------------------------------------------------------- */
+
+@media print {
+
+    .skip-link {
+        display: none;
+    }
+
+    body {
+        background: #ffffff !important;
+    }
+
+}
