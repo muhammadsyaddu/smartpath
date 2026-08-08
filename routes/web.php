@@ -47,7 +47,7 @@ Route::post('login', [AuthController::class, 'login'])
     ->name('login.post');
 
 Route::get('register', [AuthController::class, 'showRegisterForm'])
-    ->name('register');
+    ->name('auth.register');
 
 Route::post('register', [AuthController::class, 'register'])
     ->middleware('throttle:5,10')
