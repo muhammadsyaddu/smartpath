@@ -34,6 +34,7 @@ return new class extends Migration
             
             $table->index('peran');
             $table->index('wilayah_id');
+            $table->rememberToken();
         });
 
         // Create admin user

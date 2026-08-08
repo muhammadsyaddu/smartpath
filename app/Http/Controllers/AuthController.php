@@ -79,6 +79,60 @@ class AuthController extends Controller
         return redirect()->intended(route('beranda'));
     }
 
+    public function showRegisterForm(): View|RedirectResponse
+{
+    if (auth()->check()) {
+        $user = auth()->user();
+
+        if ($user->isAdmin() || $user->isDinas()) {
+            return redirect()->route('admin.dashboard');
+        }
+
+        return redirect()->route('beranda');
+    }
+
+    return view('auth.register');
+}
+public function register(RegisterUserRequest $request): RedirectResponse
+{
+    $validated = $request->validated();
+
+    $user = DB::transaction(function () use ($validated) {
+        $user = User::create([
+            'nama_lengkap' => $validated['nama_lengkap'],
+            'email' => $validated['email'],
+            'kata_sandi' => Hash::make($validated['kata_sandi']),
+            'nomor_hp' => $validated['nomor_hp'] ?? null,
+            'peran' => 'warga',
+            'email_terverifikasi' => false,
+            'aktif' => true,
+        ]);
+
+        Audit::log(
+            $user->id,
+            'registrasi',
+            'users',
+            $user->id,
+            null,
+            [
+                'nama_lengkap' => $user->nama_lengkap,
+                'email' => $user->email,
+                'peran' => $user->peran,
+            ],
+            'Akun warga baru berhasil dibuat'
+        );
+
+        return $user;
+    });
+
+    Auth::login($user);
+    $request->session()->regenerate();
+
+    return redirect()
+        ->route('beranda')
+        ->with('sukses', 'Akun berhasil dibuat. Selamat datang di SmartPath.');
+}
+
     /**
      * Proses logout pengguna.
      */
