@@ -58,7 +58,7 @@
 
     <!-- HEADER / NAVBAR -->
     <header class="sticky top-0 z-50 backdrop-blur-md bg-white/90 dark:bg-slate-900/90 border-b border-slate-200 dark:border-slate-800">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-10 h-20 flex items-center justify-between">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
             
             <!-- Logo & Tagline -->
             <a href="{{ route('beranda') }}" class="flex items-center space-x-3 group">
@@ -105,11 +105,12 @@
                     <a href="{{ route('admin.dashboard') }}" class="px-4 py-2 text-sm font-semibold text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg shadow-sm transition">
                         Dashboard
                     </a>
+                    
                 @else
                     <a href="{{ route('login') }}" class="px-4 py-2 text-sm font-semibold text-slate-800 dark:text-slate-200 border border-slate-300 dark:border-slate-700 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition">
                         Masuk
                     </a>
-                    <a href="{{ route('auth.register') }}" class="hidden sm:inline-block px-4 py-2 text-sm font-semibold text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg shadow-sm transition">
+                    <a href="{{ route('register.post') }}" class="hidden sm:inline-block px-4 py-2 text-sm font-semibold text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg shadow-sm transition">
                         Daftar
                     </a>
                 @endauth
@@ -118,18 +119,18 @@
     </header>
 
     <!-- HERO SECTION -->
-    <section class="py-14 md:py-20 xl:py-24 border-b border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50">
-        <div class="max-w-7xl xl:max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-10">
-            <div class="grid grid-cols-1 lg:grid-cols-[1.05fr_0.95fr] gap-10 lg:gap-16 xl:gap-20 items-center">
+    <section class="py-12 md:py-16 border-b border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
                 
                 <!-- Hero Left Column -->
-                <div class="space-y-6 xl:pr-8">
+                <div class="lg:col-span-6 space-y-6">
                     <div class="inline-flex items-center space-x-2 px-3.5 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800 dark:bg-emerald-950/80 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
                         <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
                         <span>Platform Aksesibilitas Kota</span>
                     </div>
 
-                    <h1 class="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-extrabold text-slate-900 dark:text-white tracking-tight leading-tight">
+                    <h1 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 dark:text-white tracking-tight leading-tight">
                         Pemetaan Aksesibilitas Infrastruktur Disabilitas
                     </h1>
 
@@ -138,12 +139,12 @@
                     </p>
 
                     <div class="flex flex-wrap gap-4 pt-2">
-                        <a href="{{ auth()->check() ? route('laporan.create') : route('login') }}" class="flex items-center space-x-2 px-6 py-3 xl:px-7 xl:py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-lg shadow-md transition transform active:scale-95">
+                        <a href="{{ auth()->check() ? route('laporan.create') : route('login') }}" class="flex items-center space-x-2 px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-lg shadow-md transition transform active:scale-95">
                             <i class="fa-solid fa-plus"></i>
                             <span>Laporkan Hambatan</span>
                         </a>
 
-                        <a href="{{ route('peta.index') }}" class="flex items-center space-x-2 px-6 py-3 xl:px-7 xl:py-3.5 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-700 font-semibold rounded-lg transition">
+                        <a href="{{ route('peta.index') }}" class="flex items-center space-x-2 px-6 py-3 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-700 font-semibold rounded-lg transition">
                             <i class="fa-solid fa-map-location-dot text-emerald-600 dark:text-emerald-400"></i>
                             <span>Lihat Peta</span>
                         </a>
@@ -151,8 +152,8 @@
                 </div>
 
                 <!-- Hero Right Column: Vector Map Illustration & 4 Stats Cards -->
-                <div class="space-y-6 xl:pl-4">
-                    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 xl:p-8 shadow-sm relative overflow-hidden">
+                <div class="lg:col-span-6 space-y-6">
+                    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm relative overflow-hidden">
                         
                         <!-- Map Visual Banner -->
                         <div class="h-44 bg-slate-50 dark:bg-slate-800/60 rounded-xl relative overflow-hidden flex items-center justify-center border border-dashed border-slate-300 dark:border-slate-700">
@@ -174,7 +175,7 @@
                         </div>
 
                         <!-- 4 Stat Cards Grid -->
-                        <div class="grid grid-cols-2 gap-4 xl:gap-5 mt-6 xl:mt-8">
+                        <div class="grid grid-cols-2 gap-4 mt-6">
                             
                             <!-- Total Laporan -->
                             <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-4 shadow-sm hover:shadow-md transition">
@@ -242,7 +243,7 @@
     </section>
 
     <!-- CARA KERJA SMARTPATH SECTION -->
-    <section id="panduan" class="py-16 md:py-20 bg-white dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800">
+    <section id="panduan" class="py-16 bg-white dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center max-w-3xl mx-auto mb-12 space-y-2">
                 <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white">
@@ -302,12 +303,12 @@
     </section>
 
     <!-- LAPORAN PRIORITAS TINGGI & KATEGORI HAMBATAN -->
-    <section class="py-16 md:py-20 bg-slate-50/70 dark:bg-slate-900/40">
-        <div class="max-w-7xl xl:max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-10">
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 xl:gap-10">
+    <section class="py-16 bg-slate-50/70 dark:bg-slate-900/40">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
                 
                 <!-- Left 8 Cols: Laporan Prioritas Tinggi -->
-                <div class="lg:col-span-8 space-y-6 xl:pr-4">
+                <div class="lg:col-span-8 space-y-6">
                     <div class="flex items-center justify-between">
                         <div>
                             <h2 class="text-xl font-bold text-slate-900 dark:text-white flex items-center space-x-2">
@@ -423,7 +424,7 @@
                 </div>
 
                 <!-- Right 4 Cols: Kategori Hambatan -->
-                <div class="lg:col-span-4 space-y-6 xl:pl-2">
+                <div class="lg:col-span-4 space-y-6">
                     <div class="flex items-center justify-between">
                         <h2 class="text-xl font-bold text-slate-900 dark:text-white">Kategori Hambatan</h2>
                         <a href="{{ route('peta.index') }}" class="text-xs font-semibold text-emerald-600 dark:text-emerald-400 hover:underline flex items-center space-x-1">
@@ -432,9 +433,9 @@
                         </a>
                     </div>
 
-                    <div class="grid grid-cols-2 gap-3 xl:gap-4">
+                    <div class="grid grid-cols-2 gap-3">
                         @forelse($kategoriHambatan as $kat)
-                            <div class="min-h-[96px] p-3.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl hover:border-emerald-500 transition cursor-pointer flex flex-col justify-between space-y-2 shadow-sm">
+                            <div class="p-3.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl hover:border-emerald-500 transition cursor-pointer flex flex-col justify-between space-y-2 shadow-sm">
                                 <div class="flex items-center space-x-2">
                                     <span class="w-2 h-2 rounded-full bg-slate-800 dark:bg-slate-200"></span>
                                     <span class="font-bold text-xs text-slate-900 dark:text-slate-100 line-clamp-1">
