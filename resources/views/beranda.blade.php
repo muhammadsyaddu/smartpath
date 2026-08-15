@@ -3,15 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SmartPath - Pemetaan Aksesibilitas Infrastruktur Disabilitas</title>
-    <meta name="description" content="Platform pemetaan aksesibilitas infrastruktur publik untuk penyandang disabilitas kota Depok secara data-driven.">
+    <title>SmartPath - Kota yang Lebih Aksesibel</title>
+    <meta name="description" content="SmartPath adalah platform partisipatif untuk melaporkan dan memetakan hambatan aksesibilitas di ruang publik.">
 
     <!-- Font Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 
-    <!-- Tailwind CSS (CDN Standar - Bebas dari Vite) -->
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -19,591 +25,905 @@
             theme: {
                 extend: {
                     fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
+                        sans: ['Inter', 'sans-serif']
                     },
                     colors: {
                         emerald: {
-                            50: '#ecfdf5',
-                            100: '#d1fae5',
-                            200: '#a7f3d0',
-                            500: '#10b981',
-                            600: '#059669',
-                            700: '#047857',
-                            800: '#065f46',
-                            900: '#064e3b',
-                            950: '#022c22',
-                        },
+                            50:'#ecfdf5',100:'#d1fae5',200:'#a7f3d0',300:'#6ee7b7',
+                            400:'#34d399',500:'#10b981',600:'#059669',700:'#047857',
+                            800:'#065f46',900:'#064e3b',950:'#022c22'
+                        }
                     }
                 }
             }
         }
     </script>
 
-    <!-- FontAwesome / Lucide Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
     <style>
-        body { font-family: 'Inter', sans-serif; }
+        /* ===== RESET & BASE ===== */
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+            color: #172033;
+            background: #f8fafc;
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+        body.dark {
+            background: #0f172a;
+            color: #f1f5f9;
+        }
+
+        /* ===== SKIP LINK ===== */
+        .skip-link {
+            position: absolute;
+            top: -9999px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #059669;
+            color: #ffffff;
+            padding: 12px 24px;
+            border-radius: 8px;
+            z-index: 9999;
+            font-weight: 600;
+            transition: top 0.3s;
+        }
+        .skip-link:focus {
+            top: 16px;
+        }
+
+        /* ===== SCROLL PROGRESS BAR ===== */
+        .scroll-progress {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #10b981, #059669, #34d399);
+            z-index: 99999;
+            width: 0%;
+            transition: width 0.1s ease;
+        }
+
+        /* ===== FIX ANCHOR SCROLL (AGAR TIDAK TERTUTUP HEADER) ===== */
+        .section-anchor {
+            scroll-margin-top: 100px; /* Memberi jarak agar header tidak menutupi judul */
+        }
+
+        /* ===== HERO ===== */
+        .hero {
+            background: linear-gradient(90deg, rgba(0,45,37,.98) 0%, rgba(0,54,45,.95) 45%, rgba(0,45,37,.78) 100%);
+        }
+        .dark .hero {
+            background: linear-gradient(90deg, rgba(2,8,23,.98) 0%, rgba(4,20,30,.95) 45%, rgba(2,8,23,.78) 100%);
+        }
+
+        .hero-photo {
+            background-image: url('{{ asset('foto-tunanetra.png') }}');
+            background-size: cover;
+            background-position: center;
+            opacity: .17;
+        }
+
+        .hero-glow {
+            background: radial-gradient(circle, rgba(16,185,129,.18), transparent 65%);
+        }
+
+        .map-shell {
+            background: rgba(9,25,36,.76);
+            border: 1px solid rgba(16,185,129,.75);
+            box-shadow: 0 25px 80px rgba(0,0,0,.35);
+        }
+
+        #smartpath-map .leaflet-tile {
+            filter: brightness(.42) saturate(.65) contrast(1.12);
+        }
+
+        #smartpath-map .leaflet-control-zoom {
+            display: none;
+        }
+
+        .map-report {
+            position: absolute;
+            z-index: 1000;
+            left: 50%;
+            bottom: 28px;
+            transform: translateX(-50%);
+            width: 82%;
+            max-width: 320px;
+            background: #fff;
+            border-radius: 12px;
+            padding: 9px;
+            box-shadow: 0 18px 45px rgba(0,0,0,.32);
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        .dark .map-report {
+            background: #1e293b;
+        }
+
+        .map-report img {
+            width: 76px;
+            height: 66px;
+            border-radius: 8px;
+            object-fit: cover;
+        }
+
+        .status {
+            display: inline-flex;
+            align-items: center;
+            padding: 3px 8px;
+            border-radius: 999px;
+            font-size: 9px;
+            font-weight: 700;
+            background: #fef3c7;
+            color: #d97706;
+        }
+        .dark .status {
+            background: #f59e0b30;
+            color: #f59e0b;
+        }
+
+        /* ===== FEATURE CARDS ===== */
+        .feature-card {
+            background: #fff;
+            border: 1px solid #eef2f7;
+            border-radius: 13px;
+            box-shadow: 0 8px 25px rgba(15,23,42,.05);
+            transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+        .dark .feature-card {
+            background: #1e293b;
+            border-color: #334155;
+        }
+        .feature-card:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 18px 35px rgba(15,23,42,.10);
+        }
+
+        .icon-circle {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg,#e6f7ed,#d9f3e7);
+            color: #059669;
+            font-size: 22px;
+        }
+        .dark .icon-circle {
+            background: linear-gradient(135deg,#064e3b,#065f46);
+            color: #34d399;
+        }
+
+        /* ===== STATS ===== */
+        .stats-box {
+            background: linear-gradient(135deg,#243545,#1c2b39);
+            border-radius: 12px;
+            box-shadow: 0 14px 35px rgba(15,23,42,.10);
+        }
+        .dark .stats-box {
+            background: linear-gradient(135deg,#0f172a,#1e293b);
+        }
+
+        .stat-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255,255,255,.10);
+            color: #fff;
+            font-size: 21px;
+        }
+
+        /* ===== STEPS ===== */
+        .step-icon {
+            width: 62px;
+            height: 62px;
+            border-radius: 50%;
+            background: linear-gradient(135deg,#e6f8f1,#d8f2ee);
+            color: #087f6d;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin: 0 auto 15px;
+            position: relative;
+            z-index: 2;
+        }
+        .dark .step-icon {
+            background: linear-gradient(135deg,#064e3b,#065f46);
+            color: #34d399;
+        }
+
+        .step-number {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translate(-50%,-12px);
+            width: 23px;
+            height: 23px;
+            border-radius: 50%;
+            background: #10b981;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: 800;
+            z-index: 3;
+        }
+
+        .steps-line {
+            position: absolute;
+            top: 31px;
+            left: 12%;
+            right: 12%;
+            height: 1px;
+            border-top: 1px dashed #72cdbd;
+        }
+
+        /* ===== CTA ===== */
+        .cta-mini {
+            background: linear-gradient(145deg,#004b40,#003c35);
+            border-radius: 12px;
+        }
+        .dark .cta-mini {
+            background: linear-gradient(145deg,#022c22,#064e3b);
+        }
+
+        /* ===== FOOTER ===== */
+        .footer {
+            background: #0d1f2b;
+            color: #cbd5df;
+        }
+        .dark .footer {
+            background: #020617;
+            color: #94a3b8;
+        }
+
+        .footer-divider {
+            border-color: rgba(255,255,255,.10);
+        }
+        .dark .footer-divider {
+            border-color: rgba(255,255,255,.05);
+        }
+
+        /* ===== SCROLLBAR ===== */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { 
+            background: linear-gradient(180deg, #10b981, #059669);
+            border-radius: 4px;
+        }
+        .dark ::-webkit-scrollbar-track { background: #1e293b; }
+        .dark ::-webkit-scrollbar-thumb { 
+            background: linear-gradient(180deg, #34d399, #10b981);
+        }
+
+        /* ===== ANIMASI ===== */
+        @keyframes fadeInUp {
+            0% { opacity: 0; transform: translateY(30px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+        .animate-on-scroll {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+        .animate-on-scroll.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 1023px) {
+            .steps-line { display:none; }
+            .mobile-menu { display: none; }
+            .mobile-menu.open { display: block; }
+        }
     </style>
 </head>
-<body class="bg-white text-slate-800 dark:bg-slate-950 dark:text-slate-100 transition-colors duration-200 antialiased">
 
-    <!-- ALERT NOTIFIKASI SUKSES -->
-    @if(session('success'))
-        <div class="bg-emerald-600 text-white text-xs sm:text-sm py-2.5 px-4 text-center font-medium shadow-md flex items-center justify-center space-x-2">
-            <i class="fa-solid fa-circle-check"></i>
-            <span>{{ session('success') }}</span>
-        </div>
-    @endif
+<body>
 
-    <!-- HEADER / NAVBAR -->
-    <header class="sticky top-0 z-50 backdrop-blur-md bg-white/90 dark:bg-slate-900/90 border-b border-slate-200 dark:border-slate-800">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
-            
-            <!-- Logo & Tagline -->
-            <a href="{{ route('beranda') }}" class="flex items-center space-x-3 group">
-                <div class="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center font-bold text-xl shadow-md group-hover:bg-emerald-700 transition">
-                    <i class="fa-solid fa-gear text-lg"></i>
+    <!-- ===== SKIP LINK ===== -->
+    <a href="#main-content" class="skip-link">Langsung ke konten utama</a>
+
+    <!-- ===== SCROLL PROGRESS ===== -->
+    <div class="scroll-progress" id="scrollProgress"></div>
+
+    <!-- ===== NAVBAR ===== -->
+    <header class="sticky top-0 z-50 bg-[#062a25]/95 dark:bg-[#020617]/95 backdrop-blur-md border-b border-white/10 dark:border-slate-800/50">
+        <div class="max-w-[1180px] mx-auto px-6 h-16 flex items-center justify-between">
+            <a href="#" class="flex items-center gap-3 text-white">
+                <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-emerald-400 to-emerald-700 flex items-center justify-center">
+                    <i class="fa-solid fa-route"></i>
                 </div>
-                <div>
-                    <div className="text-xl font-extrabold tracking-tight text-slate-900 dark:text-white leading-tight">
-                        SmartPath
-                    </div>
-                    <div class="text-[11px] text-slate-500 dark:text-slate-400 font-medium">
-                        Aksesibilitas untuk Semua
-                    </div>
-                </div>
+                <span class="text-xl font-extrabold tracking-tight">SmartPath</span>
             </a>
 
-            <!-- Navigation Links -->
-            <nav class="hidden md:flex items-center space-x-8">
-                <a href="{{ route('beranda') }}" class="relative py-2 text-sm font-bold text-emerald-600 dark:text-emerald-400">
-                    Beranda
-                    <span class="absolute bottom-0 left-0 right-0 h-0.5 bg-emerald-600 dark:bg-emerald-400 rounded-full"></span>
-                </a>
-                <a href="{{ route('peta.index') }}" class="py-2 text-sm font-semibold text-slate-600 dark:text-slate-300 hover:text-emerald-600 dark:hover:text-emerald-400 transition">
-                    Peta
-                </a>
-                <a href="{{ Route::has('laporan.index') ? route('laporan.index') : '#laporan' }}" class="py-2 text-sm font-semibold text-slate-600 dark:text-slate-300 hover:text-emerald-600 dark:hover:text-emerald-400 transition">
-                    Laporan
-                </a>
-                <a href="#tentang" class="py-2 text-sm font-semibold text-slate-600 dark:text-slate-300 hover:text-emerald-600 dark:hover:text-emerald-400 transition">
-                    Tentang
-                </a>
-                <a href="#panduan" class="py-2 text-sm font-semibold text-slate-600 dark:text-slate-300 hover:text-emerald-600 dark:hover:text-emerald-400 transition">
-                    Panduan
-                </a>
+            <!-- Desktop Menu (Semua ke halaman yang sama) -->
+            <nav class="hidden lg:flex items-center gap-8 text-[12px]">
+                <!-- Tambahkan class nav-link ke semua menu, dan ganti href ke #id_section -->
+                <a href="#beranda" class="nav-link text-white border-b-2 border-emerald-400 pb-5">Beranda</a>
+                <a href="#tentang" class="nav-link text-slate-300 hover:text-white transition">Tentang</a>
+                <a href="#fitur" class="nav-link text-slate-300 hover:text-white transition">Fitur</a>
+                <a href="#peta" class="nav-link text-slate-300 hover:text-white transition">Peta</a>
+                <a href="#cara-kerja" class="nav-link text-slate-300 hover:text-white transition">Cara Kerja</a>
+                <a href="#kontak" class="nav-link text-slate-300 hover:text-white transition">Kontak</a>
             </nav>
 
-            <!-- Auth / Right Controls -->
-            <div class="flex items-center space-x-3">
-                <button id="themeToggleBtn" aria-label="Toggle Theme" class="p-2.5 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition">
-                    <i id="themeToggleIcon" class="fa-solid fa-moon"></i>
-                </button>
-
-                @auth
-                    <a href="{{ route('admin.dashboard') }}" class="px-4 py-2 text-sm font-semibold text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg shadow-sm transition">
-                        Dashboard
-                    </a>
-                    
-                @else
-                    <a href="{{ route('login') }}" class="px-4 py-2 text-sm font-semibold text-slate-800 dark:text-slate-200 border border-slate-300 dark:border-slate-700 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition">
+            <!-- Actions -->
+            <div class="flex items-center gap-3">
+                
+                <div class="hidden sm:flex items-center gap-2">
+                    <a href="{{ route('login') }}" 
+                       class="inline-flex items-center justify-center
+                              rounded-xl
+                              border border-white/20
+                              bg-white/5
+                              px-5 py-2.5
+                              text-sm font-semibold text-white
+                              backdrop-blur-sm
+                              transition-all duration-300
+                              hover:bg-white/10
+                              hover:border-emerald-400/50
+                              hover:text-emerald-300">
                         Masuk
                     </a>
-                    <a href="{{ route('register.post') }}" class="hidden sm:inline-block px-4 py-2 text-sm font-semibold text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg shadow-sm transition">
+                    
+                    <a href="{{ route('register.post') }}" 
+                       class="inline-flex items-center justify-center
+                              rounded-xl
+                              bg-emerald-600 hover:bg-emerald-500
+                              px-5 py-2.5
+                              text-sm font-bold text-white
+                              transition-all duration-300
+                              hover:scale-105">
                         Daftar
                     </a>
-                @endauth
+
+                    <button id="themeToggle"
+                            class="w-11 h-11 rounded-xl
+                                   border border-white/20
+                                   bg-white/5
+                                   text-white
+                                   backdrop-blur-sm
+                                   transition-all duration-300
+                                   hover:bg-white/10
+                                   hover:border-emerald-400/50
+                                   hover:text-emerald-300">
+                        <i id="themeIcon" class="fa-solid fa-moon"></i>
+                    </button>
+                </div>
+
+                <button id="mobileMenuBtn" class="lg:hidden text-white text-xl" aria-label="Buka menu">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
             </div>
+        </div>
+
+        <!-- Mobile Menu -->
+        <div id="mobileMenu" class="lg:hidden mobile-menu bg-[#062a25]/95 dark:bg-[#020617]/95 px-6 py-4 border-t border-white/10">
+            <nav class="flex flex-col space-y-3 text-[14px]">
+                <a href="#beranda" class="text-white font-semibold">Beranda</a>
+                <a href="#tentang" class="text-slate-300 hover:text-white transition">Tentang</a>
+                <a href="#fitur" class="text-slate-300 hover:text-white transition">Fitur</a>
+                <a href="#peta" class="text-slate-300 hover:text-white transition">Peta</a>
+                <a href="#cara-kerja" class="text-slate-300 hover:text-white transition">Cara Kerja</a>
+                <a href="#kontak" class="text-slate-300 hover:text-white transition">Kontak</a>
+            </nav>
         </div>
     </header>
 
-    <!-- HERO SECTION -->
-    <section class="py-12 md:py-16 border-b border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-                
-                <!-- Hero Left Column -->
-                <div class="lg:col-span-6 space-y-6">
-                    <div class="inline-flex items-center space-x-2 px-3.5 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800 dark:bg-emerald-950/80 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
-                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                        <span>Platform Aksesibilitas Kota</span>
+    <!-- ===== MAIN CONTENT ===== -->
+    <main id="main-content">
+
+        <!-- ===== BERANDA / HERO SECTION ===== -->
+        <section id="beranda" class="hero relative min-h-[500px] overflow-hidden section-anchor">
+            <div class="absolute inset-0 hero-photo"></div>
+            <div class="absolute inset-0 hero-glow"></div>
+
+            <div class="relative z-10 max-w-[1180px] mx-auto px-6 py-14 lg:py-16 grid lg:grid-cols-[.9fr_1.1fr] gap-12 items-center">
+                <div class="text-white">
+                    <div class="inline-flex items-center gap-2 rounded-full bg-emerald-500/15 border border-emerald-400/20 px-3 py-1.5 text-[11px] font-semibold text-emerald-300 mb-6 animate-pulse">
+                        <i class="fa-solid fa-heart-pulse"></i>
+                        Bersama, Wujudkan Kota yang Aksesibel
                     </div>
 
-                    <h1 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 dark:text-white tracking-tight leading-tight">
-                        Pemetaan Aksesibilitas Infrastruktur Disabilitas
+                    <h1 class="text-4xl sm:text-5xl lg:text-[48px] font-extrabold leading-[1.05] tracking-tight">
+                        Setiap Jalan<br>
+                        Berhak untuk<br>
+                        <span class="text-emerald-400">Semua Orang</span>
                     </h1>
 
-                    <p class="text-base sm:text-lg text-slate-600 dark:text-slate-300 leading-relaxed max-w-2xl">
-                        SmartPath membantu menyaring, memetakan, dan memprioritaskan hambatan aksesibilitas infrastruktur publik bagi penyandang disabilitas secara data-driven.
+                    <p class="mt-5 max-w-[510px] text-[13px] sm:text-[14px] leading-6 text-emerald-50/85">
+                        SmartPath adalah platform partisipatif untuk melaporkan dan memetakan hambatan aksesibilitas di ruang publik. Bersama kita ciptakan kota yang inklusif dan ramah untuk semua.
                     </p>
 
-                    <div class="flex flex-wrap gap-4 pt-2">
-                        <a href="{{ auth()->check() ? route('laporan.create') : route('login') }}" class="flex items-center space-x-2 px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-lg shadow-md transition transform active:scale-95">
-                            <i class="fa-solid fa-plus"></i>
-                            <span>Laporkan Hambatan</span>
-                        </a>
-
-                        <a href="{{ route('peta.index') }}" class="flex items-center space-x-2 px-6 py-3 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-700 font-semibold rounded-lg transition">
-                            <i class="fa-solid fa-map-location-dot text-emerald-600 dark:text-emerald-400"></i>
-                            <span>Lihat Peta</span>
-                        </a>
-                    </div>
-                </div>
-
-                <!-- Hero Right Column: Vector Map Illustration & 4 Stats Cards -->
-                <div class="lg:col-span-6 space-y-6">
-                    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm relative overflow-hidden">
+                    <!-- HERO BUTTONS -->
+                    <div class="mt-7 flex flex-wrap gap-3">
                         
-                        <!-- Map Visual Banner -->
-                        <div class="h-44 bg-slate-50 dark:bg-slate-800/60 rounded-xl relative overflow-hidden flex items-center justify-center border border-dashed border-slate-300 dark:border-slate-700">
-                            <svg class="w-full h-full p-2" viewBox="0 0 500 180" fill="none">
-                                <path d="M 50 140 L 50 70 L 80 70 L 80 140 M 80 140 L 80 50 L 120 50 L 120 140 M 120 140 L 120 90 L 150 90 L 150 140" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="3 3" />
-                                <path d="M 350 140 L 350 60 L 390 60 L 390 140 M 390 140 L 390 80 L 430 80 L 430 140" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="3 3" />
-                                <path d="M 280 140 C 310 110, 340 110, 370 140" stroke="#059669" stroke-width="2" fill="none" />
-                                <line x1="20" y1="140" x2="480" y2="140" stroke="#475569" stroke-width="2" />
-                                <g transform="translate(210, 85)">
-                                    <circle cx="20" cy="15" r="7" stroke="#059669" stroke-width="2.5" fill="#ffffff" />
-                                    <path d="M 20 22 L 20 38 L 32 38" stroke="#059669" stroke-width="2.5" fill="none" />
-                                    <circle cx="18" cy="42" r="12" stroke="#059669" stroke-width="2.5" fill="none" />
-                                    <path d="M 12 30 L 28 30" stroke="#059669" stroke-width="2" />
-                                </g>
-                                <path d="M 110 90 C 160 30, 240 30, 270 70" stroke="#059669" stroke-width="2" stroke-dasharray="5 5" fill="none" />
-                                <circle cx="110" cy="90" r="5" fill="#ef4444" />
-                                <circle cx="270" cy="70" r="5" fill="#059669" />
-                            </svg>
+                        <a href="{{ route('laporan.create') }}" 
+                           class="group inline-flex items-center justify-center gap-2
+                                  rounded-xl
+                                  bg-gradient-to-r from-emerald-500 to-emerald-400
+                                  px-6 py-3
+                                  text-sm font-bold text-emerald-950
+                                  shadow-lg shadow-emerald-500/30
+                                  transition-all duration-300
+                                  hover:shadow-emerald-400/50
+                                  hover:-translate-y-1">
+                                  <i class="fa-solid fa-paper-plane"></i>
+                            <span>Laporkan Sekarang</span>
+                            <i class="fa-solid fa-arrow-right opacity-0 -translate-x-2 transition-all duration-300 group-hover:opacity-100 group-hover:translate-x-0"></i>
+                        </a>
+
+                        <a href="{{ route('peta.index') }}" 
+                           class="group inline-flex items-center justify-center gap-2
+                                  rounded-xl
+                                  border border-white/30
+                                  bg-white/10
+                                  backdrop-blur-sm
+                                  px-6 py-3
+                                  text-sm font-semibold text-white
+                                  transition-all duration-300
+                                  hover:bg-white/20
+                                  hover:border-emerald-400/50">
+                            <i class="fa-solid fa-circle-play"></i>
+                            <span>Lihat Peta</span>
+                            <i class="fa-solid fa-arrow-right opacity-0 -translate-x-2 transition-all duration-300 group-hover:opacity-100 group-hover:translate-x-0"></i>
+                        </a>
+
+                    </div>
+
+                    <div class="mt-7 flex flex-wrap gap-5 text-[11px] text-emerald-100/90">
+                        <span><i class="fa-regular fa-circle-check text-emerald-400 mr-1.5"></i>Mudah Digunakan</span>
+                        <span><i class="fa-regular fa-circle-check text-emerald-400 mr-1.5"></i>Verifikasi Cepat</span>
+                        <span><i class="fa-regular fa-circle-check text-emerald-400 mr-1.5"></i>Dampak Nyata</span>
+                    </div>
+                </div>
+
+                <!-- ===== MAP CARD ===== -->
+                <div class="relative animate-on-scroll">
+                    <div class="map-shell rounded-2xl p-3">
+                        <div class="relative">
+                            <div class="absolute z-[1001] top-3 left-3 right-3">
+                                <div class="max-w-[300px] bg-[#0b1822]/90 border border-white/15 rounded-lg px-3 py-2 flex items-center gap-2 backdrop-blur">
+                                    <input id="mapSearch" type="text" placeholder="Cari lokasi di peta..." class="w-full bg-transparent text-white text-[11px] outline-none placeholder:text-slate-400">
+                                    <i class="fa-solid fa-magnifying-glass text-slate-300 text-xs"></i>
+                                </div>
+                            </div>
+
+                            <div id="smartpath-map" class="h-[310px] rounded-xl overflow-hidden"></div>
+
+                            <div class="map-report">
+                                <img src="{{ asset('trotoar-depok.jpg') }}" alt="Contoh hambatan trotoar">
+                                <div class="min-w-0">
+                                    <p class="text-[12px] font-bold text-slate-800 dark:text-white">Trotoar Rusak</p>
+                                    <p class="text-[10px] text-slate-500 dark:text-slate-400 mt-1 truncate">Jl. Margonda Raya, Depok</p>
+                                    <div class="flex items-center gap-2 mt-2">
+                                        <span class="status">Pending</span>
+                                        <span class="text-[9px] text-slate-400">2 hari yang lalu</span>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
-                        <!-- 4 Stat Cards Grid -->
-                        <div class="grid grid-cols-2 gap-4 mt-6">
-                            
-                            <!-- Total Laporan -->
-                            <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-4 shadow-sm hover:shadow-md transition">
-                                <div class="flex items-center justify-between mb-2">
-                                    <div class="p-2 rounded-lg bg-emerald-100 text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-300">
-                                        <i class="fa-solid fa-file-lines text-base"></i>
-                                    </div>
-                                    <span class="text-2xl font-extrabold text-slate-900 dark:text-white">
-                                        {{ $totalLaporan ?? 124 }}
-                                    </span>
-                                </div>
-                                <div class="text-xs font-semibold text-slate-700 dark:text-slate-300">Total Laporan</div>
-                                <div class="text-[11px] font-medium mt-1 text-emerald-600 dark:text-emerald-400">↑ 12% dari minggu lalu</div>
-                            </div>
+                        <!-- LEGEND -->
+                        <div class="flex justify-center flex-wrap gap-x-5 gap-y-2 pt-3 text-[9px] text-slate-300">
+                            <span class="flex items-center gap-1.5">
+                                <i class="fa-solid fa-location-dot text-amber-400 text-[11px]"></i> Pending
+                            </span>
+                            <span class="flex items-center gap-1.5">
+                                <i class="fa-solid fa-location-dot text-teal-400 text-[11px]"></i> Diverifikasi
+                            </span>
+                            <span class="flex items-center gap-1.5">
+                                <i class="fa-solid fa-location-dot text-sky-400 text-[11px]"></i> Dalam Perbaikan
+                            </span>
+                            <span class="flex items-center gap-1.5">
+                                <i class="fa-solid fa-location-dot text-emerald-400 text-[11px]"></i> Selesai
+                            </span>
+                            <span class="flex items-center gap-1.5">
+                                <i class="fa-solid fa-location-dot text-red-400 text-[11px]"></i> Ditolak
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
 
-                            <!-- Terverifikasi -->
-                            <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-4 shadow-sm hover:shadow-md transition">
-                                <div class="flex items-center justify-between mb-2">
-                                    <div class="p-2 rounded-lg bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300">
-                                        <i class="fa-solid fa-shield-halved text-base"></i>
-                                    </div>
-                                    <span class="text-2xl font-extrabold text-slate-900 dark:text-white">
-                                        {{ $totalTerverifikasi ?? 81 }}
-                                    </span>
-                                </div>
-                                <div class="text-xs font-semibold text-slate-700 dark:text-slate-300">Terverifikasi</div>
-                                <div class="text-[11px] font-medium mt-1 text-blue-600 dark:text-blue-400">● Selesai diverifikasi</div>
-                            </div>
+        <!-- ===== TENTANG SECTION ===== -->
+        <!-- ===== FITUR UTAMA ===== -->
+        <section id="fitur" class="py-12 bg-white dark:bg-slate-950 section-anchor">
+            <div class="max-w-[1180px] mx-auto px-6">
+                <div class="grid lg:grid-cols-[220px_1fr] gap-7 items-start">
+                    <div>
+                        <span class="text-[10px] font-bold uppercase tracking-widest text-emerald-600 dark:text-emerald-400">Fitur Utama</span>
+                        <h2 class="mt-2 text-2xl font-extrabold leading-tight text-slate-800 dark:text-white">
+                            Fitur yang Membuat<br>
+                            <span class="text-emerald-600 dark:text-emerald-400">Perubahan Nyata</span>
+                        </h2>
+                    </div>
 
-                            <!-- Dalam Perbaikan -->
-                            <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-4 shadow-sm hover:shadow-md transition">
-                                <div class="flex items-center justify-between mb-2">
-                                    <div class="p-2 rounded-lg bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-300">
-                                        <i class="fa-solid fa-clock text-base"></i>
-                                    </div>
-                                    <span class="text-2xl font-extrabold text-slate-900 dark:text-white">
-                                        {{ $totalDalamPerbaikan ?? 25 }}
-                                    </span>
-                                </div>
-                                <div class="text-xs font-semibold text-slate-700 dark:text-slate-300">Dalam Perbaikan</div>
-                                <div class="text-[11px] font-medium mt-1 text-amber-600 dark:text-amber-400">● Sedang ditindaklanjuti</div>
-                            </div>
-
-                            <!-- Selesai -->
-                            <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-4 shadow-sm hover:shadow-md transition">
-                                <div class="flex items-center justify-between mb-2">
-                                    <div class="p-2 rounded-lg bg-emerald-100 text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-300">
-                                        <i class="fa-solid fa-circle-check text-base"></i>
-                                    </div>
-                                    <span class="text-2xl font-extrabold text-slate-900 dark:text-white">
-                                        {{ $totalSelesai ?? 18 }}
-                                    </span>
-                                </div>
-                                <div class="text-xs font-semibold text-slate-700 dark:text-slate-300">Selesai</div>
-                                <div class="text-[11px] font-medium mt-1 text-emerald-600 dark:text-emerald-400">● Terkonfirmasi selesai</div>
-                            </div>
-
+                    <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                        <div class="feature-card p-5 animate-on-scroll">
+                            <div class="icon-circle mb-4"><i class="fa-solid fa-file-pen"></i></div>
+                            <h3 class="text-[12px] font-bold text-slate-800 dark:text-white">Laporkan dengan Mudah</h3>
+                            <p class="mt-2 text-[10px] leading-5 text-slate-500 dark:text-slate-400">Laporkan hambatan aksesibilitas di sekitar Anda hanya dalam beberapa langkah sederhana.</p>
                         </div>
 
+                        <div class="feature-card p-5 animate-on-scroll">
+                            <div class="icon-circle mb-4"><i class="fa-solid fa-shield-halved"></i></div>
+                            <h3 class="text-[12px] font-bold text-slate-800 dark:text-white">Verifikasi & Deduplikasi</h3>
+                            <p class="mt-2 text-[10px] leading-5 text-slate-500 dark:text-slate-400">Laporan diverifikasi dan didukung sistem deduplikasi agar data tetap akurat.</p>
+                        </div>
+
+                        <div class="feature-card p-5 animate-on-scroll">
+                            <div class="icon-circle mb-4"><i class="fa-solid fa-chart-column"></i></div>
+                            <h3 class="text-[12px] font-bold text-slate-800 dark:text-white">Prioritas Berdasarkan Data</h3>
+                            <p class="mt-2 text-[10px] leading-5 text-slate-500 dark:text-slate-400">Sistem skor membantu menentukan prioritas perbaikan berdasarkan dampak nyata.</p>
+                        </div>
+
+                        <div class="feature-card p-5 animate-on-scroll">
+                            <div class="icon-circle mb-4"><i class="fa-solid fa-people-group"></i></div>
+                            <h3 class="text-[12px] font-bold text-slate-800 dark:text-white">Bersama Membangun</h3>
+                            <p class="mt-2 text-[10px] leading-5 text-slate-500 dark:text-slate-400">Libatkan komunitas dan pemerintah dalam mewujudkan kota yang lebih aksesibel.</p>
+                        </div>
                     </div>
                 </div>
 
-            </div>
-        </div>
-    </section>
-
-    <!-- CARA KERJA SMARTPATH SECTION -->
-    <section id="panduan" class="py-16 bg-white dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="text-center max-w-3xl mx-auto mb-12 space-y-2">
-                <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white">
-                    Cara Kerja SmartPath
-                </h2>
-                <p class="text-sm sm:text-base text-slate-600 dark:text-slate-400">
-                    Empat langkah sederhana untuk berkontribusi memperbaiki aksesibilitas kota
-                </p>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-                <!-- Step 1 -->
-                <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 text-center shadow-sm hover:shadow-md transition flex flex-col items-center">
-                    <div class="w-14 h-14 rounded-2xl bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 flex items-center justify-center text-emerald-600 dark:text-emerald-400 mb-4">
-                        <i class="fa-solid fa-camera text-2xl"></i>
+                <!-- ===== STATISTICS ===== -->
+                <div class="stats-box mt-8 px-7 py-6 text-white animate-on-scroll">
+                    <div class="text-[9px] font-bold uppercase tracking-widest text-slate-300 mb-5">SmartPath dalam Angka</div>
+                    <div class="grid grid-cols-2 lg:grid-cols-4 gap-7">
+                        <div class="flex items-center gap-4">
+                            <div class="stat-icon"><i class="fa-solid fa-users"></i></div>
+                            <div><p class="text-2xl font-extrabold"><span class="animated-counter" data-target="1245">0</span>+</p><p class="text-[9px] text-slate-300 mt-1">Laporan Masuk<br>di wilayah Depok</p></div>
+                        </div>
+                        <div class="flex items-center gap-4">
+                            <div class="stat-icon"><i class="fa-solid fa-shield-halved text-emerald-300"></i></div>
+                            <div><p class="text-2xl font-extrabold"><span class="animated-counter" data-target="876">0</span>+</p><p class="text-[9px] text-slate-300 mt-1">Laporan Diverifikasi<br>oleh tim SmartPath</p></div>
+                        </div>
+                        <div class="flex items-center gap-4">
+                            <div class="stat-icon"><i class="fa-solid fa-chart-column text-sky-300"></i></div>
+                            <div><p class="text-2xl font-extrabold"><span class="animated-counter" data-target="342">0</span>+</p><p class="text-[9px] text-slate-300 mt-1">Lokasi dalam Proses<br>Perbaikan</p></div>
+                        </div>
+                        <div class="flex items-center gap-4">
+                            <div class="stat-icon"><i class="fa-solid fa-circle-check text-emerald-300"></i></div>
+                            <div><p class="text-2xl font-extrabold"><span class="animated-counter" data-target="210">0</span>+</p><p class="text-[9px] text-slate-300 mt-1">Lokasi Selesai<br>Diperbaiki</p></div>
+                        </div>
                     </div>
-                    <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-2">Laporkan</h3>
-                    <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-                        Unggah foto, pilih kategori hambatan, dan tandai lokasi pada peta
-                    </p>
-                </div>
-
-                <!-- Step 2 -->
-                <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 text-center shadow-sm hover:shadow-md transition flex flex-col items-center">
-                    <div class="w-14 h-14 rounded-2xl bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 flex items-center justify-center text-emerald-600 dark:text-emerald-400 mb-4">
-                        <i class="fa-solid fa-circle-check text-2xl"></i>
-                    </div>
-                    <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-2">Verifikasi</h3>
-                    <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-                        Administrator memverifikasi dan mengelompokkan laporan duplikat
-                    </p>
-                </div>
-
-                <!-- Step 3 -->
-                <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 text-center shadow-sm hover:shadow-md transition flex flex-col items-center">
-                    <div class="w-14 h-14 rounded-2xl bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 flex items-center justify-center text-emerald-600 dark:text-emerald-400 mb-4">
-                        <i class="fa-solid fa-chart-simple text-2xl"></i>
-                    </div>
-                    <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-2">Prioritaskan</h3>
-                    <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-                        Sistem menghitung skor prioritas secara otomatis berbasis aturan
-                    </p>
-                </div>
-
-                <!-- Step 4 -->
-                <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 text-center shadow-sm hover:shadow-md transition flex flex-col items-center">
-                    <div class="w-14 h-14 rounded-2xl bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 flex items-center justify-center text-emerald-600 dark:text-emerald-400 mb-4">
-                        <i class="fa-solid fa-location-dot text-2xl"></i>
-                    </div>
-                    <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-2">Petakan</h3>
-                    <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-                        Hambatan divisualisasikan pada peta digital interaktif
-                    </p>
                 </div>
             </div>
-        </div>
-    </section>
+        </section>
 
-    <!-- LAPORAN PRIORITAS TINGGI & KATEGORI HAMBATAN -->
-    <section class="py-16 bg-slate-50/70 dark:bg-slate-900/40">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
-                
-                <!-- Left 8 Cols: Laporan Prioritas Tinggi -->
-                <div class="lg:col-span-8 space-y-6">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <h2 class="text-xl font-bold text-slate-900 dark:text-white flex items-center space-x-2">
-                                <i class="fa-solid fa-triangle-exclamation text-red-500"></i>
-                                <span>Laporan Prioritas Tinggi</span>
-                            </h2>
-                            <p class="text-xs text-slate-500 dark:text-slate-400">
-                                Laporan hambatan publik dengan kebutuhan penanganan paling mendesak
-                            </p>
+        <!-- ===== CARA KERJA ===== -->
+        <section id="cara-kerja" class="py-12 bg-slate-50 dark:bg-slate-900 section-anchor">
+            <div class="max-w-[1180px] mx-auto px-6">
+                <div class="grid lg:grid-cols-[1fr_245px] gap-10 items-start">
+                    <div>
+                        <span class="text-[10px] font-bold uppercase tracking-widest text-emerald-600 dark:text-emerald-400">Cara Kerja</span>
+                        <h2 class="mt-2 text-2xl font-extrabold text-slate-800 dark:text-white">Bersama dalam 4 Langkah Mudah</h2>
+
+                        <div class="relative mt-10">
+                            <div class="steps-line"></div>
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-5">
+                                <div class="text-center relative animate-on-scroll">
+                                    <div class="step-number">1</div>
+                                    <div class="step-icon"><i class="fa-solid fa-file-circle-plus"></i></div>
+                                    <h3 class="text-[12px] font-bold text-slate-800 dark:text-white">Laporkan</h3>
+                                    <p class="text-[9px] leading-4 text-slate-500 dark:text-slate-400 mt-2">Isi formulir laporan dan unggah foto lokasi hambatan aksesibilitas.</p>
+                                </div>
+                                <div class="text-center relative animate-on-scroll">
+                                    <div class="step-number">2</div>
+                                    <div class="step-icon"><i class="fa-solid fa-shield-halved"></i></div>
+                                    <h3 class="text-[12px] font-bold text-slate-800 dark:text-white">Verifikasi</h3>
+                                    <p class="text-[9px] leading-4 text-slate-500 dark:text-slate-400 mt-2">Tim memverifikasi dan menduplikasi laporan agar data akurat.</p>
+                                </div>
+                                <div class="text-center relative animate-on-scroll">
+                                    <div class="step-number">3</div>
+                                    <div class="step-icon"><i class="fa-solid fa-chart-column"></i></div>
+                                    <h3 class="text-[12px] font-bold text-slate-800 dark:text-white">Prioritaskan</h3>
+                                    <p class="text-[9px] leading-4 text-slate-500 dark:text-slate-400 mt-2">Sistem memberi skor dan menentukan prioritas perbaikan.</p>
+                                </div>
+                                <div class="text-center relative animate-on-scroll">
+                                    <div class="step-number">4</div>
+                                    <div class="step-icon"><i class="fa-solid fa-circle-check"></i></div>
+                                    <h3 class="text-[12px] font-bold text-slate-800 dark:text-white">Tindak Lanjut</h3>
+                                    <p class="text-[9px] leading-4 text-slate-500 dark:text-slate-400 mt-2">Pemerintah dan pihak terkait menindaklanjuti hingga perbaikan selesai.</p>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
-                    <!-- 3 Report Cards Grid -->
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        @forelse($laporanPrioritas as $item)
-                            <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition flex flex-col justify-between">
-                                <!-- Card Image -->
-                                <div class="relative">
-                                    @php
-                                        $fotoPath = $item->foto->first()?->foto_path ?? null;
-                                        $imgUrl = $fotoPath ? asset('storage/' . $fotoPath) : 'https://images.unsplash.com/photo-1584467735871-8e85353a8413?auto=format&fit=crop&w=600&q=80';
-                                        
-                                        $prioritasLabel = $item->tingkat_prioritas ?? 'Tinggi';
-                                        $badgeClass = match($prioritasLabel) {
-                                            'Tinggi' => 'bg-red-100 text-red-800 border-red-300 dark:bg-red-950 dark:text-red-300',
-                                            'Sedang' => 'bg-amber-100 text-amber-800 border-amber-300 dark:bg-amber-950 dark:text-amber-300',
-                                            default => 'bg-emerald-100 text-emerald-800 border-emerald-300 dark:bg-emerald-950 dark:text-emerald-300',
-                                        };
-                                    @endphp
-                                    <img src="{{ $imgUrl }}" alt="{{ $item->judul }}" class="w-full h-36 object-cover">
-                                    <div class="absolute top-3 right-3">
-                                        <span class="px-2.5 py-0.5 text-[11px] font-extrabold rounded-full border shadow-sm {{ $badgeClass }}">
-                                            {{ $prioritasLabel }}
-                                        </span>
-                                    </div>
-                                </div>
-
-                                <!-- Card Body -->
-                                <div class="p-4 space-y-3 flex-1 flex flex-col justify-between">
-                                    <div>
-                                        <h3 class="font-bold text-slate-900 dark:text-white text-sm line-clamp-1">
-                                            {{ $item->judul }}
-                                        </h3>
-                                        <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 flex items-start space-x-1">
-                                            <i class="fa-solid fa-location-dot text-slate-400 mt-0.5"></i>
-                                            <span class="line-clamp-2">{{ $item->alamat_lengkap }}</span>
-                                        </p>
-                                    </div>
-
-                                    <div class="flex items-center justify-between text-xs text-slate-600 dark:text-slate-300 font-medium pt-2 border-t border-slate-100 dark:border-slate-800">
-                                        <span class="flex items-center space-x-1">
-                                            <i class="fa-solid fa-users text-emerald-600"></i>
-                                            <span>{{ $item->jumlah_pelapor ?? 1 }} pelapor</span>
-                                        </span>
-                                        <span class="flex items-center space-x-1">
-                                            <i class="fa-solid fa-compass text-blue-500"></i>
-                                            <span>{{ number_format($item->jarak_fasilitas_meter ?? 400, 0) }}m</span>
-                                        </span>
-                                    </div>
-                                </div>
-
-                                <!-- Card Footer -->
-                                <div class="px-4 py-2.5 bg-slate-50 dark:bg-slate-800/60 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400 font-mono">
-                                    <span>{{ $item->kode_laporan }}</span>
-                                    <span>{{ $item->created_at ? $item->created_at->translatedFormat('d M Y') : '16 Juli 2026' }}</span>
-                                </div>
-                            </div>
-                        @empty
-                            <!-- Static Demo Cards when database is empty -->
-                            <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm flex flex-col justify-between">
-                                <div class="relative">
-                                    <img src="https://images.unsplash.com/photo-1584467735871-8e85353a8413?auto=format&fit=crop&w=600&q=80" class="w-full h-36 object-cover">
-                                    <div class="absolute top-3 right-3"><span class="px-2.5 py-0.5 text-[11px] font-extrabold rounded-full bg-red-100 text-red-800 border border-red-300">Tinggi</span></div>
-                                </div>
-                                <div class="p-4 space-y-3">
-                                    <h3 class="font-bold text-slate-900 dark:text-white text-sm">Guiding Block Rusak</h3>
-                                    <p class="text-xs text-slate-500">Jl. Margonda Raya No. 45, Pancoran Mas, Depok</p>
-                                </div>
-                                <div class="px-4 py-2.5 bg-slate-50 dark:bg-slate-800/60 border-t border-slate-200 dark:border-slate-800 flex justify-between text-[11px] font-mono text-slate-500">
-                                    <span>LP-202607-00001</span><span>16 Juli 2026</span>
-                                </div>
-                            </div>
-
-                            <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm flex flex-col justify-between">
-                                <div class="relative">
-                                    <img src="https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=600&q=80" class="w-full h-36 object-cover">
-                                    <div class="absolute top-3 right-3"><span class="px-2.5 py-0.5 text-[11px] font-extrabold rounded-full bg-amber-100 text-amber-800 border border-amber-300">Sedang</span></div>
-                                </div>
-                                <div class="p-4 space-y-3">
-                                    <h3 class="font-bold text-slate-900 dark:text-white text-sm">Trotoar Terhalang Parkir</h3>
-                                    <p class="text-xs text-slate-500">Jl. Juanda, Bekasi Timur, Depok</p>
-                                </div>
-                                <div class="px-4 py-2.5 bg-slate-50 dark:bg-slate-800/60 border-t border-slate-200 dark:border-slate-800 flex justify-between text-[11px] font-mono text-slate-500">
-                                    <span>LP-202607-00002</span><span>16 Juli 2026</span>
-                                </div>
-                            </div>
-
-                            <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm flex flex-col justify-between">
-                                <div class="relative">
-                                    <img src="https://images.unsplash.com/photo-1517649763962-0c623266ddc0?auto=format&fit=crop&w=600&q=80" class="w-full h-36 object-cover">
-                                    <div class="absolute top-3 right-3"><span class="px-2.5 py-0.5 text-[11px] font-extrabold rounded-full bg-amber-100 text-amber-800 border border-amber-300">Sedang</span></div>
-                                </div>
-                                <div class="p-4 space-y-3">
-                                    <h3 class="font-bold text-slate-900 dark:text-white text-sm">Ramp Tidak Layak</h3>
-                                    <p class="text-xs text-slate-500">Jl. Raya Sawangan, Depok</p>
-                                </div>
-                                <div class="px-4 py-2.5 bg-slate-50 dark:bg-slate-800/60 border-t border-slate-200 dark:border-slate-800 flex justify-between text-[11px] font-mono text-slate-500">
-                                    <span>LP-202607-00003</span><span>16 Juli 2026</span>
-                                </div>
-                            </div>
-                        @endforelse
-                    </div>
-                </div>
-
-                <!-- Right 4 Cols: Kategori Hambatan -->
-                <div class="lg:col-span-4 space-y-6">
-                    <div class="flex items-center justify-between">
-                        <h2 class="text-xl font-bold text-slate-900 dark:text-white">Kategori Hambatan</h2>
-                        <a href="{{ route('peta.index') }}" class="text-xs font-semibold text-emerald-600 dark:text-emerald-400 hover:underline flex items-center space-x-1">
-                            <span>Lihat semua</span>
-                            <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                    <!-- CTA Box -->
+                    <div id="laporkan" class="cta-mini p-6 text-white mt-1 animate-on-scroll">
+                        <h3 class="text-xl font-extrabold leading-tight">
+                            Jadi Bagian dari<br>Perubahan!
+                        </h3>
+                        
+                        <p class="text-[10px] leading-5 text-emerald-100/80 mt-3">
+                            Setiap laporan Anda membantu mewujudkan kota yang lebih nyaman dan setara untuk semua.
+                        </p>
+                        
+                        <a href="#beranda" class="inline-block mt-2 text-[10px] font-bold text-emerald-300 hover:text-emerald-200 transition hover:underline cursor-pointer">
+                            Ayo Segera!
                         </a>
                     </div>
-
-                    <div class="grid grid-cols-2 gap-3">
-                        @forelse($kategoriHambatan as $kat)
-                            <div class="p-3.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl hover:border-emerald-500 transition cursor-pointer flex flex-col justify-between space-y-2 shadow-sm">
-                                <div class="flex items-center space-x-2">
-                                    <span class="w-2 h-2 rounded-full bg-slate-800 dark:bg-slate-200"></span>
-                                    <span class="font-bold text-xs text-slate-900 dark:text-slate-100 line-clamp-1">
-                                        {{ $kat->nama ?? $kat->nama_kategori }}
-                                    </span>
-                                </div>
-                                <div class="flex justify-start">
-                                    <span class="text-[10px] font-bold px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300">
-                                        {{ $kat->tingkat_keparahan ?? 'Aktif' }}
-                                    </span>
-                                </div>
-                            </div>
-                        @empty
-                            <div class="p-3.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl flex flex-col justify-between space-y-2">
-                                <span class="font-bold text-xs text-slate-900 dark:text-slate-100">Guiding Block</span>
-                                <span class="text-[10px] font-bold px-2 py-0.5 rounded-md bg-red-100 text-red-700 w-fit">Tinggi</span>
-                            </div>
-                            <div class="p-3.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl flex flex-col justify-between space-y-2">
-                                <span class="font-bold text-xs text-slate-900 dark:text-slate-100">Trotoar</span>
-                                <span class="text-[10px] font-bold px-2 py-0.5 rounded-md bg-amber-100 text-amber-700 w-fit">Sedang</span>
-                            </div>
-                            <div class="p-3.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl flex flex-col justify-between space-y-2">
-                                <span class="font-bold text-xs text-slate-900 dark:text-slate-100">Ramp Akses</span>
-                                <span class="text-[10px] font-bold px-2 py-0.5 rounded-md bg-amber-100 text-amber-700 w-fit">Sedang</span>
-                            </div>
-                            <div class="p-3.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl flex flex-col justify-between space-y-2">
-                                <span class="font-bold text-xs text-slate-900 dark:text-slate-100">Penyeberangan</span>
-                                <span class="text-[10px] font-bold px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-700 w-fit">Rendah</span>
-                            </div>
-                        @endforelse
-                    </div>
-
-                    <div class="p-5 bg-emerald-900 text-emerald-50 rounded-2xl border border-emerald-800 space-y-3">
-                        <div class="flex items-center space-x-2 font-bold text-sm">
-                            <i class="fa-solid fa-shield-halved text-emerald-400"></i>
-                            <span>Sistem Prioritas Otomatis</span>
-                        </div>
-                        <p class="text-xs text-emerald-200 leading-relaxed">
-                            SmartPath menggunakan algoritma scoring terbobot berbasis jumlah pelapor, tingkat keparahan, dan kedekatan dengan fasilitas publik vital.
-                        </p>
-                    </div>
                 </div>
-
             </div>
-        </div>
-    </section>
+        </section>
 
-    <!-- FOOTER SECTION -->
-    <footer id="tentang" class="bg-slate-900 text-slate-300 py-12 border-t border-slate-800">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="grid grid-cols-1 md:grid-cols-12 gap-8 pb-12 border-b border-slate-800">
-                
-                <!-- Brand Info -->
-                <div class="md:col-span-4 space-y-4">
-                    <div class="flex items-center space-x-3">
-                        <div class="w-9 h-9 rounded-xl bg-emerald-600 text-white flex items-center justify-center font-bold text-lg">
-                            <i class="fa-solid fa-gear"></i>
-                        </div>
-                        <div>
-                            <div class="text-lg font-bold text-white tracking-tight">SmartPath</div>
-                            <div class="text-xs text-slate-400">Aksesibilitas untuk Semua</div>
-                        </div>
+    </main>
+
+    <!-- ===== FOOTER ===== -->
+    <footer id="kontak" class="footer pt-10 pb-5 section-anchor">
+        <div class="max-w-[1180px] mx-auto px-6">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 pb-8 border-b footer-divider">
+                <!-- Kolom 1: Brand -->
+                <div>
+                    <div class="flex items-center gap-3 text-white mb-4">
+                        <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-emerald-400 to-emerald-700 flex items-center justify-center"><i class="fa-solid fa-route"></i></div>
+                        <span class="text-xl font-extrabold">SmartPath</span>
                     </div>
-                    <p class="text-xs text-slate-400 leading-relaxed max-w-sm">
-                        SmartPath adalah platform pemetaan aksesibilitas infrastruktur publik untuk mendukung kota yang inklusif.
-                    </p>
-                    <div class="flex items-center space-x-3 pt-2">
-                        <a href="#" class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-slate-400 hover:text-white hover:bg-emerald-600 transition"><i class="fa-brands fa-instagram text-xs"></i></a>
-                        <a href="#" class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-slate-400 hover:text-white hover:bg-emerald-600 transition"><i class="fa-brands fa-x-twitter text-xs"></i></a>
-                        <a href="#" class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-slate-400 hover:text-white hover:bg-emerald-600 transition"><i class="fa-brands fa-facebook text-xs"></i></a>
-                        <a href="#" class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-slate-400 hover:text-white hover:bg-emerald-600 transition"><i class="fa-brands fa-youtube text-xs"></i></a>
+                    <p class="text-[10px] leading-5 text-slate-400">SmartPath adalah platform partisipatif untuk melaporkan dan memetakan hambatan aksesibilitas di ruang publik.</p>
+                    <div class="flex gap-2 mt-4">
+                        <a href="#" class="w-7 h-7 rounded-full bg-slate-700 flex items-center justify-center text-xs hover:bg-emerald-600 transition"><i class="fa-brands fa-facebook-f"></i></a>
+                        <a href="#" class="w-7 h-7 rounded-full bg-slate-700 flex items-center justify-center text-xs hover:bg-emerald-600 transition"><i class="fa-brands fa-instagram"></i></a>
+                        <a href="#" class="w-7 h-7 rounded-full bg-slate-700 flex items-center justify-center text-xs hover:bg-emerald-600 transition"><i class="fa-brands fa-youtube"></i></a>
                     </div>
                 </div>
 
-                <!-- Footer Links -->
-                <div class="md:col-span-2 space-y-3">
-                    <h4 class="text-xs font-bold text-white uppercase tracking-wider">Platform</h4>
-                    <ul class="space-y-2 text-xs text-slate-400">
-                        <li><a href="{{ route('peta.index') }}" class="hover:text-emerald-400 transition">Peta Interaktif</a></li>
-                        <li><a href="{{ auth()->check() ? route('laporan.create') : route('login') }}" class="hover:text-emerald-400 transition">Laporkan Hambatan</a></li>
-                        <li><a href="{{ Route::has('laporan.index') ? route('laporan.index') : '#laporan' }}" class="hover:text-emerald-400 transition">Laporan Saya</a></li>
+                <!-- Kolom 2: Navigasi -->
+                <div>
+                    <h4 class="text-[11px] font-bold text-white mb-4">Navigasi</h4>
+                    <ul class="space-y-2 text-[10px]">
+                        <li><a href="#beranda" class="hover:text-emerald-400 transition">Beranda</a></li>
+                        <li><a href="#tentang" class="hover:text-emerald-400 transition">Tentang</a></li>
+                        <li><a href="#fitur" class="hover:text-emerald-400 transition">Fitur</a></li>
+                        <li><a href="#peta" class="hover:text-emerald-400 transition">Peta</a></li>
+                        <li><a href="#cara-kerja" class="hover:text-emerald-400 transition">Cara Kerja</a></li>
+                        <li><a href="#kontak" class="hover:text-emerald-400 transition">Kontak</a></li>
                     </ul>
                 </div>
 
-                <div class="md:col-span-2 space-y-3">
-                    <h4 class="text-xs font-bold text-white uppercase tracking-wider">Informasi</h4>
-                    <ul class="space-y-2 text-xs text-slate-400">
-                        <li><a href="#tentang" class="hover:text-emerald-400 transition">Tentang Kami</a></li>
-                        <li><a href="#panduan" class="hover:text-emerald-400 transition">Panduan Penggunaan</a></li>
-                        <li><a href="#" class="hover:text-emerald-400 transition">Kebijakan Privasi</a></li>
-                        <li><a href="#" class="hover:text-emerald-400 transition">Syarat & Ketentuan</a></li>
+                <!-- Kolom 3: Kategori Laporan -->
+                <div>
+                    <h4 class="text-[11px] font-bold text-white mb-4">Kategori Laporan</h4>
+                    <ul class="space-y-3 text-[10px]">
+                        <li><i class="fa-solid fa-road w-5 text-slate-500"></i> Trotoar Rusak</li>
+                        <li><i class="fa-solid fa-wheelchair w-5 text-slate-500"></i> Ramp Tidak Ada</li>
+                        <li><i class="fa-solid fa-grip-lines w-5 text-slate-500"></i> Guiding Block Rusak</li>
+                        <li><i class="fa-solid fa-ellipsis w-5 text-slate-500"></i> Lainnya</li>
                     </ul>
                 </div>
 
-                <div class="md:col-span-2 space-y-3">
-                    <h4 class="text-xs font-bold text-white uppercase tracking-wider">Bantuan</h4>
-                    <ul class="space-y-2 text-xs text-slate-400">
-                        <li><a href="#" class="hover:text-emerald-400 transition">FAQ</a></li>
-                        <li><a href="#" class="hover:text-emerald-400 transition">Hubungi Kami</a></li>
+                <!-- Kolom 4: Alamat -->
+                <div>
+                    <h4 class="text-[11px] font-bold text-white mb-4">Alamat</h4>
+                    <ul class="space-y-3 text-[10px]">
+                        <li><i class="fa-solid fa-location-dot text-emerald-400 w-5"></i> Kota Depok, Jawa Barat, Indonesia</li>
+                        <li><i class="fa-solid fa-envelope text-emerald-400 w-5"></i> hello@smartpath.id</li>
+                        <li><i class="fa-solid fa-phone text-emerald-400 w-5"></i> (021) 1234 5678</li>
                     </ul>
                 </div>
-
-                <!-- Newsletter Subscribe Form -->
-                <div class="md:col-span-2 space-y-3">
-                    <h4 class="text-xs font-bold text-white uppercase tracking-wider">Dapatkan Informasi Terbaru</h4>
-                    <p class="text-xs text-slate-400 leading-relaxed">
-                        Berlangganan newsletter untuk mendapatkan update terbaru.
-                    </p>
-
-                    <form action="{{ route('newsletter.subscribe') }}" method="POST" class="space-y-2">
-                        @csrf
-                        <div class="relative">
-                            <input 
-                                type="email" 
-                                name="email"
-                                placeholder="Masukkan email Anda" 
-                                required
-                                class="w-full pl-3 pr-10 py-2 text-xs bg-slate-800 border border-slate-700 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500"
-                            >
-                            <button 
-                                type="submit" 
-                                class="absolute right-1 top-1 bottom-1 px-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-md flex items-center justify-center transition"
-                            >
-                                <i class="fa-solid fa-paper-plane text-xs"></i>
-                            </button>
-                        </div>
-                    </form>
-                </div>
-
             </div>
 
             <!-- Bottom Copyright -->
-            <div class="pt-8 flex flex-col sm:flex-row justify-between items-center text-xs text-slate-500">
-                <div>© 2026 SmartPath. All rights reserved.</div>
-                <div class="mt-2 sm:mt-0">Dikembangkan untuk Lomba Application Development Tahap Final</div>
+            <div class="pt-5 flex flex-col sm:flex-row justify-between gap-3 text-[9px] text-slate-500">
+                <span>© 2026 SmartPath. Semua hak dilindungi.</span>
+                <div class="flex gap-6">
+                    <a href="#" class="hover:text-emerald-400 transition">Kebijakan Privasi</a>
+                    <a href="#" class="hover:text-emerald-400 transition">Syarat & Ketentuan →</a>
+                </div>
             </div>
         </div>
     </footer>
 
-    <!-- Dark Mode Toggle Script -->
-    <script>
-        const themeToggleBtn = document.getElementById('themeToggleBtn');
-        const themeToggleIcon = document.getElementById('themeToggleIcon');
+    <!-- ===== SCRIPTS ===== -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-        // Check Local Storage / System Preference
-        if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-            document.documentElement.classList.add('dark');
-            themeToggleIcon.classList.remove('fa-moon');
-            themeToggleIcon.classList.add('fa-sun');
-        } else {
-            document.documentElement.classList.remove('dark');
-            themeToggleIcon.classList.remove('fa-sun');
-            themeToggleIcon.classList.add('fa-moon');
+    <script>
+        // ================================
+        // SCROLL PROGRESS
+        // ================================
+        window.addEventListener('scroll', () => {
+            const scrollTop = window.scrollY;
+            const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+            const progress = (scrollTop / docHeight) * 100;
+            document.getElementById('scrollProgress').style.width = progress + '%';
+        });
+
+        // ================================
+        // DARK MODE TOGGLE
+        // ================================
+        const themeToggle = document.getElementById('themeToggle');
+        const themeIcon = document.getElementById('themeIcon');
+
+        function setTheme(theme) {
+            if (theme === 'dark') {
+                document.documentElement.classList.add('dark');
+                themeIcon.className = 'fa-solid fa-sun';
+                localStorage.setItem('theme', 'dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+                themeIcon.className = 'fa-solid fa-moon';
+                localStorage.setItem('theme', 'light');
+            }
         }
 
-        themeToggleBtn.addEventListener('click', () => {
-            if (document.documentElement.classList.contains('dark')) {
-                document.documentElement.classList.remove('dark');
-                localStorage.setItem('theme', 'light');
-                themeToggleIcon.classList.remove('fa-sun');
-                themeToggleIcon.classList.add('fa-moon');
+        const savedTheme = localStorage.getItem('theme');
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
+            setTheme('dark');
+        } else {
+            setTheme('light');
+        }
+
+        themeToggle.addEventListener('click', () => {
+            const isDark = document.documentElement.classList.contains('dark');
+            setTheme(isDark ? 'light' : 'dark');
+        });
+
+        // ================================
+        // MOBILE MENU
+        // ================================
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const mobileMenu = document.getElementById('mobileMenu');
+
+        mobileMenuBtn.addEventListener('click', () => {
+            mobileMenu.classList.toggle('open');
+            const icon = mobileMenuBtn.querySelector('i');
+            if (mobileMenu.classList.contains('open')) {
+                icon.className = 'fa-solid fa-xmark';
             } else {
-                document.documentElement.classList.add('dark');
-                localStorage.setItem('theme', 'dark');
-                themeToggleIcon.classList.remove('fa-moon');
-                themeToggleIcon.classList.add('fa-sun');
+                icon.className = 'fa-solid fa-bars';
             }
         });
+
+        // ================================
+        // NAVBAR ACTIVE LINK (GARIS BAWAH BERPINDAH)
+        // ================================
+        const navLinks = document.querySelectorAll('.nav-link');
+
+        function removeActiveClass() {
+            navLinks.forEach(link => {
+                link.classList.remove('text-white', 'border-b-2', 'border-emerald-400', 'pb-5');
+                link.classList.add('text-slate-300');
+            });
+        }
+
+        function setActiveLink(activeLink) {
+            removeActiveClass();
+            activeLink.classList.remove('text-slate-300');
+            activeLink.classList.add('text-white', 'border-b-2', 'border-emerald-400', 'pb-5');
+        }
+
+        navLinks.forEach(link => {
+            link.addEventListener('click', function() {
+                setActiveLink(this);
+            });
+        });
+
+        // ================================
+        // SMARTPATH MAP
+        // ================================
+        const map = L.map('smartpath-map', { zoomControl: false }).setView([-6.4025, 106.7942], 13);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; OpenStreetMap contributors',
+            maxZoom: 19
+        }).addTo(map);
+
+        const reports = [
+            {lat:-6.4025,lng:106.7942,title:'Trotoar Rusak',location:'Jl. Margonda Raya, Depok',status:'Pending',color:'#f59e0b',time:'2 jam lalu'},
+            {lat:-6.4100,lng:106.8000,title:'Guiding Block Rusak',location:'Jl. Ciliwung, Depok',status:'Pending',color:'#f59e0b',time:'4 jam lalu'},
+            {lat:-6.3950,lng:106.7880,title:'Ramp Tidak Tersedia',location:'Jl. Kalimantan, Depok',status:'Pending',color:'#f59e0b',time:'6 jam lalu'},
+            {lat:-6.3915,lng:106.8218,title:'Akses Kursi Roda',location:'Jl. Juanda, Depok',status:'Diverifikasi',color:'#2dd4bf',time:'5 jam lalu'},
+            {lat:-6.3800,lng:106.8100,title:'Trotoar Rusak',location:'Jl. Sumatra, Depok',status:'Diverifikasi',color:'#2dd4bf',time:'1 hari lalu'},
+            {lat:-6.4180,lng:106.8250,title:'Guiding Block Rusak',location:'Jl. Papua, Depok',status:'Diverifikasi',color:'#2dd4bf',time:'2 hari lalu'},
+            {lat:-6.4280,lng:106.8050,title:'Ramp Tidak Tersedia',location:'Jl. Kartini, Depok',status:'Dalam Perbaikan',color:'#60a5fa',time:'2 hari lalu'},
+            {lat:-6.4120,lng:106.7920,title:'Trotoar Rusak',location:'Jl. Pahlawan, Depok',status:'Dalam Perbaikan',color:'#60a5fa',time:'3 hari lalu'},
+            {lat:-6.3855,lng:106.7920,title:'Guiding Block Rusak',location:'Jl. Nusantara, Depok',status:'Selesai',color:'#34d399',time:'3 hari lalu'},
+            {lat:-6.4050,lng:106.8150,title:'Akses Kursi Roda',location:'Jl. Diponegoro, Depok',status:'Selesai',color:'#34d399',time:'5 hari lalu'},
+            {lat:-6.4170,lng:106.8320,title:'Trotoar Rusak',location:'Jl. Raya Sawangan, Depok',status:'Ditolak',color:'#ef4444',time:'1 hari lalu'},
+            {lat:-6.3980,lng:106.8200,title:'Ramp Tidak Tersedia',location:'Jl. Merdeka, Depok',status:'Ditolak',color:'#ef4444',time:'2 hari lalu'}
+        ];
+
+        reports.forEach(report => {
+            const marker = L.marker([report.lat, report.lng], { icon: L.divIcon({
+                className: 'custom-pin-icon',
+                html: `<i class="fa-solid fa-location-dot text-2xl" style="color: ${report.color};"></i>`,
+                iconSize: [24, 24],
+                iconAnchor: [12, 24],
+                popupAnchor: [0, -24]
+            })}).addTo(map);
+
+            marker.bindPopup(`
+                <div style="font-family:Inter,sans-serif;padding:4px">
+                    <b style="font-size:13px">${report.title}</b>
+                    <div style="font-size:10px;color:#64748b;margin-top:5px">${report.location}</div>
+                    <div style="margin-top:7px;font-size:9px;font-weight:700;color:${report.color}">${report.status}</div>
+                    <div style="font-size:9px;color:#94a3b8;margin-top:3px">${report.time}</div>
+                </div>
+            `);
+        });
+
+        document.getElementById('mapSearch').addEventListener('keydown', function(e) {
+            if (e.key !== 'Enter') return;
+            const q = this.value.trim().toLowerCase();
+            if (!q) return;
+
+            const found = reports.find(r =>
+                r.title.toLowerCase().includes(q) ||
+                r.location.toLowerCase().includes(q)
+            );
+
+            if (found) {
+                map.setView([found.lat, found.lng], 16, {animate:true, duration:1});
+                map.eachLayer(layer => {
+                    if (layer.getLatLng && 
+                        Math.abs(layer.getLatLng().lat - found.lat) < 0.001 && 
+                        Math.abs(layer.getLatLng().lng - found.lng) < 0.001) {
+                        layer.openPopup();
+                    }
+                });
+            } else {
+                this.value = '';
+                this.placeholder = '❌ Lokasi tidak ditemukan';
+                this.style.borderColor = '#ef4444';
+                setTimeout(() => {
+                    this.placeholder = 'Cari lokasi di peta...';
+                    this.style.borderColor = 'inherit';
+                }, 2000);
+            }
+        });
+
+        const counterObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const el = entry.target;
+                    const target = parseInt(el.getAttribute('data-target'));
+                    const duration = 2000;
+                    const increment = target / (duration / 16);
+                    let current = 0;
+
+                    const updateCounter = () => {
+                        current += increment;
+                        if (current < target) {
+                            el.textContent = Math.round(current);
+                            requestAnimationFrame(updateCounter);
+                        } else {
+                            el.textContent = target;
+                        }
+                    };
+                    updateCounter();
+                    counterObserver.unobserve(el);
+                }
+            });
+        }, { threshold: 0.3 });
+
+        document.querySelectorAll('.animated-counter').forEach(el => {
+            counterObserver.observe(el);
+        });
+
+        const scrollObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, { threshold: 0.15, rootMargin: '0px 0px -50px 0px' });
+
+        document.querySelectorAll('.animate-on-scroll').forEach(el => {
+            scrollObserver.observe(el);
+        });
     </script>
+
 </body>
 </html>

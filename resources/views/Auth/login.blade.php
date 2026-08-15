@@ -497,7 +497,7 @@
 
                             <span id="login-submit-text">
                                 Masuk ke SmartPath
-                                <a href="{{ route('admin.dashboard') }}" class="ml-1 text-sm font-normal text-emerald-100 transition hover:text-white">
+                                <a href="{{ route('laporan.create') }}" class="ml-1 text-sm font-normal text-emerald-100 transition hover:text-white">
 
                                 </a>
                             </span>
