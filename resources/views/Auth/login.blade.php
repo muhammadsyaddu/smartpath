@@ -497,6 +497,9 @@
 
                             <span id="login-submit-text">
                                 Masuk ke SmartPath
+                                <a href="{{ route('laporan.create') }}" class="ml-1 text-sm font-normal text-emerald-100 transition hover:text-white">
+
+                                </a>
                             </span>
 
                             <svg
@@ -557,10 +560,9 @@
                     </div>
 
 
-                    {{-- Security note --}}
+                   {{-- Copyright --}}
                     <p class="mt-6 text-center text-[11px] leading-5 text-slate-400">
-                        Akses ke sistem dilindungi oleh autentikasi dan
-                        pengelolaan sesi Laravel.
+                        &copy; {{ date('Y') }} SmartPath. Semua hak dilindungi.
                     </p>
 
                 </div>
@@ -570,11 +572,7 @@
         </div>
 
 
-        {{-- Copyright --}}
-        <p class="mt-4 text-center text-xs text-slate-400 lg:absolute lg:bottom-4 lg:right-6 lg:left-6">
-            &copy; {{ date('Y') }} SmartPath. Semua hak dilindungi.
-        </p>
-
+       
     </div>
 
 </div>

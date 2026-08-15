@@ -63,7 +63,7 @@ class DashboardController extends Controller
         // Pengaturan prioritas aktif
         $pengaturanAktif = PengaturanPrioritas::where('adalah_aktif', true)->first();
 
-        return view('dashboard.index', compact(
+        return view('dashboard.dinas', compact(
             'totalLaporan',
             'menungguVerifikasi',
             'diverifikasi',

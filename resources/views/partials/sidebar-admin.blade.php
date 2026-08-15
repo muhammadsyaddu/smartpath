@@ -2,7 +2,6 @@
     <div class="flex items-center gap-2 px-6 h-16 border-b border-slate-200">
         <svg class="w-7 h-7 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/></svg>
         <span class="font-semibold text-emerald-700">SmartPath</span>
-        <span class="text-xs text-slate-400 ml-auto">Admin</span>
     </div>
     <nav class="flex-1 px-4 py-6 space-y-1 overflow-y-auto" aria-label="Menu samping">
         @admin

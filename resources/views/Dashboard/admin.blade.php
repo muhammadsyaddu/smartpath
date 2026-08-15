@@ -4,6 +4,42 @@
 @section('page_title', 'Dashboard')
 
 @section('content')
+<!DOCTYPE html>
+<html lang="id" class="h-full bg-slate-50">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@yield('title', 'Dashboard') - Admin SmartPath</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="h-full bg-slate-50 text-slate-900 antialiased">
+    <div class="flex h-full min-h-screen">
+        {{-- Sidebar --}}
+        @include('partials.sidebar-admin')
+
+        <div class="flex-1 flex flex-col min-w-0 overflow-y-auto">
+            {{-- Header --}}
+            @include('partials.header-admin')
+
+            {{-- Main Content --}}
+            <main class="flex-1 p-6">
+                @yield('content')
+            </main>
+        </div>
+    </div>
+
+    {{-- Script dari @push('scripts') di Blade View --}}
+    @stack('scripts')
+</body>
+</html>
 <div class="space-y-6">
     {{-- Stats Cards --}}
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" role="region" aria-label="Statistik ringkasan">

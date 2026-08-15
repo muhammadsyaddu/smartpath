@@ -42,7 +42,6 @@ class PetaController extends Controller
                     'status_label' => $item->status_label,
                     'skor_prioritas' => (float) $item->skor_prioritas,
                     'tingkat_prioritas' => $item->tingkat_prioritas,
-                    'kategori_id' => $item->kategori_hambatan_id,
                     'kategori' => $item->kategoriHambatan?->nama,
                     'kategori_warna' => $item->kategoriHambatan?->warna_penanda,
                     'jumlah_pelapor' => $item->jumlah_pelapor,

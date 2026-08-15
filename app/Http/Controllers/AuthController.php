@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Http\RedirectResponse;
+use App\Http\Requests\RegisterUserRequest;
 use Illuminate\View\View;
 
 class AuthController extends Controller
@@ -22,7 +23,7 @@ class AuthController extends Controller
                 return redirect()->route('admin.dashboard');
             }
             if ($user->isDinas()) {
-                return redirect()->route('admin.dashboard');
+                return redirect()->route('dinas.dashboard');
             }
             return redirect()->route('beranda');
         }
@@ -99,7 +100,7 @@ public function register(RegisterUserRequest $request): RedirectResponse
 {
     $validated = $request->validated();
 
-    $user = DB::transaction(function () use ($validated) {
+    $user = DB::users(function () use ($validated) {
         $user = User::create([
             'nama_lengkap' => $validated['nama_lengkap'],
             'email' => $validated['email'],
