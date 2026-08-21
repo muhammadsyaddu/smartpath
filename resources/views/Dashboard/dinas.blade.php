@@ -6,56 +6,208 @@
 @section('content')
 <div class="space-y-6">
 
-    {{-- 1. KARTU STATISTIK PENANGANAN --}}
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" role="region" aria-label="Statistik Penanganan PUPR">
-        {{-- Total Masuk --}}
-        <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-sm">
-            <div class="flex items-center justify-between mb-3">
-                <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                    <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
-                </div>
-                <span class="text-xs font-semibold text-slate-400">Total Masuk</span>
+    {{-- ==========================================================
+     KARTU STATISTIK PENANGANAN
+========================================================== --}}
+<div
+    class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4"
+    role="region"
+    aria-label="Statistik Penanganan PUPR"
+>
+
+    {{-- 1. TOTAL MASUK --}}
+    <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-sm">
+        <div class="flex items-center justify-between mb-3">
+
+            <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                {{-- Icon bendera --}}
+                <svg
+                    class="w-5 h-5 text-blue-600"
+                    fill="currentColor"
+                    viewBox="0 0 24 24"
+                >
+                    <path d="M5 3a1 1 0 011-1h1v1h9.5l1.8 4-1.8 4H7v10H5V3z"/>
+                </svg>
             </div>
-            <p class="text-2xl font-bold text-slate-900">{{ $statistik['total'] ?? 0 }}</p>
-            <p class="text-xs text-slate-500 mt-1">Laporan perlu ditangani</p>
+
+            <span class="text-xs font-semibold text-slate-400">
+                Total
+            </span>
+
         </div>
 
-        {{-- Perlu Verifikasi --}}
-        <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-sm">
-            <div class="flex items-center justify-between mb-3">
-                <div class="w-10 h-10 bg-amber-100 rounded-lg flex items-center justify-center">
-                    <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                </div>
-                <span class="text-xs font-semibold text-amber-600">Menunggu</span>
-            </div>
-            <p class="text-2xl font-bold text-slate-900">{{ $statistik['menunggu'] ?? 0 }}</p>
-            <p class="text-xs text-slate-500 mt-1">Butuh verifikasi & survei</p>
-        </div>
+        <p class="text-2xl font-bold text-slate-900">
+            {{ $statistik['total'] ?? 0 }}
+        </p>
 
-        {{-- Dalam Perbaikan --}}
-        <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-sm">
-            <div class="flex items-center justify-between mb-3">
-                <div class="w-10 h-10 bg-cyan-100 rounded-lg flex items-center justify-center">
-                    <svg class="w-5 h-5 text-cyan-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-                </div>
-                <span class="text-xs font-semibold text-cyan-600">Proses Perbaikan</span>
-            </div>
-            <p class="text-2xl font-bold text-slate-900">{{ $statistik['dalam_perbaikan'] ?? 0 }}</p>
-            <p class="text-xs text-slate-500 mt-1">Sedang pengerjaan lapangan</p>
-        </div>
-
-        {{-- Selesai Ditangani --}}
-        <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-sm">
-            <div class="flex items-center justify-between mb-3">
-                <div class="w-10 h-10 bg-emerald-100 rounded-lg flex items-center justify-center">
-                    <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-                </div>
-                <span class="text-xs font-semibold text-emerald-600">Selesai</span>
-            </div>
-            <p class="text-2xl font-bold text-slate-900">{{ $statistik['selesai'] ?? 0 }}</p>
-            <p class="text-xs text-slate-500 mt-1">Infrastruktur diperbaiki</p>
-        </div>
+        <p class="text-xs text-slate-500 mt-1">
+            Laporan masuk
+        </p>
     </div>
+
+
+    {{-- 2. MENUNGGU VERIFIKASI --}}
+    <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-sm">
+        <div class="flex items-center justify-between mb-3">
+
+            <div class="w-10 h-10 bg-amber-100 rounded-lg flex items-center justify-center">
+                {{-- Icon jam pasir --}}
+                <svg
+                    class="w-5 h-5 text-amber-600"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                >
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M6 4h12M6 20h12M8 4c0 4 2 5 4 6-2 1-4 2-4 6m8-12c0 4-2 5-4 6 2 1 4 2 4 6"
+                    />
+                </svg>
+            </div>
+
+            <span class="text-xs font-semibold text-amber-600">
+                Menunggu
+            </span>
+
+        </div>
+
+        <p class="text-2xl font-bold text-slate-900">
+            {{ $statistik['menunggu'] ?? 0 }}
+        </p>
+
+        <p class="text-xs text-slate-500 mt-1">
+            Perlu verifikasi
+        </p>
+    </div>
+
+
+    {{-- 3. DALAM PERBAIKAN --}}
+    <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-sm">
+        <div class="flex items-center justify-between mb-3">
+
+            <div class="w-10 h-10 bg-cyan-100 rounded-lg flex items-center justify-center">
+                {{-- Icon alat / perbaikan --}}
+                <svg
+                    class="w-5 h-5 text-cyan-600"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                >
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M14.7 6.3a4 4 0 01-5.4 5.4L4 17l3 3 5.3-5.3a4 4 0 005.4-5.4l-2.2 2.2-2.1-.5-.5-2.1 2.2-2.2z"
+                    />
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M13 13l6 6M19 13l-6 6"
+                    />
+                </svg>
+            </div>
+
+            <span class="text-xs font-semibold text-cyan-600">
+                Proses
+            </span>
+
+        </div>
+
+        <p class="text-2xl font-bold text-slate-900">
+            {{ $statistik['dalam_perbaikan'] ?? 0 }}
+        </p>
+
+        <p class="text-xs text-slate-500 mt-1">
+            Dalam perbaikan
+        </p>
+    </div>
+
+
+    {{-- 4. SELESAI --}}
+    <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-sm">
+        <div class="flex items-center justify-between mb-3">
+
+            <div class="w-10 h-10 bg-emerald-100 rounded-lg flex items-center justify-center">
+                {{-- Icon centang --}}
+                <svg
+                    class="w-5 h-5 text-emerald-600"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                >
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M9 12l2 2 4-4"
+                    />
+                    <circle
+                        cx="12"
+                        cy="12"
+                        r="9"
+                        stroke-width="2"
+                    />
+                </svg>
+            </div>
+
+            <span class="text-xs font-semibold text-emerald-600">
+                Selesai
+            </span>
+
+        </div>
+
+        <p class="text-2xl font-bold text-slate-900">
+            {{ $statistik['selesai'] ?? 0 }}
+        </p>
+
+        <p class="text-xs text-slate-500 mt-1">
+            Terkonfirmasi
+        </p>
+    </div>
+
+
+    {{-- 5. KRITIS --}}
+    <div class="bg-white rounded-xl border border-red-200 p-5 shadow-sm">
+
+        <div class="flex items-center justify-between mb-3">
+
+            <div class="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center">
+                {{-- Icon peringatan --}}
+                <svg
+                    class="w-5 h-5 text-red-600"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                >
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M12 9v4m0 4h.01M10.3 3.8L2.7 17a2 2 0 001.7 3h15.2a2 2 0 001.7-3L13.7 3.8a2 2 0 00-3.4 0z"
+                    />
+                </svg>
+            </div>
+
+            <span class="text-xs font-semibold text-red-600">
+                Kritis
+            </span>
+
+        </div>
+
+        <p class="text-2xl font-bold text-slate-900">
+            {{ $statistik['kritis'] ?? 0 }}
+        </p>
+
+        <p class="text-xs text-slate-500 mt-1">
+            Prioritas tinggi
+        </p>
+
+    </div>
+
+</div>
 
     {{-- 2. PETA SEBARAN LOKASI & WIDGET PENANGANAN PRIORITAS --}}
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -66,7 +218,7 @@
                 <div class="flex items-center justify-between mb-4">
                     <h2 class="font-semibold text-slate-900 flex items-center gap-2">
                         <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-                        Peta Sebaran Kerusakan Aksesibilitas
+                        Peta Sebaran Infrastruktur
                     </h2>
                     <span class="text-xs text-slate-400">Peta Real-time</span>
                 </div>
@@ -77,9 +229,9 @@
 
             {{-- Legend Peta --}}
             <div class="mt-4 pt-3 border-t border-slate-100 flex flex-wrap items-center gap-4 text-xs text-slate-600">
-                <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-red-500"></span> Prioritas Kritis (Skor ≥ 8)</span>
-                <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-amber-500"></span> Prioritas Sedang (Skor 5 - 7.9)</span>
-                <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-blue-500"></span> Prioritas Rendah (Skor < 5)</span>
+                <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-red-500"></span> Prioritas Tinggi</span>
+                <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-amber-500"></span> Prioritas Sedang</span>
+                <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-blue-500"></span> Prioritas Rendah</span>
             </div>
         </div>
 
@@ -88,7 +240,7 @@
             <div>
                 <h2 class="font-semibold text-slate-900 mb-4 flex items-center gap-2">
                     <svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-                    Perlu Tindakan Segera
+                    Realisasi Anggaran
                 </h2>
 
                 <div class="space-y-3">

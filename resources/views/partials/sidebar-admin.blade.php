@@ -10,12 +10,7 @@
             Dashboard
         </a>
         @endadmin
-        @dinas
-        <a href="{{ route('admin.verifikasi.index') }}" class="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-xl transition-colors {{ request()->routeIs('admin.verifikasi.*') ? 'bg-emerald-50 text-emerald-700' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900' }}">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-            Verifikasi
-        </a>
-        @enddinas
+       
         @admin
         <div class="pt-4 pb-2"><span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Kelola Data</span></div>
         <a href="{{ route('admin.kategori-hambatan.index') }}" class="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-xl transition-colors {{ request()->routeIs('admin.kategori-hambatan.*') ? 'bg-emerald-50 text-emerald-700' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900' }}">

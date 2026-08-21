@@ -79,6 +79,10 @@ class DashboardController extends Controller
             'pengaturanAktif'
         ));
     }
+    public function indexDinas()
+{
+    return $this->index();
+}
 
     /**
      * API endpoint untuk data chart dashboard.

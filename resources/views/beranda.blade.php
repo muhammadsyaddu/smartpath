@@ -343,6 +343,7 @@
                 <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-emerald-400 to-emerald-700 flex items-center justify-center">
                     <i class="fa-solid fa-route"></i>
                 </div>
+                
                 <span class="text-xl font-extrabold tracking-tight">SmartPath</span>
             </a>
 
