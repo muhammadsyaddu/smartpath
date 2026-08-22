@@ -79,6 +79,7 @@ Route::middleware(['auth'])->group(function () {
 // ============================================
 // RUTE ADMIN & DINAS (Autentikasi + Role Dinas)
 // ============================================
+// Jika ingin bisa diakses oleh Admin maupun Dinas
 Route::middleware(['auth', 'dinas'])->prefix('admin')->name('admin.')->group(function () {
     // Dashboard
     Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
@@ -92,6 +93,16 @@ Route::middleware(['auth', 'dinas'])->prefix('admin')->name('admin.')->group(fun
     Route::post('verifikasi/{laporan}/kembalikan', [VerifikasiController::class, 'return'])->name('verifikasi.return');
     Route::post('verifikasi/{laporan}/perbaikan', [VerifikasiController::class, 'markInProgress'])->name('verifikasi.in-progress');
     Route::post('verifikasi/{laporan}/selesai', [VerifikasiController::class, 'markCompleted'])->name('verifikasi.completed');
+});
+
+// Rute Dinas
+Route::middleware(['auth', 'dinas'])->prefix('dinas')->name('dinas.')->group(function () {
+    Route::get('dashboard', [DashboardController::class, 'indexDinas'])->name('dashboard');
+});
+
+// Rute Warga
+Route::middleware(['auth'])->prefix('warga')->name('warga.')->group(function () {
+    Route::get('dashboard', [DashboardController::class, 'indexWarga'])->name('dashboard');
 });
 
 // ============================================

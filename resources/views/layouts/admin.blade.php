@@ -7,15 +7,49 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-    @stack('styles')
+
+    <!-- Tailwind CSS (CDN Standalone - Tanpa Perlu Vite / Node.js di Laragon) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        emerald: {
+                            50: '#ecfdf5',
+                            100: '#d1fae5',
+                            500: '#10b981',
+                            600: '#059669',
+                            700: '#047857',
+                            800: '#065f46',
+                            900: '#064e3b',
+                            950: '#022c22',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
     <style>
         body { font-family: 'Inter', sans-serif; }
     </style>
 </head>
 <body class="h-full bg-slate-50 text-slate-900 antialiased">
     <div class="flex h-full">
-        @include('partials.sidebar-admin')
+
+        {{-- Panggil Sidebar Sesuai Role --}}
+        @if(auth()->user()->isAdmin())
+            @include('partials.sidebar-admin')
+        @elseif(auth()->user()->isDinas())
+            @include('partials.sidebar-dinas')
+        @elseif(auth()->user()->isWarga())
+            @include('partials.sidebar-warga')
+        @endif
 
         <div class="flex-1 flex flex-col min-w-0">
             @include('partials.header-admin')

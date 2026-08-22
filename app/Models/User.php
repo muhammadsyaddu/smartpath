@@ -158,6 +158,18 @@ class User extends Authenticatable
         return $this->peran === 'warga';
     }
 
+
+    //Dapatkan nama route dashboard berdasarkan peran (role)
+     
+    public function getDashboardRouteName(): string
+    {
+        return match ($this->peran) {
+            'administrator', 'admin' => 'admin.dashboard',
+            'dinas'                 => 'dinas.dashboard',
+            default                 => 'warga.dashboard',
+        };
+    }
+
     /**
      * Dapetin semua nama atribut
      */

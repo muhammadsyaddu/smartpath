@@ -63,7 +63,7 @@ class DashboardController extends Controller
         // Pengaturan prioritas aktif
         $pengaturanAktif = PengaturanPrioritas::where('adalah_aktif', true)->first();
 
-        return view('dashboard.index', compact(
+        return view('dashboard.dinas', compact(
             'totalLaporan',
             'menungguVerifikasi',
             'diverifikasi',
@@ -79,6 +79,10 @@ class DashboardController extends Controller
             'pengaturanAktif'
         ));
     }
+    public function indexDinas()
+{
+    return $this->index();
+}
 
     /**
      * API endpoint untuk data chart dashboard.
