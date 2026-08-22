@@ -37,7 +37,7 @@ Route::get('peta/data', [PetaController::class, 'getLaporanData'])->name('peta.d
 Route::get('peta/fasilitas', [PetaController::class, 'getFasilitasData'])->name('peta.fasilitas');
 
 // ============================================
-// RUTE AUTENTIKASI
+// RUTE AUTENTIKASI (Lokal & Google OAuth)
 // ============================================
 Route::get('login', [AuthController::class, 'showLoginForm'])
     ->name('login');
@@ -56,7 +56,13 @@ Route::post('register', [AuthController::class, 'register'])
 Route::post('logout', [AuthController::class, 'logout'])
     ->name('logout');
 
-    
+// Rute OAuth Google API
+Route::get('auth/google', [AuthController::class, 'redirectToGoogle'])
+    ->name('auth.google');
+
+Route::get('auth/google/callback', [AuthController::class, 'handleGoogleCallback'])
+    ->name('auth.google.callback');
+
 // ============================================
 // RUTE WARGA / TERAUTENTIKASI
 // ============================================
@@ -79,7 +85,6 @@ Route::middleware(['auth'])->group(function () {
 // ============================================
 // RUTE ADMIN & DINAS (Autentikasi + Role Dinas)
 // ============================================
-// Jika ingin bisa diakses oleh Admin maupun Dinas
 Route::middleware(['auth', 'dinas'])->prefix('admin')->name('admin.')->group(function () {
     // Dashboard
     Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
