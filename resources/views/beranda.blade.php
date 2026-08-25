@@ -377,7 +377,7 @@
                         Masuk
                     </a>
                     
-                    <a href="{{ route('register.post') }}" 
+                    <a href="{{ route('auth.register') }}"
                        class="inline-flex items-center justify-center
                               rounded-xl
                               bg-emerald-600 hover:bg-emerald-500

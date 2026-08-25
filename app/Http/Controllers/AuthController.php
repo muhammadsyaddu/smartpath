@@ -83,7 +83,7 @@ class AuthController extends Controller
             return redirect()->intended(route('admin.dashboard'));
         }
 
-        return redirect()->intended(route('beranda'));
+        return redirect()->route($user->getDashboardRouteName());
     }
 
     /**
@@ -98,7 +98,7 @@ class AuthController extends Controller
                 return redirect()->route('admin.dashboard');
             }
 
-            return redirect()->route('beranda');
+            return redirect()->route($user->getDashboardRouteName());
         }
 
         return view('auth.register');
@@ -235,7 +235,7 @@ class AuthController extends Controller
                 return redirect()->intended(route('admin.dashboard'));
             }
 
-            return redirect()->intended(route('beranda'))->with('sukses', 'Berhasil masuk menggunakan akun Google!');
+            return redirect()->route($user->getDashboardRouteName())->with('sukses', 'Berhasil masuk menggunakan akun Google!');
 
         } catch (\Exception $e) {
             return redirect()->route('login')->withErrors([

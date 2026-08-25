@@ -85,6 +85,17 @@ class DashboardController extends Controller
 }
 
     /**
+     * Fallback sementara sampai dashboard warga dibuat.
+     */
+    public function indexWarga()
+    {
+        $user = auth()->user();
+        $jumlahLaporan = Laporan::where('pelapor_id', $user->id)->count();
+
+        return view('dashboard.warga', compact('user', 'jumlahLaporan'));
+    }
+
+    /**
      * API endpoint untuk data chart dashboard.
      */
     public function getChartData(Request $request)
