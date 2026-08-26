@@ -41,7 +41,15 @@
 </head>
 <body class="h-full bg-slate-50 text-slate-900 antialiased">
     <div class="flex h-full">
-        @include('partials.sidebar-admin')
+
+        {{-- Panggil Sidebar Sesuai Role --}}
+        @if(auth()->user()->isAdmin())
+            @include('partials.sidebar-admin')
+        @elseif(auth()->user()->isDinas())
+            @include('partials.sidebar-dinas')
+        @elseif(auth()->user()->isWarga())
+            @include('partials.sidebar-warga')
+        @endif
 
         <div class="flex-1 flex flex-col min-w-0">
             @include('partials.header-admin')

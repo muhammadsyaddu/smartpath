@@ -4,577 +4,521 @@
 
 @section('content')
 
-<div class="min-h-screen w-full flex items-center justify-center p-0">
+<div class="min-h-screen w-full bg-[#f3faf7] flex items-end sm:items-center justify-center p-0 sm:p-4">
 
-    <div class="w-full max-w-none">
+    <div
+        class="relative w-full max-w-lg overflow-hidden bg-white
+               sm:rounded-[2rem] sm:shadow-[0_20px_60px_rgba(15,23,42,0.12)]"
+    >
 
-        <div class="grid min-h-screen w-full overflow-hidden bg-white lg:grid-cols-2">
+        {{-- ==========================================================
+             ACCESSIBILITY ILLUSTRATION
+        =========================================================== --}}
+     
+<div class="relative h-[230px] sm:h-[400px] overflow-hidden bg-emerald-50">
+        <img
+        src="{{ asset('foto-disabilitas.png') }}"
+        alt="Ilustrasi kota yang aksesibel dengan pengguna kursi roda dan pejalan kaki"
+        class="absolute inset-0 h-full w-full object-cover object-bottom"
+    >
 
-            {{-- ==========================================================
-                 PANEL INFORMASI SMARTPATH
-            =========================================================== --}}
-            <section
-                class="relative hidden min-h-screen overflow-hidden bg-emerald-700 lg:flex lg:flex-col lg:justify-between"
-                aria-label="Informasi SmartPath"
+    {{-- Soft overlay supaya transisi ke card lebih halus --}}
+    <div class="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-white/80 to-transparent"></div>
+
+</div>
+
+
+        {{-- ==========================================================
+             LOGIN CARD
+        =========================================================== --}}
+        <div
+            class="relative z-20 -mt-10 rounded-t-[2rem] bg-white px-6 pb-8 pt-6
+                   shadow-[0_-10px_30px_rgba(15,23,42,0.06)]
+                   sm:px-8 sm:pt-7"
+        >
+
+            {{-- ======================================================
+                 BRAND
+            ======================================================= --}}
+            <div class="mb-6 flex items-center gap-3">
+
+                <div
+                    class="flex h-12 w-12 shrink-0 items-center justify-center
+                           rounded-2xl bg-emerald-600 text-white
+                           shadow-[0_8px_20px_rgba(5,150,105,0.22)]"
+                >
+
+                    <svg
+                        class="h-7 w-7"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="1.8"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                    >
+                        <path d="M4 5.5L9 3l6 2.5L20 3v15.5L15 21l-6-2.5L4 21V5.5Z"/>
+                        <path d="M9 3v15.5"/>
+                        <path d="M15 5.5V21"/>
+                    </svg>
+
+                </div>
+
+                <div>
+                    <div class="text-xl font-extrabold tracking-tight text-slate-900">
+                        Smart<span class="text-emerald-600">Path</span>
+                    </div>
+
+                    <p class="text-[11px] font-medium text-slate-400">
+                        Pemetaan aksesibilitas
+                    </p>
+                </div>
+
+            </div>
+
+
+            {{-- ======================================================
+                 HEADER
+            ======================================================= --}}
+            <div class="mb-7">
+
+                <h2 class="text-[27px] font-extrabold leading-tight tracking-tight text-slate-900">
+                    Selamat datang kembali
+                </h2>
+
+                <p class="mt-2 max-w-[320px] text-sm leading-6 text-slate-500">
+                    Masuk untuk melanjutkan perjalanan menuju kota
+                    yang lebih aksesibel.
+                </p>
+
+            </div>
+
+
+            {{-- ======================================================
+                 ERROR MESSAGE
+            ======================================================= --}}
+            @if($errors->has('email') && !$errors->has('kata_sandi'))
+
+                <div
+                    class="mb-5 flex items-start gap-3 rounded-2xl border border-red-200
+                           bg-red-50 px-4 py-3.5 text-sm text-red-800"
+                    role="alert"
+                    aria-live="assertive"
+                >
+
+                    <div class="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-red-100">
+
+                        <svg
+                            class="h-4 w-4 text-red-600"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                        >
+                            <circle cx="12" cy="12" r="10"/>
+                            <line x1="12" y1="8" x2="12" y2="12"/>
+                            <line x1="12" y1="16" x2="12.01" y2="16"/>
+                        </svg>
+
+                    </div>
+
+                    <div>
+                        <p class="font-bold">
+                            Gagal masuk
+                        </p>
+
+                        <p class="mt-0.5 text-xs leading-5 text-red-700">
+                            {{ $errors->first('email') }}
+                        </p>
+                    </div>
+
+                </div>
+
+            @endif
+
+
+            {{-- ======================================================
+                 LOGIN FORM
+            ======================================================= --}}
+            <form
+                method="POST"
+                action="{{ route('login.post') }}"
+                novalidate
+                class="space-y-5"
             >
 
-                {{-- Background decoration --}}
-                <div
-                    class="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-emerald-500/30 blur-3xl"
-                    aria-hidden="true"
-                ></div>
+                @csrf
 
-                <div
-                    class="absolute -bottom-32 -left-24 h-80 w-80 rounded-full bg-teal-400/20 blur-3xl"
-                    aria-hidden="true"
-                ></div>
 
-                <div class="relative z-10 p-10 xl:p-12">
+                {{-- EMAIL --}}
+                <div>
 
-                    {{-- Brand --}}
-                    <a
-                        href="{{ route('beranda') }}"
-                        class="inline-flex items-center gap-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-emerald-700"
-                        aria-label="SmartPath - kembali ke beranda"
+                    <label
+                        for="email"
+                        class="mb-2 block text-sm font-bold text-slate-800"
                     >
+                        Email
+                    </label>
 
-                        <span class="flex h-11 w-11 items-center justify-center rounded-xl bg-white/10 ring-1 ring-white/20 backdrop-blur-sm">
+                    <div class="relative">
+
+                        {{-- Icon --}}
+                        <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4">
 
                             <svg
-                                class="h-6 w-6 text-white"
+                                class="h-5 w-5 text-emerald-600"
                                 viewBox="0 0 24 24"
                                 fill="none"
                                 stroke="currentColor"
                                 stroke-width="1.8"
                                 stroke-linecap="round"
                                 stroke-linejoin="round"
-                                aria-hidden="true"
                             >
-                                <path d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/>
+                                <rect x="3" y="5" width="18" height="14" rx="2"/>
+                                <polyline points="3 7 12 13 21 7"/>
                             </svg>
 
-                        </span>
-
-                        <span class="text-xl font-bold tracking-tight text-white">
-                            SmartPath
-                        </span>
-
-                    </a>
-
-
-                    {{-- Headline --}}
-                    <div class="mt-20 max-w-md">
-
-                        <p class="mb-4 text-sm font-semibold uppercase tracking-[0.18em] text-emerald-100">
-                            Platform Aksesibilitas
-                        </p>
-
-                        <h1 class="text-4xl font-extrabold leading-tight tracking-tight text-white xl:text-5xl">
-                            Bersama membangun ruang publik yang lebih aksesibel.
-                        </h1>
-
-                        <p class="mt-6 text-sm leading-7 text-emerald-50/90 xl:text-base">
-                            SmartPath membantu masyarakat dan pemerintah
-                            mengidentifikasi, memetakan, memverifikasi, dan
-                            memprioritaskan hambatan aksesibilitas pada
-                            infrastruktur publik.
-                        </p>
-
-                    </div>
-
-
-                    {{-- Feature --}}
-                    <div class="mt-12 space-y-4">
-
-                        <div class="flex items-start gap-4">
-
-                            <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-white/10 ring-1 ring-white/10">
-                                <svg
-                                    class="h-4 w-4 text-white"
-                                    viewBox="0 0 24 24"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    stroke-width="2"
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                    aria-hidden="true"
-                                >
-                                    <path d="M12 2v20"/>
-                                    <path d="M2 12h20"/>
-                                    <circle cx="12" cy="12" r="9"/>
-                                </svg>
-                            </span>
-
-                            <div>
-                                <h2 class="text-sm font-semibold text-white">
-                                    Pemetaan berbasis lokasi
-                                </h2>
-
-                                <p class="mt-1 text-xs leading-5 text-emerald-100/80">
-                                    Data hambatan divisualisasikan pada peta
-                                    untuk membantu menentukan kebutuhan
-                                    perbaikan.
-                                </p>
-                            </div>
-
                         </div>
 
 
-                        <div class="flex items-start gap-4">
-
-                            <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-white/10 ring-1 ring-white/10">
-
-                                <svg
-                                    class="h-4 w-4 text-white"
-                                    viewBox="0 0 24 24"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    stroke-width="2"
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                    aria-hidden="true"
-                                >
-                                    <path d="M20 6L9 17l-5-5"/>
-                                </svg>
-
-                            </span>
-
-                            <div>
-
-                                <h2 class="text-sm font-semibold text-white">
-                                    Proses terverifikasi
-                                </h2>
-
-                                <p class="mt-1 text-xs leading-5 text-emerald-100/80">
-                                    Laporan diproses melalui tahapan verifikasi
-                                    sebelum digunakan sebagai data prioritas.
-                                </p>
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-
-                {{-- Footer panel --}}
-                <div class="relative z-10 border-t border-white/10 px-10 py-5 xl:px-12">
-
-                    <p class="text-xs text-emerald-100/70">
-                        SmartPath · Pemetaan Aksesibilitas Infrastruktur
-                    </p>
-
-                </div>
-
-            </section>
-
-
-            {{-- ==========================================================
-                 PANEL LOGIN
-            =========================================================== --}}
-            <section class="flex min-h-screen items-center bg-white px-6 py-10 sm:px-10 lg:px-16 xl:px-24">
-
-                <div class="mx-auto w-full max-w-lg">
-
-                    {{-- Mobile Brand --}}
-                    <div class="mb-8 lg:hidden">
-
-                        <a
-                            href="{{ route('beranda') }}"
-                            class="inline-flex items-center gap-2.5 text-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 rounded-lg"
-                            aria-label="SmartPath - kembali ke beranda"
+                        <input
+                            type="email"
+                            id="email"
+                            name="email"
+                            value="{{ old('email') }}"
+                            placeholder="Masukkan email"
+                            autocomplete="email"
+                            inputmode="email"
+                            required
+                            aria-describedby="email-error"
+                            class="h-14 w-full rounded-2xl border border-slate-200
+                                   bg-white pl-12 pr-4 text-sm text-slate-900
+                                   shadow-[0_2px_8px_rgba(15,23,42,0.03)]
+                                   outline-none transition-all duration-200
+                                   placeholder:text-slate-400
+                                   hover:border-slate-300
+                                   focus:border-emerald-500
+                                   focus:ring-4 focus:ring-emerald-500/10"
                         >
 
-                            <span class="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50">
-
-                                <svg
-                                    class="h-5 w-5"
-                                    viewBox="0 0 24 24"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    stroke-width="1.8"
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                    aria-hidden="true"
-                                >
-                                    <path d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/>
-                                </svg>
-
-                            </span>
-
-                            <span class="text-xl font-bold">
-                                SmartPath
-                            </span>
-
-                        </a>
-
                     </div>
 
 
-                    {{-- Header --}}
-                    <div class="mb-8">
+                    @if($errors->has('email'))
 
-                        <div class="mb-5 inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-600">
-
-                            <svg
-                                class="h-6 w-6"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                stroke-width="1.8"
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                aria-hidden="true"
-                            >
-                                <path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4"/>
-                                <polyline points="10 17 15 12 10 7"/>
-                                <line x1="15" y1="12" x2="3" y2="12"/>
-                            </svg>
-
-                        </div>
-
-                        <h2 class="text-3xl font-extrabold tracking-tight text-slate-900">
-                            Selamat datang kembali
-                        </h2>
-
-                        <p class="mt-2 text-sm leading-6 text-slate-500">
-                            Masuk ke akun SmartPath untuk melanjutkan.
-                        </p>
-
-                    </div>
-
-
-                    {{-- General Error --}}
-                    @if($errors->has('email') && !$errors->has('kata_sandi'))
-                        <div
-                            class="mb-5 flex items-start gap-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3.5 text-sm text-red-800"
+                        <p
+                            id="email-error"
+                            class="mt-2 text-xs font-semibold text-red-600"
                             role="alert"
-                            aria-live="assertive"
                         >
+                            {{ $errors->first('email') }}
+                        </p>
 
-                            <svg
-                                class="mt-0.5 h-5 w-5 shrink-0 text-red-600"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                stroke-width="2"
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                aria-hidden="true"
-                            >
-                                <circle cx="12" cy="12" r="10"/>
-                                <line x1="12" y1="8" x2="12" y2="12"/>
-                                <line x1="12" y1="16" x2="12.01" y2="16"/>
-                            </svg>
-
-                            <div>
-                                <p class="font-semibold">
-                                    Gagal masuk
-                                </p>
-
-                                <p class="mt-0.5 text-xs text-red-700">
-                                    {{ $errors->first('email') }}
-                                </p>
-                            </div>
-
-                        </div>
                     @endif
 
+                </div>
 
-                    {{-- Login Form --}}
-                    <form
-                        method="POST"
-                        action="{{ route('login.post') }}"
-                        id="login-form"
-                        novalidate
-                        class="space-y-5"
+
+                {{-- PASSWORD --}}
+                <div>
+
+                    <label
+                        for="kata_sandi"
+                        class="mb-2 block text-sm font-bold text-slate-800"
                     >
+                        Kata Sandi
+                    </label>
 
-                        @csrf
+                    <div class="relative">
 
-
-                        {{-- Email --}}
-                        <div>
-
-                            <label
-                                for="email"
-                                class="mb-2 block text-sm font-semibold text-slate-700"
-                            >
-                                Email
-                            </label>
-
-                            <div class="relative">
-
-                                <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4">
-
-                                    <svg
-                                        class="h-5 w-5 text-slate-400"
-                                        viewBox="0 0 24 24"
-                                        fill="none"
-                                        stroke="currentColor"
-                                        stroke-width="1.8"
-                                        stroke-linecap="round"
-                                        stroke-linejoin="round"
-                                        aria-hidden="true"
-                                    >
-                                        <rect x="3" y="5" width="18" height="14" rx="2"/>
-                                        <polyline points="3 7 12 13 21 7"/>
-                                    </svg>
-
-                                </div>
-
-                                <input
-                                    type="email"
-                                    id="email"
-                                    name="email"
-                                    value="{{ old('email') }}"
-                                    placeholder="nama@email.com"
-                                    autocomplete="email"
-                                    inputmode="email"
-                                    autocapitalize="none"
-                                    spellcheck="false"
-                                    required
-                                    autofocus
-                                    aria-required="true"
-                                    aria-invalid="{{ $errors->has('email') ? 'true' : 'false' }}"
-                                    aria-describedby="{{ $errors->has('email') ? 'email-error' : 'email-help' }}"
-                                    class="auth-input w-full rounded-xl border border-slate-300 bg-white py-3.5 pl-11 pr-4 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 hover:border-slate-400 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10"
-                                >
-
-                            </div>
-
-                            @if($errors->has('email'))
-                                <p
-                                    id="email-error"
-                                    class="mt-2 text-xs font-medium text-red-600"
-                                    role="alert"
-                                >
-                                    {{ $errors->first('email') }}
-                                </p>
-                            @else
-                                <p
-                                    id="email-help"
-                                    class="mt-2 text-xs text-slate-400"
-                                >
-                                    Gunakan alamat email yang terdaftar.
-                                </p>
-                            @endif
-
-                        </div>
-
-
-                        {{-- Password --}}
-                        <div>
-
-                            <div class="mb-2 flex items-center justify-between">
-
-                                <label
-                                    for="kata_sandi"
-                                    class="block text-sm font-semibold text-slate-700"
-                                >
-                                    Kata Sandi
-                                </label>
-
-                            </div>
-
-
-                            <div class="relative">
-
-                                <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4">
-
-                                    <svg
-                                        class="h-5 w-5 text-slate-400"
-                                        viewBox="0 0 24 24"
-                                        fill="none"
-                                        stroke="currentColor"
-                                        stroke-width="1.8"
-                                        stroke-linecap="round"
-                                        stroke-linejoin="round"
-                                        aria-hidden="true"
-                                    >
-                                        <rect x="3" y="11" width="18" height="10" rx="2"/>
-                                        <path d="M7 11V7a5 5 0 0110 0v4"/>
-                                    </svg>
-
-                                </div>
-
-
-                                <input
-                                    type="password"
-                                    id="kata_sandi"
-                                    name="kata_sandi"
-                                    placeholder="Masukkan kata sandi"
-                                    autocomplete="current-password"
-                                    required
-                                    aria-required="true"
-                                    aria-invalid="{{ $errors->has('kata_sandi') ? 'true' : 'false' }}"
-                                    aria-describedby="{{ $errors->has('kata_sandi') ? 'password-error' : 'password-help' }}"
-                                    class="auth-input w-full rounded-xl border border-slate-300 bg-white py-3.5 pl-11 pr-12 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 hover:border-slate-400 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10"
-                                >
-
-
-                                <button
-                                    type="button"
-                                    id="toggle-password"
-                                    class="absolute inset-y-0 right-0 flex w-12 items-center justify-center rounded-r-xl text-slate-400 transition hover:text-slate-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-emerald-500"
-                                    aria-label="Tampilkan kata sandi"
-                                    aria-pressed="false"
-                                >
-
-                                    <svg
-                                        id="password-eye"
-                                        class="h-5 w-5"
-                                        viewBox="0 0 24 24"
-                                        fill="none"
-                                        stroke="currentColor"
-                                        stroke-width="1.8"
-                                        stroke-linecap="round"
-                                        stroke-linejoin="round"
-                                        aria-hidden="true"
-                                    >
-                                        <path d="M2.062 12.348a1 1 0 010-.696 10.75 10.75 0 0119.876 0 1 1 0 010 .696 10.75 10.75 0 01-19.876 0z"/>
-                                        <circle cx="12" cy="12" r="3"/>
-                                    </svg>
-
-                                </button>
-
-                            </div>
-
-
-                            @if($errors->has('kata_sandi'))
-                                <p
-                                    id="password-error"
-                                    class="mt-2 text-xs font-medium text-red-600"
-                                    role="alert"
-                                >
-                                    {{ $errors->first('kata_sandi') }}
-                                </p>
-                            @else
-                                <p
-                                    id="password-help"
-                                    class="mt-2 text-xs text-slate-400"
-                                >
-                                    Masukkan kata sandi akun Anda.
-                                </p>
-                            @endif
-
-                        </div>
-
-
-                        {{-- Remember --}}
-                        <div class="flex items-center justify-between pt-1">
-
-                            <label
-                                for="remember"
-                                class="inline-flex cursor-pointer items-center gap-3"
-                            >
-
-                                <input
-                                    type="checkbox"
-                                    id="remember"
-                                    name="remember"
-                                    value="1"
-                                    class="auth-checkbox h-4 w-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
-                                >
-
-                                <span class="text-sm font-medium text-slate-600">
-                                    Ingat saya
-                                </span>
-
-                            </label>
-
-                        </div>
-
-
-                        {{-- Submit --}}
-                        <button
-                            type="submit"
-                            id="login-submit"
-                            class="group flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 px-5 py-3.5 text-sm font-bold text-white shadow-sm transition duration-200 hover:bg-emerald-700 hover:shadow-md focus:outline-none focus:ring-4 focus:ring-emerald-500/20 disabled:cursor-not-allowed disabled:opacity-70"
-                        >
-
-                            <span id="login-submit-text">
-                                Masuk ke SmartPath
-                                <a href="{{ route('laporan.create') }}" class="ml-1 text-sm font-normal text-emerald-100 transition hover:text-white">
-
-                                </a>
-                            </span>
+                        {{-- Lock Icon --}}
+                        <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4">
 
                             <svg
-                                id="login-spinner"
-                                class="hidden h-4 w-4 animate-spin"
+                                class="h-5 w-5 text-emerald-600"
                                 viewBox="0 0 24 24"
                                 fill="none"
-                                aria-hidden="true"
+                                stroke="currentColor"
+                                stroke-width="1.8"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
                             >
-                                <circle
-                                    cx="12"
-                                    cy="12"
-                                    r="9"
-                                    class="opacity-30"
-                                    stroke="currentColor"
-                                    stroke-width="3"
-                                />
+                                <rect x="4" y="10" width="16" height="11" rx="2"/>
+                                <path d="M8 10V7a4 4 0 0 1 8 0v3"/>
+                            </svg>
 
-                                <path
-                                    d="M21 12a9 9 0 00-9-9"
-                                    stroke="currentColor"
-                                    stroke-width="3"
-                                    stroke-linecap="round"
-                                />
+                        </div>
+
+
+                        <input
+                            type="password"
+                            id="kata_sandi"
+                            name="kata_sandi"
+                            placeholder="Masukkan kata sandi"
+                            autocomplete="current-password"
+                            required
+                            aria-describedby="password-error"
+                            class="h-14 w-full rounded-2xl border border-slate-200
+                                   bg-white pl-12 pr-14 text-sm text-slate-900
+                                   shadow-[0_2px_8px_rgba(15,23,42,0.03)]
+                                   outline-none transition-all duration-200
+                                   placeholder:text-slate-400
+                                   hover:border-slate-300
+                                   focus:border-emerald-500
+                                   focus:ring-4 focus:ring-emerald-500/10"
+                        >
+
+
+                        {{-- Password Toggle --}}
+                        <button
+                            type="button"
+                            id="toggle-password"
+                            class="absolute inset-y-0 right-0 flex w-12 items-center
+                                   justify-center rounded-r-2xl text-slate-400
+                                   transition hover:text-emerald-600
+                                   focus:outline-none focus:ring-2
+                                   focus:ring-inset focus:ring-emerald-500"
+                            aria-label="Tampilkan kata sandi"
+                            aria-pressed="false"
+                        >
+
+                            <svg
+                                id="password-eye"
+                                class="h-5 w-5"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="1.8"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                            >
+                                <path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z"/>
+                                <circle cx="12" cy="12" r="2.5"/>
                             </svg>
 
                         </button>
 
-                    </form>
-
-
-                    {{-- Back to Home --}}
-                    <div class="mt-8 border-t border-slate-100 pt-6 text-center">
-
-                        <a
-                            href="{{ route('beranda') }}"
-                            class="inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-slate-500 transition hover:text-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
-                        >
-
-                            <svg
-                                class="h-4 w-4"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                stroke-width="1.8"
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                aria-hidden="true"
-                            >
-                                <path d="M19 12H5"/>
-                                <polyline points="12 19 5 12 12 5"/>
-                            </svg>
-
-                            Kembali ke Beranda
-
-                        </a>
-
                     </div>
 
 
-                   {{-- Copyright --}}
-                    <p class="mt-6 text-center text-[11px] leading-5 text-slate-400">
-                        &copy; {{ date('Y') }} SmartPath. Semua hak dilindungi.
-                    </p>
+                    @if($errors->has('kata_sandi'))
+
+                        <p
+                            id="password-error"
+                            class="mt-2 text-xs font-semibold text-red-600"
+                            role="alert"
+                        >
+                            {{ $errors->first('kata_sandi') }}
+                        </p>
+
+                    @endif
 
                 </div>
 
-            </section>
+
+                {{-- ==================================================
+                     REMEMBER + FORGOT
+                =================================================== --}}
+                <div class="flex items-center justify-between pt-0.5">
+
+                    <label
+                        for="remember"
+                        class="flex cursor-pointer items-center gap-2.5"
+                    >
+
+                        <input
+                            type="checkbox"
+                            id="remember"
+                            name="remember"
+                            value="1"
+                            class="h-4 w-4 rounded border-slate-300
+                                   text-emerald-600
+                                   focus:ring-emerald-500"
+                        >
+
+                        <span class="text-sm font-medium text-slate-600">
+                            Ingat saya
+                        </span>
+
+                    </label>
+
+
+                    <a
+                        href="#"
+                        class="text-sm font-bold text-emerald-600 transition hover:text-emerald-700"
+                    >
+                        Lupa kata sandi?
+                    </a>
+
+                </div>
+
+
+                {{-- ==================================================
+                     LOGIN BUTTON
+                =================================================== --}}
+                <button
+                    type="submit"
+                    class="group flex h-14 w-full items-center justify-center
+                           gap-2 rounded-2xl bg-emerald-600 px-5
+                           text-sm font-bold text-white
+                           shadow-[0_8px_20px_rgba(5,150,105,0.20)]
+                           transition-all duration-200
+                           hover:bg-emerald-700
+                           hover:shadow-[0_10px_25px_rgba(5,150,105,0.25)]
+                           active:scale-[0.985]
+                           focus:outline-none
+                           focus:ring-4 focus:ring-emerald-500/20"
+                >
+
+                    <span>
+                        Masuk ke SmartPath
+                    </span>
+
+                    <svg
+                        class="h-5 w-5 transition-transform duration-200 group-hover:translate-x-1"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                    >
+                        <path d="M5 12h14"/>
+                        <path d="m13 6 6 6-6 6"/>
+                    </svg>
+
+                </button>
+
+            </form>
+
+
+            {{-- ======================================================
+                 SOCIAL LOGIN
+            ======================================================= --}}
+          <div class="relative my-7 flex items-center">
+    <div class="h-px flex-1 bg-slate-200"></div>
+    <span class="mx-4 whitespace-nowrap text-xs font-medium text-slate-400">
+        atau masuk dengan
+    </span>
+    <div class="h-px flex-1 bg-slate-200"></div>
+</div>
+
+<div>
+    {{-- Google --}}
+    <a
+        href="{{ route ('auth.google')}}"
+        class="flex h-12 w-full items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:bg-slate-50 focus:outline-none focus:ring-4 focus:ring-slate-100"
+    >
+        <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none">
+            <path d="M21.35 12.2c0-.78-.07-1.53-.22-2.25H12v4.26h5.24a4.48 4.48 0 01-1.94 2.94v2.45h3.15c1.84-1.69 2.9-4.18 2.9-7.4z" fill="#4285F4" />
+            <path d="M12 21.5c2.63 0 4.83-.87 6.44-2.36l-3.15-2.45c-.87.58-1.98.93-3.29.93-2.53 0-4.67-1.71-5.44-4.01H3.3v2.53A9.72 9.72 0 0012 21.5z" fill="#34A853" />
+            <path d="M6.56 13.61A5.84 5.84 0 016.25 12c0-.56.1-1.1.31-1.61V7.86H3.3A9.72 9.72 0 002.25 12c0 1.57.38 3.05 1.05 4.34l3.26-2.73z" fill="#FBBC05" />
+            <path d="M12 6.38c1.43 0 2.71.49 3.72 1.45l2.79-2.79C16.82 3.5 14.63 2.5 12 2.5a9.72 9.72 0 00-8.7 5.36l3.26 2.53C7.33 8.09 9.47 6.38 12 6.38z" fill="#EA4335" />
+        </svg>
+        <span>Google</span>
+    </a>
+</div>
+
+            {{-- ======================================================
+                 REGISTER
+            ======================================================= --}}
+            <div class="mt-7 text-center">
+
+                <p class="text-sm text-slate-500">
+                    Belum punya akun?
+
+                    <a
+                        href="{{ route('register.post') }}"
+                        class="ml-1 font-bold text-emerald-600 transition hover:text-emerald-700"
+                    >
+                        Daftar
+                    </a>
+                </p>
+
+            </div>
+
+
+            {{-- ======================================================
+                 FOOTER
+            ======================================================= --}}
+            <div class="mt-7 border-t border-slate-100 pt-5 text-center">
+
+                <p class="text-[11px] font-medium text-slate-400">
+                    SmartPath • Pemetaan Aksesibilitas Infrastruktur
+                </p>
+
+            </div>
 
         </div>
 
 
-       
+        {{-- Mobile Home Indicator --}}
+        <div class="flex justify-center bg-white pb-3 sm:hidden">
+
+            <div class="h-1 w-28 rounded-full bg-slate-900"></div>
+
+        </div>
+
     </div>
 
 </div>
+
+
+{{-- ================================================================
+     PASSWORD TOGGLE
+================================================================ --}}
+<script>
+
+document.addEventListener('DOMContentLoaded', function () {
+
+    const toggleButton = document.getElementById('toggle-password');
+    const passwordInput = document.getElementById('kata_sandi');
+    const eyeIcon = document.getElementById('password-eye');
+
+    if (!toggleButton || !passwordInput || !eyeIcon) {
+        return;
+    }
+
+    toggleButton.addEventListener('click', function () {
+
+        const isPassword = passwordInput.type === 'password';
+
+        passwordInput.type = isPassword ? 'text' : 'password';
+
+        toggleButton.setAttribute(
+            'aria-label',
+            isPassword
+                ? 'Sembunyikan kata sandi'
+                : 'Tampilkan kata sandi'
+        );
+
+        toggleButton.setAttribute(
+            'aria-pressed',
+            isPassword ? 'true' : 'false'
+        );
+
+        if (isPassword) {
+
+            eyeIcon.innerHTML = `
+                <path d="M3 3l18 18"/>
+                <path d="M10.6 10.6a2 2 0 0 0 2.8 2.8"/>
+                <path d="M9.9 4.2A10.8 10.8 0 0 1 12 4c6.5 0 10 8 10 8a17.8 17.8 0 0 1-3.1 4.3"/>
+                <path d="M6.6 6.6C3.8 8.4 2 12 2 12s3.5 8 10 8c1.4 0 2.7-.3 3.9-.9"/>
+            `;
+
+        } else {
+
+            eyeIcon.innerHTML = `
+                <path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z"/>
+                <circle cx="12" cy="12" r="2.5"/>
+            `;
+
+        }
+
+    });
+
+});
+
+</script>
 
 @endsection

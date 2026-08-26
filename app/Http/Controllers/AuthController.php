@@ -3,12 +3,16 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\Audit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Illuminate\Http\RedirectResponse;
 use App\Http\Requests\RegisterUserRequest;
 use Illuminate\View\View;
+use Laravel\Socialite\Facades\Socialite;
 
 class AuthController extends Controller
 {
@@ -32,7 +36,7 @@ class AuthController extends Controller
     }
 
     /**
-     * Proses autentikasi pengguna.
+     * Proses autentikasi pengguna lokal.
      */
     public function login(Request $request)
     {
@@ -63,7 +67,7 @@ class AuthController extends Controller
         $user->update(['terakhir_masuk' => now()]);
 
         // Log audit
-        \App\Models\Audit::log(
+        Audit::log(
             $user->id,
             'login',
             'users',
@@ -82,59 +86,163 @@ class AuthController extends Controller
         return redirect()->intended(route('beranda'));
     }
 
+    /**
+     * Tampilkan halaman registrasi.
+     */
     public function showRegisterForm(): View|RedirectResponse
-{
-    if (auth()->check()) {
-        $user = auth()->user();
+    {
+        if (auth()->check()) {
+            $user = auth()->user();
 
-        if ($user->isAdmin() || $user->isDinas()) {
-            return redirect()->route('admin.dashboard');
+            if ($user->isAdmin() || $user->isDinas()) {
+                return redirect()->route('admin.dashboard');
+            }
+
+            return redirect()->route('beranda');
         }
 
-        return redirect()->route('beranda');
+        return view('auth.register');
     }
 
-    return view('auth.register');
-}
-public function register(RegisterUserRequest $request): RedirectResponse
-{
-    $validated = $request->validated();
+    /**
+     * Proses registrasi akun warga baru.
+     */
+    public function register(RegisterUserRequest $request): RedirectResponse
+    {
+        $validated = $request->validated();
 
-    $user = DB::users(function () use ($validated) {
-        $user = User::create([
-            'nama_lengkap' => $validated['nama_lengkap'],
-            'email' => $validated['email'],
-            'kata_sandi' => Hash::make($validated['kata_sandi']),
-            'nomor_hp' => $validated['nomor_hp'] ?? null,
-            'peran' => 'warga',
-            'email_terverifikasi' => false,
-            'aktif' => true,
-        ]);
+        $user = DB::transaction(function () use ($validated) {
+            $user = User::create([
+                'nama_lengkap' => $validated['nama_lengkap'],
+                'email' => $validated['email'],
+                'kata_sandi' => Hash::make($validated['kata_sandi']),
+                'nomor_hp' => $validated['nomor_hp'] ?? null,
+                'peran' => 'warga',
+                'email_terverifikasi' => false,
+                'aktif' => true,
+            ]);
 
-        Audit::log(
-            $user->id,
-            'registrasi',
-            'users',
-            $user->id,
-            null,
-            [
-                'nama_lengkap' => $user->nama_lengkap,
-                'email' => $user->email,
-                'peran' => $user->peran,
-            ],
-            'Akun warga baru berhasil dibuat'
-        );
+            Audit::log(
+                $user->id,
+                'registrasi',
+                'users',
+                $user->id,
+                null,
+                [
+                    'nama_lengkap' => $user->nama_lengkap,
+                    'email' => $user->email,
+                    'peran' => $user->peran,
+                ],
+                'Akun warga baru berhasil dibuat'
+            );
 
-        return $user;
-    });
+            return $user;
+        });
 
-    Auth::login($user);
-    $request->session()->regenerate();
+        Auth::login($user);
+        $request->session()->regenerate();
 
-    return redirect()
-        ->route('beranda')
-        ->with('sukses', 'Akun berhasil dibuat. Selamat datang di SmartPath.');
-}
+        return redirect()
+            ->route('beranda')
+            ->with('sukses', 'Akun berhasil dibuat. Selamat datang di SmartPath.');
+    }
+
+    /**
+     * Redirect ke halaman Google OAuth.
+     */
+    public function redirectToGoogle(): RedirectResponse
+    {
+        return Socialite::driver('google')->redirect();
+    }
+
+    /**
+     * Handle callback dari Google OAuth.
+     */
+    public function handleGoogleCallback(): RedirectResponse
+    {
+        try {
+            $googleUser = Socialite::driver('google')->user();
+
+            $user = DB::transaction(function () use ($googleUser) {
+                // Cari atau buat pengguna berdasarkan email Google
+                $existingUser = User::where('email', $googleUser->getEmail())->first();
+
+                if ($existingUser) {
+                    if (!$existingUser->aktif) {
+                        return null;
+                    }
+
+                    // Update google_id jika belum terhubung
+                    $existingUser->update([
+                        'google_id' => $googleUser->getId(),
+                        'email_terverifikasi' => true,
+                        'terakhir_masuk' => now(),
+                    ]);
+
+                    return $existingUser;
+                }
+
+                // Jika akun belum ada, buat akun warga baru secara otomatis
+                $newUser = User::create([
+                    'nama_lengkap' => $googleUser->getName(),
+                    'email' => $googleUser->getEmail(),
+                    'google_id' => $googleUser->getId(),
+                    'kata_sandi' => Hash::make(Str::random(16)), // Password acak aman
+                    'peran' => 'warga',
+                    'email_terverifikasi' => true,
+                    'aktif' => true,
+                    'terakhir_masuk' => now(),
+                ]);
+
+                Audit::log(
+                    $newUser->id,
+                    'registrasi_google',
+                    'users',
+                    $newUser->id,
+                    null,
+                    [
+                        'nama_lengkap' => $newUser->nama_lengkap,
+                        'email' => $newUser->email,
+                        'peran' => $newUser->peran,
+                    ],
+                    'Akun baru berhasil dibuat melalui Google OAuth'
+                );
+
+                return $newUser;
+            });
+
+            if (!$user) {
+                return redirect()->route('login')->withErrors([
+                    'email' => 'Akun Anda telah dinonaktifkan. Hubungi administrator.',
+                ]);
+            }
+
+            Auth::login($user, true);
+
+            Audit::log(
+                $user->id,
+                'login_google',
+                'users',
+                $user->id,
+                null,
+                null,
+                'Pengguna berhasil masuk menggunakan Google OAuth'
+            );
+
+            request()->session()->regenerate();
+
+            if ($user->isAdmin() || $user->isDinas()) {
+                return redirect()->intended(route('admin.dashboard'));
+            }
+
+            return redirect()->intended(route('beranda'))->with('sukses', 'Berhasil masuk menggunakan akun Google!');
+
+        } catch (\Exception $e) {
+            return redirect()->route('login')->withErrors([
+                'email' => 'Gagal masuk menggunakan Google. Silakan coba lagi.',
+            ]);
+        }
+    }
 
     /**
      * Proses logout pengguna.
@@ -142,7 +250,7 @@ public function register(RegisterUserRequest $request): RedirectResponse
     public function logout(Request $request)
     {
         if (auth()->check()) {
-            \App\Models\Audit::log(
+            Audit::log(
                 auth()->id(),
                 'logout',
                 'users',
