@@ -11,7 +11,13 @@ class StoreLaporanRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return auth()->check() && auth()->user()->isWarga() || auth()->user()->isAdmin();
+        if (!auth()->check()) {
+            return false;
+        }
+
+        $user = auth()->user();
+
+        return $user->isWarga() || $user->isAdmin();
     }
 
     /**

@@ -406,7 +406,7 @@
 <div>
     {{-- Google --}}
     <a
-        href="{{ route ('auth.google')}}"
+        href="{{ route('auth.google') }}"
         class="flex h-12 w-full items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:bg-slate-50 focus:outline-none focus:ring-4 focus:ring-slate-100"
     >
         <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none">
@@ -428,7 +428,7 @@
                     Belum punya akun?
 
                     <a
-                        href="{{ route('register.post') }}"
+                        href="{{ route('auth.register') }}"
                         class="ml-1 font-bold text-emerald-600 transition hover:text-emerald-700"
                     >
                         Daftar
