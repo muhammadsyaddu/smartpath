@@ -18,6 +18,7 @@ class User extends Authenticatable
     protected $fillable = [
         'nama_lengkap',
         'email',
+        'google_id',
         'kata_sandi',
         'nomor_hp',
         'peran',
@@ -29,11 +30,12 @@ class User extends Authenticatable
         'terakhir_masuk',
         'token_reset',
         'token_reset_kadaluarsa',
-        'aktif'
+        'aktif',
     ];
 
     protected $hidden = [
         'kata_sandi',
+        'google_id',
         'token_reset',
         'remember_token',
     ];
@@ -47,7 +49,7 @@ class User extends Authenticatable
     ];
 
     /**
-     * dapet password untuk user
+     * Password autentikasi Laravel menggunakan kolom kata_sandi.
      */
     public function getAuthPassword(): string
     {
@@ -55,7 +57,7 @@ class User extends Authenticatable
     }
 
     /**
-     * dapet wilayah untuk user
+     * Relasi wilayah pengguna.
      */
     public function wilayah(): BelongsTo
     {
@@ -63,7 +65,7 @@ class User extends Authenticatable
     }
 
     /**
-     * Laporan dibuat user ini
+     * Laporan yang dibuat pengguna.
      */
     public function laporanDibuat(): HasMany
     {
@@ -71,7 +73,7 @@ class User extends Authenticatable
     }
 
     /**
-     * Verifikasi performed by this user
+     * Verifikasi yang dilakukan pengguna.
      */
     public function verifikasiDilakukan(): HasMany
     {
@@ -79,7 +81,7 @@ class User extends Authenticatable
     }
 
     /**
-     * Riwayat status changes by this user
+     * Riwayat perubahan status laporan.
      */
     public function riwayatStatus(): HasMany
     {
@@ -87,7 +89,7 @@ class User extends Authenticatable
     }
 
     /**
-     * Notifications for this user
+     * Notifikasi pengguna.
      */
     public function notifikasi(): HasMany
     {
@@ -95,7 +97,7 @@ class User extends Authenticatable
     }
 
     /**
-     * Audit logs by this user
+     * Audit yang dilakukan pengguna.
      */
     public function audit(): HasMany
     {
@@ -103,7 +105,7 @@ class User extends Authenticatable
     }
 
     /**
-     * Pengaturan prioritas created by this user
+     * Pengaturan prioritas yang dibuat pengguna.
      */
     public function pengaturanPrioritas(): HasMany
     {
@@ -111,7 +113,7 @@ class User extends Authenticatable
     }
 
     /**
-     * Scope for active users
+     * Scope pengguna aktif.
      */
     public function scopeAktif($query)
     {
@@ -119,7 +121,7 @@ class User extends Authenticatable
     }
 
     /**
-     * Scope for specific role
+     * Scope berdasarkan role.
      */
     public function scopePeran($query, string $peran)
     {
@@ -127,7 +129,7 @@ class User extends Authenticatable
     }
 
     /**
-     * Check if user has specific role
+     * Pemeriksaan role umum.
      */
     public function hasRole(string $role): bool
     {
@@ -135,15 +137,21 @@ class User extends Authenticatable
     }
 
     /**
-     * Periksa user ini jika Admin
+     * Pemeriksaan administrator.
+     *
+     * 'admin' tetap diterima untuk kompatibilitas
+     * dengan data lama dari branch Ratna.
      */
     public function isAdmin(): bool
     {
-        return $this->peran === 'administrator';
+        return in_array($this->peran, [
+            'administrator',
+            'admin',
+        ], true);
     }
 
     /**
-     * Periksa jika user adalah Dinas
+     * Pemeriksaan petugas dinas.
      */
     public function isDinas(): bool
     {
@@ -151,38 +159,45 @@ class User extends Authenticatable
     }
 
     /**
-     * Periksa jika user adalah warga
+     * Pemeriksaan warga.
      */
     public function isWarga(): bool
     {
         return $this->peran === 'warga';
     }
 
-
-    //Dapatkan nama route dashboard berdasarkan peran (role)
-     
+    /**
+     * Menentukan dashboard berdasarkan role.
+     */
     public function getDashboardRouteName(): string
     {
         return match ($this->peran) {
-            'administrator', 'admin' => 'admin.dashboard',
-            'dinas'                 => 'dinas.dashboard',
-            default                 => 'warga.dashboard',
+            'administrator',
+            'admin' => 'admin.dashboard',
+
+            'dinas' => 'dinas.dashboard',
+
+            'warga' => 'warga.dashboard',
+
+            default => 'beranda',
         };
     }
 
     /**
-     * Dapetin semua nama atribut
+     * Nama lengkap pengguna.
      */
     public function getNamaLengkapAttribute(): string
     {
-        return $this->attributes['nama_lengkap'];
+        return $this->attributes['nama_lengkap'] ?? '';
     }
 
     /**
-     * Get unread notifications count
+     * Jumlah notifikasi belum dibaca.
      */
     public function getNotifikasiBelumDibacaCountAttribute(): int
     {
-        return $this->notifikasi()->where('sudah_dibaca', false)->count();
+        return $this->notifikasi()
+            ->where('sudah_dibaca', false)
+            ->count();
     }
 }
