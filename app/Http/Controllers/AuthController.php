@@ -33,7 +33,7 @@ class AuthController extends Controller
          * Nama view disesuaikan dengan struktur folder
          * project yang sekarang.
          */
-        return view('Auth.login');
+        return view('auth.login');
     }
 
     /**
@@ -144,7 +144,7 @@ class AuthController extends Controller
             );
         }
 
-        return view('Auth.register');
+        return view('auth.register');
     }
 
     /**
@@ -189,14 +189,15 @@ class AuthController extends Controller
 
         Auth::login($user);
 
+        
         $request->session()->regenerate();
 
         return redirect()
-            ->route('warga.dashboard')
-            ->with(
-                'sukses',
-                'Akun berhasil dibuat. Selamat datang di SmartPath.'
-            );
+        ->route('warga.dashboard')
+        ->with(
+            'sukses',
+            'Akun berhasil dibuat. Selamat datang di SmartPath.'
+    );
     }
 
     /**
