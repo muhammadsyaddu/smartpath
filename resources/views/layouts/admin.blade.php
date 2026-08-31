@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-    <!-- Tailwind CSS (CDN Standalone - Tanpa Perlu Vite / Node.js di Laragon) -->
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -42,7 +42,7 @@
 <body class="h-full bg-slate-50 text-slate-900 antialiased">
     <div class="flex h-full">
 
-        {{-- Panggil Sidebar Sesuai Role --}}
+        {{-- Sidebar Sesuai Role --}}
         @if(auth()->user()->isAdmin())
             @include('partials.sidebar-admin')
         @elseif(auth()->user()->isDinas())
@@ -68,11 +68,13 @@
                     </div>
                 @endif
 
+                {{-- ISI KONTEN DASHBOARD AKAN DISELIPKAN DI SINI --}}
                 @yield('content')
             </main>
         </div>
     </div>
 
+    {{-- SCRIPT LEAFLET PETA AKAN DISELIPKAN DI SINI --}}
     @stack('scripts')
 </body>
 </html>
