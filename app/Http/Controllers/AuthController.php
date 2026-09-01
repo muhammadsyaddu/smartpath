@@ -29,7 +29,7 @@ class AuthController extends Controller
             );
         }
 
-        /*
+        /*  
          * Nama view disesuaikan dengan struktur folder
          * project yang sekarang.
          */

@@ -1,46 +1,55 @@
 @extends('layouts.admin')
 
-@section('title', 'Dashboard')
+@section('title', 'Dashboard Admin')
 @section('page_title', 'Dashboard')
 
 @section('content')
-<!DOCTYPE html>
-<html lang="id" class="h-full bg-slate-50">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@yield('title', 'Dashboard') - Admin SmartPath</title>
+<div class="space-y-6">
 
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    {{-- Section: Filter Tanggal & Tombol Unduh Laporan --}}
+    <div class="bg-white rounded-xl border border-slate-200 p-4 sm:p-5 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+        <div>
+            <h1 class="text-base font-bold text-slate-900">Filter & Rekapitulasi Laporan</h1>
+            <p class="text-xs text-slate-500">Filter data berdasarkan rentang tanggal dan unduh rekapitulasi laporan.</p>
+        </div>
 
-  
-    <style>
-        body { font-family: 'Inter', sans-serif; }
-    </style>
-</head>
-<body class="h-full bg-slate-50 text-slate-900 antialiased">
-    <div class="flex h-full min-h-screen">
-        {{-- Sidebar --}}
-        @include('partials.sidebar-admin')
+        <div class="flex flex-wrap items-center gap-3">
+            {{-- Form Filter Tanggal --}}
+            <form action="{{ route('admin.dashboard') }}" method="GET" class="flex flex-wrap items-center gap-2">
+                <div class="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 text-xs">
+                    <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                    </svg>
+                    <input type="date" name="tanggal_mulai" value="{{ request('tanggal_mulai') }}" class="bg-transparent text-slate-700 text-xs focus:outline-none border-none p-0" aria-label="Tanggal Mulai">
+                    <span class="text-slate-400">s/d</span>
+                    <input type="date" name="tanggal_selesai" value="{{ request('tanggal_selesai') }}" class="bg-transparent text-slate-700 text-xs focus:outline-none border-none p-0" aria-label="Tanggal Selesai">
+                </div>
+                
+                <button type="submit" class="inline-flex items-center gap-1.5 px-3 py-2 bg-slate-800 hover:bg-slate-900 text-white rounded-lg text-xs font-semibold transition-colors">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/>
+                    </svg>
+                    Filter
+                </button>
 
-        <div class="flex-1 flex flex-col min-w-0 overflow-y-auto">
-            {{-- Header --}}
-            @include('partials.header-admin')
+                @if(request()->hasAny(['tanggal_mulai', 'tanggal_selesai']))
+                    <a href="{{ route('admin.dashboard') }}" class="px-2.5 py-2 text-slate-500 hover:text-slate-700 text-xs font-medium border border-slate-200 rounded-lg transition-colors">
+                        Reset
+                    </a>
+                @endif
+            </form>
 
-            {{-- Main Content --}}
-            <main class="flex-1 p-6">
-                @yield('content')
-            </main>
+            {{-- Tombol Unduh Laporan --}}
+            <a href="{{ route('admin.verifikasi.export', ['tanggal_mulai' => request('tanggal_mulai'), 'tanggal_selesai' => request('tanggal_selesai')]) }}" 
+               class="inline-flex items-center gap-1.5 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-semibold shadow-sm transition-colors">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                </svg>
+                Unduh Laporan
+            </a>
         </div>
     </div>
 
-    {{-- Script dari @push('scripts') di Blade View --}}
-    @stack('scripts')
-</body>
-</html>
-<div class="space-y-6">
     {{-- Stats Cards --}}
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" role="region" aria-label="Statistik ringkasan">
         <div class="bg-white rounded-xl border border-slate-200 p-5">
@@ -93,7 +102,7 @@
         <div class="bg-white rounded-xl border border-slate-200 p-6">
             <h2 class="font-semibold text-slate-900 mb-4">Distribusi Status</h2>
             <div id="chart-status" class="h-48 flex items-end gap-3 px-2" role="img" aria-label="Grafik distribusi status laporan">
-                {{-- Will be populated by JS --}}
+                {{-- Populated by JS --}}
             </div>
         </div>
 
@@ -101,7 +110,7 @@
         <div class="bg-white rounded-xl border border-slate-200 p-6">
             <h2 class="font-semibold text-slate-900 mb-4">Per Kategori</h2>
             <div id="chart-kategori" class="space-y-3" role="img" aria-label="Grafik laporan per kategori">
-                {{-- Will be populated by JS --}}
+                {{-- Populated by JS --}}
             </div>
         </div>
 
@@ -187,8 +196,18 @@
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // Ambil parameter tanggal dari URL jika ada
+    const urlParams = new URLSearchParams(window.location.search);
+    const tglMulai = urlParams.get('tanggal_mulai') || '';
+    const tglSelesai = urlParams.get('tanggal_selesai') || '';
+
+    let chartUrl = '{{ route("admin.dashboard.chart") }}';
+    if (tglMulai || tglSelesai) {
+        chartUrl += `?tanggal_mulai=${tglMulai}&tanggal_selesai=${tglSelesai}`;
+    }
+
     // Load chart data
-    fetch('{{ route("admin.dashboard.chart") }}')
+    fetch(chartUrl)
         .then(res => res.json())
         .then(data => {
             // Status distribution bar chart
