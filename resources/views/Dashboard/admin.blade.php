@@ -1,252 +1,1455 @@
 @extends('layouts.admin')
 
-@section('title', 'Dashboard')
-@section('page_title', 'Dashboard')
+@section('title', 'Dashboard Administrator')
+@section('page_title', 'Dashboard Administrator')
 
 @section('content')
-<!DOCTYPE html>
-<html lang="id" class="h-full bg-slate-50">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@yield('title', 'Dashboard') - Admin SmartPath</title>
 
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<div
+    id="admin-dashboard"
+    class="-m-6 min-h-full bg-slate-50 p-3 sm:p-4 lg:-m-8 lg:p-4"
+>
+    <div class="mx-auto max-w-[1500px] space-y-3">
 
-  
-    <style>
-        body { font-family: 'Inter', sans-serif; }
-    </style>
-</head>
-<body class="h-full bg-slate-50 text-slate-900 antialiased">
-    <div class="flex h-full min-h-screen">
-        {{-- Sidebar --}}
-        @include('partials.sidebar-admin')
+        {{-- =========================================================
+             1. KPI UTAMA
+        ========================================================== --}}
 
-        <div class="flex-1 flex flex-col min-w-0 overflow-y-auto">
-            {{-- Header --}}
-            @include('partials.header-admin')
+        <section
+            class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4"
+            aria-label="Ringkasan laporan SmartPath"
+        >
 
-            {{-- Main Content --}}
-            <main class="flex-1 p-6">
-                @yield('content')
-            </main>
-        </div>
-    </div>
+            {{-- TOTAL LAPORAN --}}
+            <article class="sp-card sp-kpi">
 
-    {{-- Script dari @push('scripts') di Blade View --}}
-    @stack('scripts')
-</body>
-</html>
-<div class="space-y-6">
-    {{-- Stats Cards --}}
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" role="region" aria-label="Statistik ringkasan">
-        <div class="bg-white rounded-xl border border-slate-200 p-5">
-            <div class="flex items-center justify-between mb-3">
-                <div class="w-10 h-10 bg-emerald-100 rounded-lg flex items-center justify-center">
-                    <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                <div class="flex items-start justify-between gap-3">
+
+                    <div class="sp-icon">
+                        <svg
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="1.7"
+                            aria-hidden="true"
+                        >
+                            <path
+                                stroke-linejoin="round"
+                                d="M6 3h9l3 3v15H6z"
+                            />
+
+                            <path
+                                stroke-linecap="round"
+                                d="M9 11h6M9 15h6M9 7h3"
+                            />
+                        </svg>
+                    </div>
+
+                    <span class="sp-kpi-label">
+                        Total Laporan
+                    </span>
+
                 </div>
-                <span class="text-xs font-medium text-slate-400">Total</span>
-            </div>
-            <p class="text-2xl font-bold text-slate-900">{{ $statistik['total'] ?? 0 }}</p>
-            <p class="text-xs text-slate-500 mt-1">Laporan Masuk</p>
-        </div>
 
-        <div class="bg-white rounded-xl border border-slate-200 p-5">
-            <div class="flex items-center justify-between mb-3">
-                <div class="w-10 h-10 bg-amber-100 rounded-lg flex items-center justify-center">
-                    <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                <div class="mt-1 flex items-end justify-between gap-4">
+
+                    <div>
+
+                        <p class="sp-number">
+                            {{ number_format($statistik['total'] ?? 0) }}
+                        </p>
+
+                        <p class="sp-caption">
+                            Seluruh laporan induk
+                        </p>
+
+                    </div>
+
+                    <svg
+                        class="h-10 w-16 shrink-0 text-emerald-600"
+                        viewBox="0 0 64 40"
+                        fill="none"
+                        aria-hidden="true"
+                    >
+                        <polyline
+                            points="2,31 14,25 25,29 37,17 48,21 62,7"
+                            stroke="currentColor"
+                            stroke-width="1.7"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                        />
+
+                        <path
+                            d="M57 7h5v5"
+                            stroke="currentColor"
+                            stroke-width="1.7"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                        />
+                    </svg>
+
                 </div>
-                <span class="text-xs font-medium text-amber-600">Menunggu</span>
-            </div>
-            <p class="text-2xl font-bold text-slate-900">{{ $statistik['menunggu'] ?? 0 }}</p>
-            <p class="text-xs text-slate-500 mt-1">Perlu Verifikasi</p>
-        </div>
 
-        <div class="bg-white rounded-xl border border-slate-200 p-5">
-            <div class="flex items-center justify-between mb-3">
-                <div class="w-10 h-10 bg-teal-100 rounded-lg flex items-center justify-center">
-                    <svg class="w-5 h-5 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                <div class="mt-2 flex items-center gap-1.5 text-[10px] text-slate-500">
+
+                    <span class="font-semibold text-emerald-700">
+                        {{
+                            $persentasePerubahan === null
+                                ? '—'
+                                : (
+                                    ($persentasePerubahan >= 0 ? '+' : '')
+                                    . $persentasePerubahan
+                                    . '%'
+                                )
+                        }}
+                    </span>
+
+                    <span>
+                        dari 7 hari sebelumnya
+                    </span>
+
                 </div>
-                <span class="text-xs font-medium text-teal-600">Proses</span>
-            </div>
-            <p class="text-2xl font-bold text-slate-900">{{ $statistik['dalam_perbaikan'] ?? 0 }}</p>
-            <p class="text-xs text-slate-500 mt-1">Dalam Perbaikan</p>
-        </div>
 
-        <div class="bg-white rounded-xl border border-slate-200 p-5">
-            <div class="flex items-center justify-between mb-3">
-                <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
-                    <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            </article>
+
+
+            {{-- PENDING VERIFIKASI --}}
+            <article class="sp-card sp-kpi">
+
+                <div class="flex items-start justify-between gap-3">
+
+                    <div class="sp-icon">
+                        <svg
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="1.7"
+                            aria-hidden="true"
+                        >
+                            <circle
+                                cx="12"
+                                cy="12"
+                                r="8.5"
+                            />
+
+                            <path
+                                stroke-linecap="round"
+                                d="M12 7v5l3 2"
+                            />
+                        </svg>
+                    </div>
+
+                    <span class="sp-kpi-label">
+                        Pending Verifikasi
+                    </span>
+
                 </div>
-                <span class="text-xs font-medium text-green-600">Selesai</span>
-            </div>
-            <p class="text-2xl font-bold text-slate-900">{{ $statistik['selesai'] ?? 0 }}</p>
-            <p class="text-xs text-slate-500 mt-1">Terkonfirmasi Selesai</p>
-        </div>
-    </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {{-- Chart: Status Distribution --}}
-        <div class="bg-white rounded-xl border border-slate-200 p-6">
-            <h2 class="font-semibold text-slate-900 mb-4">Distribusi Status</h2>
-            <div id="chart-status" class="h-48 flex items-end gap-3 px-2" role="img" aria-label="Grafik distribusi status laporan">
-                {{-- Will be populated by JS --}}
-            </div>
-        </div>
+                <div class="mt-1">
 
-        {{-- Chart: Kategori Distribution --}}
-        <div class="bg-white rounded-xl border border-slate-200 p-6">
-            <h2 class="font-semibold text-slate-900 mb-4">Per Kategori</h2>
-            <div id="chart-kategori" class="space-y-3" role="img" aria-label="Grafik laporan per kategori">
-                {{-- Will be populated by JS --}}
-            </div>
-        </div>
+                    <p class="sp-number">
+                        {{ number_format($statistik['menunggu'] ?? 0) }}
+                    </p>
 
-        {{-- Recent high priority --}}
-        <div class="bg-white rounded-xl border border-slate-200 p-6">
-            <h2 class="font-semibold text-slate-900 mb-4">Prioritas Tinggi</h2>
-            <div class="space-y-3" id="priority-list" role="list" aria-label="Laporan prioritas tinggi">
-                @if(isset($laporanPrioritasTinggi))
-                    @foreach($laporanPrioritasTinggi->take(5) as $laporan)
-                        <a href="{{ route('admin.verifikasi.show', $laporan) }}" class="flex items-center gap-3 p-2 rounded-lg hover:bg-slate-50 transition-colors" role="listitem">
-                            <span class="w-2 h-2 rounded-full bg-red-500 shrink-0" aria-hidden="true"></span>
-                            <div class="flex-1 min-w-0">
-                                <p class="text-sm font-medium text-slate-800 truncate">{{ $laporan->judul }}</p>
-                                <p class="text-xs text-slate-400">{{ $laporan->kode_laporan }} • Skor {{ number_format($laporan->skor_prioritas, 1) }}</p>
+                    <p class="sp-caption">
+                        Perlu ditindaklanjuti
+                    </p>
+
+                </div>
+
+                <div class="mt-2 flex items-center gap-1.5 text-[10px] text-slate-500">
+
+                    <span class="h-1.5 w-1.5 rounded-full bg-amber-500"></span>
+
+                    <span>
+                        Validasi foto, koordinat, dan kategori
+                    </span>
+
+                </div>
+
+            </article>
+
+
+            {{-- DIVERIFIKASI --}}
+            <article class="sp-card sp-kpi">
+
+                <div class="flex items-start justify-between gap-3">
+
+                    <div class="sp-icon">
+                        <svg
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="1.7"
+                            aria-hidden="true"
+                        >
+                            <circle
+                                cx="12"
+                                cy="12"
+                                r="8.5"
+                            />
+
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                d="m8 12 2.6 2.6L16.5 9"
+                            />
+                        </svg>
+                    </div>
+
+                    <span class="sp-kpi-label">
+                        Laporan Diverifikasi
+                    </span>
+
+                </div>
+
+                <div class="mt-1">
+
+                    <p class="sp-number">
+                        {{ number_format($statistik['diverifikasi'] ?? 0) }}
+                    </p>
+
+                    <p class="sp-caption">
+                        Sudah melewati verifikasi
+                    </p>
+
+                </div>
+
+                <div class="mt-2 flex items-center gap-1.5 text-[10px] text-slate-500">
+
+                    <span class="h-1.5 w-1.5 rounded-full bg-green-600"></span>
+
+                    <span>
+                        Termasuk penanganan dan selesai
+                    </span>
+
+                </div>
+
+            </article>
+
+
+            {{-- PRIORITAS TINGGI --}}
+            <article class="sp-card sp-kpi">
+
+                <div class="flex items-start justify-between gap-3">
+
+                    <div class="sp-icon">
+                        <svg
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="1.7"
+                            aria-hidden="true"
+                        >
+                            <path
+                                stroke-linejoin="round"
+                                d="m12 3 9 17H3L12 3Z"
+                            />
+
+                            <path
+                                stroke-linecap="round"
+                                d="M12 9v5M12 17h.01"
+                            />
+                        </svg>
+                    </div>
+
+                    <span class="sp-kpi-label">
+                        Prioritas Tinggi
+                    </span>
+
+                </div>
+
+                <div class="mt-1">
+
+                    <p class="sp-number">
+                        {{ number_format($statistik['kritis'] ?? 0) }}
+                    </p>
+
+                    <p class="sp-caption">
+                        Perlu tindakan cepat
+                    </p>
+
+                </div>
+
+                <div class="mt-2 flex items-center gap-1.5 text-[10px] text-slate-500">
+
+                    <span class="h-1.5 w-1.5 rounded-full bg-red-600"></span>
+
+                    <span>
+                        Skor prioritas ≥ 70
+                    </span>
+
+                </div>
+
+            </article>
+
+        </section>
+
+
+        {{-- =========================================================
+             2. PETA + TOP PRIORITAS
+        ========================================================== --}}
+
+        <section
+            class="grid grid-cols-1 gap-3 lg:grid-cols-[minmax(0,1fr)_260px]"
+        >
+
+            {{-- PETA --}}
+            <article
+                id="map-section"
+                class="sp-card overflow-hidden"
+            >
+
+                <div
+                    class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200 px-3 py-2.5"
+                >
+
+                    <div>
+
+                        <h2 class="text-[13px] font-semibold text-slate-950">
+                            Peta Sebaran Hambatan
+                        </h2>
+
+                        <p class="mt-0.5 text-[9px] text-slate-500">
+                            Titik laporan aktif di wilayah Kota Depok
+                        </p>
+
+                    </div>
+
+
+                    <div class="flex items-center gap-2">
+
+                        <label
+                            for="map-category-filter"
+                            class="sr-only"
+                        >
+                            Filter kategori peta
+                        </label>
+
+                        <select
+                            id="map-category-filter"
+                            class="h-7 rounded-md border border-slate-300 bg-white px-2 text-[10px] text-slate-700 outline-none"
+                        >
+
+                            <option value="">
+                                Semua Kategori
+                            </option>
+
+                            @foreach($perKategori as $kategori)
+
+                                <option value="{{ $kategori->id }}">
+                                    {{ $kategori->nama }}
+                                </option>
+
+                            @endforeach
+
+                        </select>
+
+
+                        <label
+                            for="map-period-filter"
+                            class="sr-only"
+                        >
+                            Filter periode peta
+                        </label>
+
+                        <select
+                            id="map-period-filter"
+                            class="h-7 rounded-md border border-slate-300 bg-white px-2 text-[10px] text-slate-700 outline-none"
+                        >
+
+                            <option value="7">
+                                7 Hari Terakhir
+                            </option>
+
+                            <option value="30">
+                                30 Hari Terakhir
+                            </option>
+
+                            <option value="0">
+                                Semua Waktu
+                            </option>
+
+                        </select>
+
+
+                        <button
+                            type="button"
+                            id="map-recenter"
+                            class="inline-flex h-7 w-7 items-center justify-center rounded-md border border-emerald-200 bg-emerald-50 text-emerald-700 transition hover:bg-emerald-100"
+                            aria-label="Pusatkan peta ke Kota Depok"
+                            title="Pusatkan peta"
+                        >
+
+                            <svg
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="1.7"
+                                class="h-4 w-4"
+                                aria-hidden="true"
+                            >
+                                <circle
+                                    cx="12"
+                                    cy="12"
+                                    r="3"
+                                />
+
+                                <path
+                                    stroke-linecap="round"
+                                    d="M12 2v3M12 19v3M2 12h3M19 12h3"
+                                />
+                            </svg>
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+
+                <div class="relative">
+
+                    <div
+                        id="admin-map"
+                        class="h-[255px] w-full bg-slate-100"
+                        aria-label="Peta interaktif laporan hambatan aksesibilitas Kota Depok"
+                    ></div>
+
+
+                    {{-- LEGENDA PRIORITAS --}}
+                    <div
+                        class="pointer-events-none absolute bottom-2 left-2 z-[500] rounded-md border border-slate-200 bg-white/95 px-2.5 py-2 text-[9px] shadow-sm backdrop-blur-sm"
+                    >
+
+                        <p class="mb-1 font-semibold text-slate-900">
+                            Legenda Prioritas
+                        </p>
+
+                        <div class="space-y-1 text-slate-600">
+
+                            <div class="flex items-center gap-1.5">
+                                <span class="sp-legend-dot high"></span>
+                                <span>Tinggi</span>
                             </div>
-                            <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-semibold {{ $laporan->warna }}">{{ $laporan->status_label }}</span>
+
+                            <div class="flex items-center gap-1.5">
+                                <span class="sp-legend-dot medium"></span>
+                                <span>Sedang</span>
+                            </div>
+
+                            <div class="flex items-center gap-1.5">
+                                <span class="sp-legend-dot low"></span>
+                                <span>Rendah</span>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    {{-- RINGKASAN PETA --}}
+                    <div
+                        class="pointer-events-none absolute bottom-2 right-2 z-[500] grid grid-cols-3 overflow-hidden rounded-md border border-slate-200 bg-white/95 text-center text-[9px] shadow-sm"
+                    >
+
+                        <div class="border-r border-slate-200 px-3 py-1.5">
+
+                            <span class="block font-semibold text-emerald-700">
+                                {{ count($petaLaporan) }}
+                            </span>
+
+                            <span class="text-slate-500">
+                                Titik Aktif
+                            </span>
+
+                        </div>
+
+
+                        <div class="border-r border-slate-200 px-3 py-1.5">
+
+                            <span class="block font-semibold text-teal-700">
+                                {{ $areaDipantau }}
+                            </span>
+
+                            <span class="text-slate-500">
+                                Area Dipantau
+                            </span>
+
+                        </div>
+
+
+                        <div class="px-3 py-1.5">
+
+                            <span class="block font-semibold text-slate-800">
+                                Depok
+                            </span>
+
+                            <span class="text-slate-500">
+                                Wilayah
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </article>
+
+
+            {{-- TOP PRIORITAS --}}
+            <article
+                id="priority-panel"
+                class="sp-card overflow-hidden"
+            >
+
+                <div
+                    class="flex items-center justify-between border-b border-slate-200 px-3 py-2.5"
+                >
+
+                    <h2 class="text-[13px] font-semibold text-slate-950">
+                        Top Prioritas Hari Ini
+                    </h2>
+
+                    <a
+                        href="{{ route('admin.verifikasi.index') }}"
+                        class="text-[9px] font-medium text-emerald-700 hover:text-emerald-800"
+                    >
+                        Lihat semua →
+                    </a>
+
+                </div>
+
+
+                <div class="divide-y divide-slate-100">
+
+                    @forelse($laporanPrioritasTinggi as $laporan)
+
+                        <a
+                            href="{{ route('admin.verifikasi.show', $laporan) }}"
+                            class="flex gap-2.5 px-3 py-2.5 transition hover:bg-red-50"
+                        >
+
+                            <span
+                                class="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-md border border-slate-200 bg-slate-100"
+                            >
+
+                                @if($laporan->foto->first())
+
+                                    <img
+                                        src="{{ $laporan->foto->first()->url }}"
+                                        alt=""
+                                        class="h-full w-full object-cover"
+                                        loading="lazy"
+                                    >
+
+                                @else
+
+                                    <svg
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        stroke-width="1.4"
+                                        class="h-5 w-5 text-slate-400"
+                                        aria-hidden="true"
+                                    >
+                                        <path
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                            d="m3 16 5-5 4 4 3-3 6 6"
+                                        />
+
+                                        <rect
+                                            x="3"
+                                            y="4"
+                                            width="18"
+                                            height="16"
+                                            rx="2"
+                                        />
+                                    </svg>
+
+                                @endif
+
+                            </span>
+
+
+                            <span class="min-w-0 flex-1">
+
+                                <span class="block truncate text-[9px] font-semibold text-slate-900">
+                                    {{ $laporan->judul }}
+                                </span>
+
+                                <span class="mt-0.5 block truncate text-[8px] text-slate-500">
+                                    {{
+                                        $laporan->alamat_lengkap
+                                        ?: (
+                                            $laporan->wilayah?->nama
+                                            ?? 'Lokasi tidak tersedia'
+                                        )
+                                    }}
+                                </span>
+
+                                <span class="mt-1 flex items-center justify-between gap-2 text-[8px]">
+
+                                    <span class="text-slate-400">
+                                        {{ number_format($laporan->jumlah_pelapor) }}
+                                        pelapor
+                                    </span>
+
+                                    <span class="rounded border border-red-200 bg-red-50 px-1.5 py-0.5 font-semibold text-red-700">
+                                        Tinggi
+                                    </span>
+
+                                </span>
+
+                            </span>
+
                         </a>
-                    @endforeach
-                @endif
-            </div>
-        </div>
+
+                    @empty
+
+                        <div class="px-3 py-8 text-center">
+
+                            <div class="mx-auto mb-2 flex h-8 w-8 items-center justify-center rounded-full bg-slate-50 text-slate-400">
+                                <svg
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="1.6"
+                                    class="h-4 w-4"
+                                    aria-hidden="true"
+                                >
+                                    <path
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        d="M12 9v4M12 17h.01"
+                                    />
+
+                                    <path
+                                        stroke-linejoin="round"
+                                        d="m12 3 9 17H3L12 3Z"
+                                    />
+                                </svg>
+                            </div>
+
+                            <p class="text-[10px] text-slate-400">
+                                Belum ada laporan prioritas tinggi.
+                            </p>
+
+                        </div>
+
+                    @endforelse
+
+                </div>
+
+            </article>
+
+        </section>
+
+
+        {{-- =========================================================
+             3. ANALYTICS
+        ========================================================== --}}
+
+        <section
+            id="analytics"
+            class="grid grid-cols-1 gap-3 lg:grid-cols-3"
+        >
+
+            {{-- DISTRIBUSI STATUS --}}
+            <article class="sp-card p-3">
+
+                <div class="mb-2 flex items-center justify-between">
+
+                    <h2 class="text-[12px] font-semibold text-slate-950">
+                        Distribusi Status
+                    </h2>
+
+                    <span class="text-[9px] text-emerald-700">
+                        Semua
+                    </span>
+
+                </div>
+
+
+                @php
+
+                    $statusTotal = max(
+                        1,
+                        array_sum($statusChart)
+                    );
+
+                    $menunggu =
+                        (int) (
+                            $statusChart['menunggu_verifikasi']
+                            ?? 0
+                        );
+
+                    $diverifikasi =
+                        (int) (
+                            $statusChart['diverifikasi']
+                            ?? 0
+                        );
+
+                    $perbaikan =
+                        (int) (
+                            $statusChart['dalam_perbaikan']
+                            ?? 0
+                        );
+
+                    $selesai =
+                        (int) (
+                            $statusChart['selesai']
+                            ?? 0
+                        );
+
+                    $ditolak =
+                        (int) (
+                            $statusChart['ditolak']
+                            ?? 0
+                        );
+
+                    $statusItems = [
+
+                        [
+                            'key' => 'menunggu_verifikasi',
+                            'label' => 'Menunggu Verifikasi',
+                            'class' => 'pending',
+                            'value' => $menunggu,
+                        ],
+
+                        [
+                            'key' => 'diverifikasi',
+                            'label' => 'Diverifikasi',
+                            'class' => 'verified',
+                            'value' => $diverifikasi,
+                        ],
+
+                        [
+                            'key' => 'dalam_perbaikan',
+                            'label' => 'Dalam Perbaikan',
+                            'class' => 'progress',
+                            'value' => $perbaikan,
+                        ],
+
+                        [
+                            'key' => 'selesai',
+                            'label' => 'Selesai',
+                            'class' => 'done',
+                            'value' => $selesai,
+                        ],
+
+                        [
+                            'key' => 'ditolak',
+                            'label' => 'Ditolak',
+                            'class' => 'rejected',
+                            'value' => $ditolak,
+                        ],
+
+                    ];
+
+                    $stop1 =
+                        ($menunggu / $statusTotal) * 100;
+
+                    $stop2 =
+                        (($menunggu + $diverifikasi) / $statusTotal) * 100;
+
+                    $stop3 =
+                        (($menunggu + $diverifikasi + $perbaikan) / $statusTotal) * 100;
+
+                    $stop4 =
+                        (($menunggu + $diverifikasi + $perbaikan + $selesai) / $statusTotal) * 100;
+
+                @endphp
+
+
+                <div class="grid grid-cols-[108px_1fr] items-center gap-4">
+
+                    <div
+                        class="sp-donut"
+                        style="
+                            background:
+                            conic-gradient(
+                                #d97706 0 {{ $stop1 }}%,
+                                #059669 {{ $stop1 }}% {{ $stop2 }}%,
+                                #0d9488 {{ $stop2 }}% {{ $stop3 }}%,
+                                #16a34a {{ $stop3 }}% {{ $stop4 }}%,
+                                #dc2626 {{ $stop4 }}% 100%
+                            );
+                        "
+                        role="img"
+                        aria-label="Distribusi status laporan"
+                    >
+
+                        <div class="sp-donut-inner">
+
+                            <strong>
+                                {{ number_format($statistik['total'] ?? 0) }}
+                            </strong>
+
+                            <small>
+                                Total
+                            </small>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="space-y-1.5">
+
+                        @foreach($statusItems as $statusItem)
+
+                            <div class="flex items-center justify-between gap-2 text-[9px]">
+
+                                <span class="flex min-w-0 items-center gap-1.5 text-slate-600">
+
+                                    <span
+                                        class="sp-status-dot {{ $statusItem['class'] }}"
+                                    ></span>
+
+                                    <span class="truncate">
+                                        {{ $statusItem['label'] }}
+                                    </span>
+
+                                </span>
+
+                                <span class="font-semibold text-slate-900">
+
+                                    {{ $statusItem['value'] }}
+
+                                    <span class="font-normal text-slate-400">
+                                        ({{
+                                            round(
+                                                (
+                                                    $statusItem['value']
+                                                    / $statusTotal
+                                                ) * 100
+                                            )
+                                        }}%)
+                                    </span>
+
+                                </span>
+
+                            </div>
+
+                        @endforeach
+
+                    </div>
+
+                </div>
+
+            </article>
+
+
+            {{-- LAPORAN PER KATEGORI --}}
+            <article class="sp-card p-3">
+
+                <div class="mb-2 flex items-center justify-between">
+
+                    <h2 class="text-[12px] font-semibold text-slate-950">
+                        Laporan per Kategori
+                    </h2>
+
+                    <span class="text-[9px] text-emerald-700">
+                        Aktif
+                    </span>
+
+                </div>
+
+
+                @php
+
+                    $maxKategori = max(
+                        1,
+                        (int) $perKategori->max('laporan_count')
+                    );
+
+                @endphp
+
+
+                <div class="space-y-2.5">
+
+                    @forelse(
+                        $perKategori
+                            ->sortByDesc('laporan_count')
+                            ->take(5)
+                        as $index => $kategori
+                    )
+
+                        @php
+                            $totalKategori =
+                                (int) $kategori->laporan_count;
+
+                            $widthKategori =
+                                (
+                                    $totalKategori
+                                    / $maxKategori
+                                ) * 100;
+                        @endphp
+
+                        <div class="sp-category-item">
+
+                            <div class="mb-1 flex items-center justify-between gap-2 text-[9px]">
+
+                                <span class="truncate text-slate-600">
+                                    {{ $kategori->nama }}
+                                </span>
+
+                                <span class="font-semibold text-slate-900">
+                                    {{ $totalKategori }}
+                                </span>
+
+                            </div>
+
+                            <div class="sp-category-track">
+
+                                <div
+                                    class="sp-category-bar category-{{ $index }}"
+                                    style="width: {{ $widthKategori }}%;"
+                                ></div>
+
+                            </div>
+
+                        </div>
+
+                    @empty
+
+                        <p class="py-6 text-center text-[10px] text-slate-400">
+                            Belum ada data kategori.
+                        </p>
+
+                    @endforelse
+
+                </div>
+
+            </article>
+
+
+            {{-- TREND LAPORAN --}}
+            <article class="sp-card p-3">
+
+                <div class="mb-2 flex items-center justify-between">
+
+                    <h2 class="text-[12px] font-semibold text-slate-950">
+                        Tren Laporan
+                    </h2>
+
+                    <span class="text-[9px] text-emerald-700">
+                        7 Hari
+                    </span>
+
+                </div>
+
+
+                @php
+
+                    $maxTrend = max(
+                        1,
+                        (int) $tren7Hari->max('jumlah')
+                    );
+
+                    $trendPoints = [];
+
+                    $countTrend = max(
+                        1,
+                        $tren7Hari->count() - 1
+                    );
+
+                    foreach ($tren7Hari as $i => $item) {
+
+                        $x =
+                            4
+                            +
+                            (
+                                ($i / $countTrend)
+                                * 92
+                            );
+
+                        $y =
+                            86
+                            -
+                            (
+                                (
+                                    $item['jumlah']
+                                    / $maxTrend
+                                )
+                                * 68
+                            );
+
+                        $trendPoints[] =
+                            round($x, 2)
+                            . ','
+                            . round($y, 2);
+                    }
+
+                @endphp
+
+
+                <div class="relative h-[100px] border-b border-l border-slate-200 px-1 pb-4 pt-2">
+
+                    <svg
+                        viewBox="0 0 100 92"
+                        preserveAspectRatio="none"
+                        class="sp-trend-chart h-full w-full overflow-visible"
+                        role="img"
+                        aria-label="Tren laporan selama tujuh hari"
+                    >
+
+                        <line
+                            x1="4"
+                            y1="18"
+                            x2="96"
+                            y2="18"
+                        />
+
+                        <line
+                            x1="4"
+                            y1="52"
+                            x2="96"
+                            y2="52"
+                        />
+
+                        <polyline
+                            points="{{ implode(' ', $trendPoints) }}"
+                        />
+
+                        @foreach($tren7Hari as $i => $item)
+
+                            @php
+
+                                $x =
+                                    4
+                                    +
+                                    (
+                                        ($i / $countTrend)
+                                        * 92
+                                    );
+
+                                $y =
+                                    86
+                                    -
+                                    (
+                                        (
+                                            $item['jumlah']
+                                            / $maxTrend
+                                        )
+                                        * 68
+                                    );
+
+                            @endphp
+
+                            <circle
+                                cx="{{ $x }}"
+                                cy="{{ $y }}"
+                                r="1.5"
+                            />
+
+                        @endforeach
+
+                    </svg>
+
+
+                    <div class="absolute inset-x-0 bottom-0 flex justify-between text-[7px] text-slate-400">
+
+                        @foreach($tren7Hari as $item)
+
+                            <span>
+                                {{ $item['label'] }}
+                            </span>
+
+                        @endforeach
+
+                    </div>
+
+                </div>
+
+            </article>
+
+        </section>
+
+
+        {{-- =========================================================
+             4. LAPORAN TERBARU + AKTIVITAS
+        ========================================================== --}}
+
+        <section
+            class="grid grid-cols-1 gap-3 lg:grid-cols-[minmax(0,1fr)_310px]"
+        >
+
+            {{-- LAPORAN TERBARU --}}
+            <article class="sp-card overflow-hidden">
+
+                <div
+                    class="flex items-center justify-between border-b border-slate-200 px-3 py-2.5"
+                >
+
+                    <h2 class="text-[12px] font-semibold text-slate-950">
+                        Laporan Terbaru
+                    </h2>
+
+                    <a
+                        href="{{ route('admin.verifikasi.index') }}"
+                        class="text-[9px] font-medium text-emerald-700 hover:text-emerald-800"
+                    >
+                        Lihat semua →
+                    </a>
+
+                </div>
+
+
+                <div class="overflow-x-auto">
+
+                    <table class="min-w-[720px] w-full border-collapse text-left">
+
+                        <thead class="border-b border-slate-200 bg-slate-50">
+
+                            <tr class="text-[8px] uppercase tracking-[0.08em] text-slate-400">
+
+                                <th class="px-3 py-2 font-semibold">
+                                    Kode
+                                </th>
+
+                                <th class="px-3 py-2 font-semibold">
+                                    Judul Laporan
+                                </th>
+
+                                <th class="px-3 py-2 font-semibold">
+                                    Kategori
+                                </th>
+
+                                <th class="px-3 py-2 font-semibold">
+                                    Lokasi
+                                </th>
+
+                                <th class="px-3 py-2 text-center font-semibold">
+                                    Prioritas
+                                </th>
+
+                                <th class="px-3 py-2 font-semibold">
+                                    Status
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody class="divide-y divide-slate-100">
+
+                            @forelse($laporanTerbaru as $item)
+
+                                @php
+
+                                    $statusClass = match($item->status) {
+
+                                        'menunggu_verifikasi' =>
+                                            'pending',
+
+                                        'diverifikasi' =>
+                                            'verified',
+
+                                        'dalam_perbaikan' =>
+                                            'progress',
+
+                                        'selesai' =>
+                                            'done',
+
+                                        'ditolak' =>
+                                            'rejected',
+
+                                        default =>
+                                            'default',
+
+                                    };
+
+                                @endphp
+
+
+                                <tr>
+
+                                    <td
+                                        class="whitespace-nowrap px-3 py-2 text-[8px] font-mono font-semibold text-slate-500"
+                                    >
+                                        {{ $item->kode_laporan }}
+                                    </td>
+
+
+                                    <td class="max-w-[220px] px-3 py-2">
+
+                                        <a
+                                            href="{{ route('admin.verifikasi.show', $item) }}"
+                                            class="block truncate text-[9px] font-semibold text-slate-900"
+                                        >
+                                            {{ $item->judul }}
+                                        </a>
+
+                                        <span class="mt-0.5 block text-[8px] text-slate-400">
+                                            {{ $item->created_at?->diffForHumans() }}
+                                        </span>
+
+                                    </td>
+
+
+                                    <td class="px-3 py-2 text-[8px] text-slate-600">
+
+                                        {{
+                                            $item->kategoriHambatan?->nama
+                                            ?? '—'
+                                        }}
+
+                                    </td>
+
+
+                                    <td class="max-w-[170px] px-3 py-2 text-[8px] text-slate-600">
+
+                                        <span class="block truncate">
+
+                                            {{
+                                                $item->alamat_lengkap
+                                                ?: (
+                                                    $item->wilayah?->nama
+                                                    ?? '—'
+                                                )
+                                            }}
+
+                                        </span>
+
+                                    </td>
+
+
+                                    <td class="px-3 py-2 text-center">
+
+                                        @if($item->skor_prioritas !== null)
+
+                                            @php
+                                                $score = (float) $item->skor_prioritas;
+                                            @endphp
+
+                                            <span
+                                                class="sp-priority-badge
+                                                {{
+                                                    $score >= 70
+                                                        ? 'high'
+                                                        : (
+                                                            $score >= 40
+                                                                ? 'medium'
+                                                                : 'low'
+                                                        )
+                                                }}"
+                                            >
+                                                {{ $item->tingkat_prioritas }}
+                                            </span>
+
+                                        @else
+
+                                            <span class="text-[8px] text-slate-400">
+                                                Belum dinilai
+                                            </span>
+
+                                        @endif
+
+                                    </td>
+
+
+                                    <td class="px-3 py-2">
+
+                                        <span
+                                            class="sp-status {{ $statusClass }}"
+                                        >
+                                            {{ $item->status_label }}
+                                        </span>
+
+                                    </td>
+
+                                </tr>
+
+                            @empty
+
+                                <tr>
+
+                                    <td
+                                        colspan="6"
+                                        class="px-3 py-8 text-center text-[9px] text-slate-400"
+                                    >
+                                        Belum ada laporan yang tercatat.
+                                    </td>
+
+                                </tr>
+
+                            @endforelse
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </article>
+
+
+            {{-- AKTIVITAS --}}
+            <article class="sp-card overflow-hidden">
+
+                <div
+                    class="flex items-center justify-between border-b border-slate-200 px-3 py-2.5"
+                >
+
+                    <h2 class="text-[12px] font-semibold text-slate-950">
+                        Aktivitas Terbaru
+                    </h2>
+
+                    <a
+                        href="{{ route('admin.audit.index') }}"
+                        class="text-[9px] font-medium text-emerald-700 hover:text-emerald-800"
+                    >
+                        Lihat semua →
+                    </a>
+
+                </div>
+
+
+                <div class="divide-y divide-slate-100">
+
+                    @forelse($aktivitasTerbaru as $aktivitas)
+
+                        <div class="flex gap-2.5 px-3 py-2.5">
+
+                            <span class="sp-activity-icon">
+
+                                <svg
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="1.7"
+                                    class="h-3.5 w-3.5"
+                                    aria-hidden="true"
+                                >
+                                    <circle
+                                        cx="12"
+                                        cy="12"
+                                        r="8.5"
+                                    />
+
+                                    <path
+                                        stroke-linecap="round"
+                                        d="M12 6v6l4 2"
+                                    />
+                                </svg>
+
+                            </span>
+
+
+                            <div class="min-w-0 flex-1">
+
+                                <p class="text-[9px] leading-4 text-slate-700">
+
+                                    {{
+                                        $aktivitas->keterangan
+                                        ?: str_replace(
+                                            '_',
+                                            ' ',
+                                            ucfirst(
+                                                $aktivitas->aksi
+                                            )
+                                        )
+                                    }}
+
+                                </p>
+
+                                <p class="mt-0.5 text-[8px] text-slate-400">
+
+                                    {{
+                                        $aktivitas->pengguna?->nama_lengkap
+                                        ?? 'Sistem'
+                                    }}
+
+                                    ·
+
+                                    {{
+                                        $aktivitas->created_at?->diffForHumans()
+                                    }}
+
+                                </p>
+
+                            </div>
+
+                        </div>
+
+                    @empty
+
+                        <div class="px-3 py-8 text-center text-[9px] text-slate-400">
+                            Belum ada aktivitas.
+                        </div>
+
+                    @endforelse
+
+                </div>
+
+            </article>
+
+        </section>
+
     </div>
 
-    {{-- Recent reports table --}}
-    <div class="bg-white rounded-xl border border-slate-200 overflow-hidden">
-        <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between">
-            <h2 class="font-semibold text-slate-900">Laporan Terbaru</h2>
-            <a href="{{ route('admin.verifikasi.index') }}" class="text-sm font-medium text-emerald-700 hover:text-emerald-800 transition-colors">Lihat semua →</a>
-        </div>
-        <div class="overflow-x-auto">
-            <table class="w-full text-sm" role="table">
-                <thead>
-                    <tr class="border-b border-slate-100 bg-slate-50/50">
-                        <th class="text-left px-6 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider" scope="col">Kode</th>
-                        <th class="text-left px-6 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider" scope="col">Judul</th>
-                        <th class="text-left px-6 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider" scope="col">Kategori</th>
-                        <th class="text-left px-6 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider" scope="col">Status</th>
-                        <th class="text-left px-6 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider" scope="col">Prioritas</th>
-                        <th class="text-left px-6 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider" scope="col">Tanggal</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-slate-100">
-                    @if(isset($laporanTerbaru))
-                        @foreach($laporanTerbaru as $item)
-                            <tr class="hover:bg-slate-50/50 transition-colors">
-                                <td class="px-6 py-3 font-mono text-xs text-slate-500">{{ $item->kode_laporan }}</td>
-                                <td class="px-6 py-3">
-                                    <a href="{{ route('admin.verifikasi.show', $item) }}" class="font-medium text-slate-800 hover:text-emerald-700 transition-colors">{{ Str::limit($item->judul, 40) }}</a>
-                                </td>
-                                <td class="px-6 py-3 text-slate-600">
-                                    @if($item->kategoriHambatan)
-                                        <span class="inline-flex items-center gap-1">
-                                            <span class="w-2 h-2 rounded-full" style="background-color: {{ $item->kategoriHambatan->warna_penanda }}" aria-hidden="true"></span>
-                                            {{ $item->kategoriHambatan->nama }}
-                                        </span>
-                                    @else
-                                        <span class="text-slate-400">—</span>
-                                    @endif
-                                </td>
-                                <td class="px-6 py-3"><span class="inline-flex items-center px-2 py-0.5 rounded-lg text-xs font-semibold {{ $item->warna }}">{{ $item->status_label }}</span></td>
-                                <td class="px-6 py-3">
-                                    @if($item->skor_prioritas)
-                                        <span class="font-medium {{ $item->tingkat_prioritas === 'tinggi' ? 'text-red-600' : ($item->tingkat_prioritas === 'sedang' ? 'text-amber-600' : 'text-blue-600') }}">
-                                            {{ number_format($item->skor_prioritas, 1) }}
-                                        </span>
-                                    @else
-                                        <span class="text-slate-400">—</span>
-                                    @endif
-                                </td>
-                                <td class="px-6 py-3 text-xs text-slate-400">{{ $item->created_at->format('d M Y H:i') }}</td>
-                            </tr>
-                        @endforeach
-                    @else
-                        <tr><td colspan="6" class="px-6 py-8 text-center text-slate-400">Belum ada laporan</td></tr>
-                    @endif
-                </tbody>
-            </table>
-        </div>
-    </div>
 </div>
+
 @endsection
 
-@push('scripts')
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Load chart data
-    fetch('{{ route("admin.dashboard.chart") }}')
-        .then(res => res.json())
-        .then(data => {
-            // Status distribution bar chart
-            if (data.status) {
-                const statusContainer = document.getElementById('chart-status');
-                const colors = {
-                    menunggu_verifikasi: { bg: 'bg-amber-400', text: 'text-amber-700' },
-                    diverifikasi: { bg: 'bg-emerald-400', text: 'text-emerald-700' },
-                    dalam_perbaikan: { bg: 'bg-teal-400', text: 'text-teal-700' },
-                    selesai: { bg: 'bg-green-500', text: 'text-green-700' },
-                    ditolak: { bg: 'bg-red-400', text: 'text-red-700' },
-                    diarsipkan: { bg: 'bg-slate-400', text: 'text-slate-700' }
-                };
-                const labels = {
-                    menunggu_verifikasi: 'Menunggu', diverifikasi: 'Terverifikasi',
-                    dalam_perbaikan: 'Perbaikan', selesai: 'Selesai',
-                    ditolak: 'Ditolak', diarsipkan: 'Diarsipkan'
-                };
-                const maxVal = Math.max(...Object.values(data.status));
-                statusContainer.innerHTML = '';
-                Object.entries(data.status).forEach(([key, val]) => {
-                    const pct = maxVal > 0 ? (val / maxVal * 100) : 0;
-                    const c = colors[key] || { bg: 'bg-slate-300', text: 'text-slate-600' };
-                    statusContainer.innerHTML += `
-                        <div class="flex-1 flex flex-col items-center gap-1">
-                            <span class="text-xs font-semibold ${c.text}">${val}</span>
-                            <div class="w-full rounded-t-lg ${c.bg}" style="height:${Math.max(pct, 4)}%;min-height:8px;" role="presentation"></div>
-                            <span class="text-[10px] text-slate-500 text-center leading-tight">${labels[key] || key}</span>
-                        </div>
-                    `;
-                });
-            }
 
-            // Kategori distribution
-            if (data.kategori) {
-                const katContainer = document.getElementById('chart-kategori');
-                katContainer.innerHTML = '';
-                const maxKat = Math.max(...data.kategori.map(k => k.total));
-                data.kategori.forEach(k => {
-                    const pct = maxKat > 0 ? (k.total / maxKat * 100) : 0;
-                    katContainer.innerHTML += `
-                        <div>
-                            <div class="flex items-center justify-between mb-1">
-                                <span class="text-xs font-medium text-slate-700 flex items-center gap-1.5">
-                                    <span class="w-2 h-2 rounded-full" style="background:${k.warna}" aria-hidden="true"></span>
-                                    ${k.nama}
-                                </span>
-                                <span class="text-xs text-slate-500">${k.total}</span>
-                            </div>
-                            <div class="w-full bg-slate-100 rounded-full h-2">
-                                <div class="h-2 rounded-full" style="width:${pct}%;background:${k.warna};" role="progressbar" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100"></div>
-                            </div>
-                        </div>
-                    `;
-                });
-            }
-        })
-        .catch(err => console.error('Chart load error:', err));
-});
-</script>
+{{-- =============================================================
+     CSS DASHBOARD
+     CSS dipisahkan ke public/css/smartpath-admin.css
+============================================================= --}}
+
+@push('styles')
+
+<link
+    rel="stylesheet"
+    href="{{ asset('css/smartpath-admin.css') }}"
+>
+
+<link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+    crossorigin=""
+>
+
+@endpush
+
+
+{{-- =============================================================
+     DATA PETA
+     JSON_HEX_* digunakan agar data database tidak menjadi
+     potongan HTML/JavaScript mentah.
+============================================================= --}}
+
+@push('scripts')
+
+<script
+    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+    crossorigin=""
+></script>
+
+
+<script
+    id="smartpath-map-data"
+    type="application/json"
+>{{ json_encode(
+    $petaLaporan,
+    JSON_HEX_TAG
+    | JSON_HEX_AMP
+    | JSON_HEX_APOS
+    | JSON_HEX_QUOT
+) }}</script>
+
+
+<script
+    src="{{ asset('js/smartpath-admin.js') }}"
+    defer
+></script>
+
 @endpush
