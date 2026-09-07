@@ -343,7 +343,6 @@
                 <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-emerald-400 to-emerald-700 flex items-center justify-center">
                     <i class="fa-solid fa-route"></i>
                 </div>
-                
                 <span class="text-xl font-extrabold tracking-tight">SmartPath</span>
             </a>
 
@@ -351,9 +350,9 @@
             <nav class="hidden lg:flex items-center gap-8 text-[12px]">
                 <!-- Tambahkan class nav-link ke semua menu, dan ganti href ke #id_section -->
                 <a href="#beranda" class="nav-link text-white border-b-2 border-emerald-400 pb-5">Beranda</a>
-                <a href="#tentang" class="nav-link text-slate-300 hover:text-white transition">Tentang</a>
+                <a href="{{ route('tentang') }}" class="nav-link text-slate-300 hover:text-white transition">Tentang</a>
                 <a href="#fitur" class="nav-link text-slate-300 hover:text-white transition">Fitur</a>
-                <a href="#peta" class="nav-link text-slate-300 hover:text-white transition">Peta</a>
+                <a href="{{ route('peta.fasilitas') }}" class="nav-link text-slate-300 hover:text-white transition">Peta</a>
                 <a href="#cara-kerja" class="nav-link text-slate-300 hover:text-white transition">Cara Kerja</a>
                 <a href="#kontak" class="nav-link text-slate-300 hover:text-white transition">Kontak</a>
             </nav>
@@ -377,7 +376,7 @@
                         Masuk
                     </a>
                     
-                    <a href="{{ route('auth.register') }}"
+                    <a href="{{ route('register.post') }}" 
                        class="inline-flex items-center justify-center
                               rounded-xl
                               bg-emerald-600 hover:bg-emerald-500
@@ -412,9 +411,9 @@
         <div id="mobileMenu" class="lg:hidden mobile-menu bg-[#062a25]/95 dark:bg-[#020617]/95 px-6 py-4 border-t border-white/10">
             <nav class="flex flex-col space-y-3 text-[14px]">
                 <a href="#beranda" class="text-white font-semibold">Beranda</a>
-                <a href="#tentang" class="text-slate-300 hover:text-white transition">Tentang</a>
+                <a href="{{ route('tentang') }}" class="text-slate-300 hover:text-white transition">Tentang</a>
                 <a href="#fitur" class="text-slate-300 hover:text-white transition">Fitur</a>
-                <a href="#peta" class="text-slate-300 hover:text-white transition">Peta</a>
+                <a href="{{ route('peta.fasilitas') }}" class="text-slate-300 hover:text-white transition">Peta</a>
                 <a href="#cara-kerja" class="text-slate-300 hover:text-white transition">Cara Kerja</a>
                 <a href="#kontak" class="text-slate-300 hover:text-white transition">Kontak</a>
             </nav>
@@ -685,9 +684,9 @@
                     <h4 class="text-[11px] font-bold text-white mb-4">Navigasi</h4>
                     <ul class="space-y-2 text-[10px]">
                         <li><a href="#beranda" class="hover:text-emerald-400 transition">Beranda</a></li>
-                        <li><a href="#tentang" class="hover:text-emerald-400 transition">Tentang</a></li>
+                        <li><a href="{{ route('tentang') }}" class="hover:text-emerald-400 transition">Tentang</a></li>
                         <li><a href="#fitur" class="hover:text-emerald-400 transition">Fitur</a></li>
-                        <li><a href="#peta" class="hover:text-emerald-400 transition">Peta</a></li>
+                        <li><a href="{{ route('peta.fasilitas') }}" class="hover:text-emerald-400 transition">Peta</a></li>
                         <li><a href="#cara-kerja" class="hover:text-emerald-400 transition">Cara Kerja</a></li>
                         <li><a href="#kontak" class="hover:text-emerald-400 transition">Kontak</a></li>
                     </ul>

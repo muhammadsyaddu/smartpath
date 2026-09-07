@@ -28,6 +28,11 @@ use App\Http\Controllers\AuditController;
 // ============================================
 Route::get('/', [BerandaController::class, 'index'])->name('beranda');
 
+// rute landing page (bagian tentang)
+Route::get('/tentang', function () {
+    return view('tentang'); // Memanggil file tentang.blade.php
+})->name('tentang');
+
 // Rute Newsletter
 Route::post('/newsletter/subscribe', [BerandaController::class, 'subscribeNewsletter'])->name('newsletter.subscribe');
 
