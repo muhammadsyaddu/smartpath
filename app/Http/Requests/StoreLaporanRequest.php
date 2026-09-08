@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests;
 
+use App\Models\KonfigurasiSistem;
 use Illuminate\Foundation\Http\FormRequest;
+
 
 class StoreLaporanRequest extends FormRequest
 {

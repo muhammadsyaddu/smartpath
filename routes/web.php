@@ -17,21 +17,13 @@ use App\Http\Controllers\NotifikasiController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\AuditController;
 
-/*
-|--------------------------------------------------------------------------
-| Web Routes - SmartPath Platform Pemetaan Aksesibilitas Disabilitas
-|--------------------------------------------------------------------------
-*/
 
 // ============================================
 // RUTE PUBLIK (Tanpa Autentikasi)
 // ============================================
 Route::get('/', [BerandaController::class, 'index'])->name('beranda');
+route::get('/tentang', [BerandaController::class, 'tentang'])->name('tentang');
 
-// rute landing page (bagian tentang)
-Route::get('/tentang', function () {
-    return view('tentang'); // Memanggil file tentang.blade.php
-})->name('tentang');
 
 // Rute Newsletter
 Route::post('/newsletter/subscribe', [BerandaController::class, 'subscribeNewsletter'])->name('newsletter.subscribe');
@@ -45,109 +37,114 @@ Route::get('peta/fasilitas', [PetaController::class, 'getFasilitasData'])->name(
 // RUTE AUTENTIKASI (Lokal & Google OAuth)
 // ============================================
 Route::get('login', [AuthController::class, 'showLoginForm'])
-    ->name('login');
+->name('login');
 
 Route::post('login', [AuthController::class, 'login'])
-    ->middleware('throttle:6,1')
-    ->name('login.post');
+->middleware('throttle:6,1')
+->name('login.post');
 
 Route::get('register', [AuthController::class, 'showRegisterForm'])
-    ->name('auth.register');
+->name('auth.register');
 
 Route::post('register', [AuthController::class, 'register'])
-    ->middleware('throttle:5,10')
-    ->name('register.post');
+->middleware('throttle:5,10')
+->name('register.post');
 
 Route::post('logout', [AuthController::class, 'logout'])
-    ->name('logout');
+->name('logout');
 
 // Rute OAuth Google API
 Route::get('auth/google', [AuthController::class, 'redirectToGoogle'])
-    ->name('auth.google');
+->name('auth.google');
 
 Route::get('auth/google/callback', [AuthController::class, 'handleGoogleCallback'])
-    ->name('auth.google.callback');
+->name('auth.google.callback');
 
 // ============================================
 // RUTE WARGA / TERAUTENTIKASI
 // ============================================
 Route::middleware(['auth'])->group(function () {
-    // Laporan
-    Route::resource('laporan', LaporanController::class)->except(['index']);
-    Route::get('laporan', [LaporanController::class, 'index'])->name('laporan.index');
+// Laporan
+Route::resource('laporan', LaporanController::class)->except(['index']);
+Route::get('laporan', [LaporanController::class, 'index'])->name('laporan.index');
 
-    // Notifikasi
-    Route::get('notifikasi', [NotifikasiController::class, 'index'])->name('notifikasi.index');
-    Route::post('notifikasi/{notifikasi}/baca', [NotifikasiController::class, 'markAsRead'])->name('notifikasi.read');
-    Route::post('notifikasi/baca-semua', [NotifikasiController::class, 'markAllAsRead'])->name('notifikasi.read-all');
-    Route::get('notifikasi/belum-dibaca', [NotifikasiController::class, 'unreadCount'])->name('notifikasi.unread-count');
+// Notifikasi
+Route::get('notifikasi', [NotifikasiController::class, 'index'])->name('notifikasi.index');
+Route::post('notifikasi/{notifikasi}/baca', [NotifikasiController::class, 'markAsRead'])->name('notifikasi.read');
+Route::post('notifikasi/baca-semua', [NotifikasiController::class, 'markAllAsRead'])->name('notifikasi.read-all');
+Route::get('notifikasi/belum-dibaca', [NotifikasiController::class, 'unreadCount'])->name('notifikasi.unread-count');
 
-    // Profil
-    Route::get('profil', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::put('profil', [ProfileController::class, 'update'])->name('profile.update');
+// Profil
+Route::get('profil', [ProfileController::class, 'edit'])->name('profile.edit');
+Route::put('profil', [ProfileController::class, 'update'])->name('profile.update');
 });
 
 // ============================================
 // RUTE ADMIN & DINAS (Autentikasi + Role Dinas)
 // ============================================
 Route::middleware(['auth', 'dinas'])->prefix('admin')->name('admin.')->group(function () {
-    // Dashboard
-    Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
-    Route::get('dashboard/chart', [DashboardController::class, 'getChartData'])->name('dashboard.chart');
+// Dashboard
+Route::get('dashboard', [DashboardController::class, 'index'])
+    ->middleware('admin')
+    ->name('dashboard');
 
-    // Verifikasi Laporan
-    Route::get('verifikasi', [VerifikasiController::class, 'index'])->name('verifikasi.index');
-    Route::get('verifikasi/{laporan}', [VerifikasiController::class, 'show'])->name('verifikasi.show');
-    Route::post('verifikasi/{laporan}/setujui', [VerifikasiController::class, 'approve'])->name('verifikasi.approve');
-    Route::post('verifikasi/{laporan}/tolak', [VerifikasiController::class, 'reject'])->name('verifikasi.reject');
-    Route::post('verifikasi/{laporan}/kembalikan', [VerifikasiController::class, 'return'])->name('verifikasi.return');
-    Route::post('verifikasi/{laporan}/perbaikan', [VerifikasiController::class, 'markInProgress'])->name('verifikasi.in-progress');
-    Route::post('verifikasi/{laporan}/selesai', [VerifikasiController::class, 'markCompleted'])->name('verifikasi.completed');
+Route::get('dashboard/chart', [DashboardController::class, 'getChartData'])
+    ->middleware('admin')
+    ->name('dashboard.chart');
+
+// Verifikasi Laporan
+Route::get('verifikasi', [VerifikasiController::class, 'index'])->name('verifikasi.index');
+Route::get('verifikasi/{laporan}', [VerifikasiController::class, 'show'])->name('verifikasi.show');
+Route::post('verifikasi/{laporan}/setujui', [VerifikasiController::class, 'approve'])->name('verifikasi.approve');
+Route::post('verifikasi/{laporan}/tolak', [VerifikasiController::class, 'reject'])->name('verifikasi.reject');
+Route::post('verifikasi/{laporan}/kembalikan', [VerifikasiController::class, 'return'])->name('verifikasi.return');
+Route::post('verifikasi/{laporan}/perbaikan', [VerifikasiController::class, 'markInProgress'])->name('verifikasi.in-progress');
+Route::post('verifikasi/{laporan}/selesai', [VerifikasiController::class, 'markCompleted'])->name('verifikasi.completed');
 });
 
 // Rute Dinas
 Route::middleware(['auth', 'dinas'])->prefix('dinas')->name('dinas.')->group(function () {
-    Route::get('dashboard', [DashboardController::class, 'indexDinas'])->name('dashboard');
+Route::get('dashboard', [DashboardController::class, 'indexDinas'])->name('dashboard');
 });
 
 // Rute Warga
 Route::middleware(['auth'])->prefix('warga')->name('warga.')->group(function () {
-    Route::get('dashboard', [DashboardController::class, 'indexWarga'])->name('dashboard');
+Route::get('dashboard', [DashboardController::class, 'indexWarga'])->name('dashboard');
 });
 
 // ============================================
 // RUTE ADMINISTRATOR SAJA
 // ============================================
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
-    // Kategori Hambatan
-    Route::resource('kategori-hambatan', KategoriHambatanController::class)->parameters([
-        'kategori-hambatan' => 'kategoriHambatan',
-    ]);
+// Kategori Hambatan
+Route::resource('kategori-hambatan', KategoriHambatanController::class)->parameters([
+'kategori-hambatan' => 'kategoriHambatan',
+]);
 
-    // Fasilitas Publik
-    Route::resource('fasilitas-publik', FasilitasPublikController::class)->parameters([
-        'fasilitas-publik' => 'fasilitasPublik',
-    ]);
+// Fasilitas Publik
+Route::resource('fasilitas-publik', FasilitasPublikController::class)->parameters([
+'fasilitas-publik' => 'fasilitasPublik',
+]);
 
-    // Pengaturan Prioritas
-    Route::resource('pengaturan-prioritas', PengaturanPrioritasController::class)->parameters([
-        'pengaturan-prioritas' => 'pengaturanPrioritas',
-    ]);
-    Route::post('pengaturan-prioritas/{pengaturanPrioritas}/aktifkan', [PengaturanPrioritasController::class, 'activate'])->name('pengaturan-prioritas.activate');
-    Route::post('pengaturan-prioritas/hitung-ulang', [PengaturanPrioritasController::class, 'recalculate'])->name('pengaturan-prioritas.recalculate');
+// Pengaturan Prioritas
+Route::resource('pengaturan-prioritas', PengaturanPrioritasController::class)->parameters([
+'pengaturan-prioritas' => 'pengaturanPrioritas',
+]);
+Route::post('pengaturan-prioritas/{pengaturanPrioritas}/aktifkan', [PengaturanPrioritasController::class, 'activate'])->name('pengaturan-prioritas.activate');
+Route::post('pengaturan-prioritas/hitung-ulang', [PengaturanPrioritasController::class, 'recalculate'])->name('pengaturan-prioritas.recalculate');
 
-    // Wilayah
-    Route::resource('wilayah', WilayahController::class);
+// Wilayah
+Route::resource('wilayah', WilayahController::class);
 
-    // Konfigurasi Sistem
-    Route::resource('konfigurasi-sistem', KonfigurasiSistemController::class)->except(['create', 'show', 'destroy'])->parameters([
-        'konfigurasi-sistem' => 'konfigurasiSistem',
-    ]);
+// Konfigurasi Sistem
+Route::resource('konfigurasi-sistem', KonfigurasiSistemController::class)->except(['create', 'show', 'destroy'])->parameters([
+'konfigurasi-sistem' => 'konfigurasiSistem',
+]);
 
-    // User Management
-    Route::resource('user', UserController::class);
+// User Management
+Route::resource('user', UserController::class);
 
-    // Audit Log
-    Route::get('audit', [AuditController::class, 'index'])->name('audit.index');
-    Route::get('audit/{audit}', [AuditController::class, 'show'])->name('audit.show');
+// Audit Log
+Route::get('audit', [AuditController::class, 'index'])->name('audit.index');
+Route::get('audit/{audit}', [AuditController::class, 'show'])->name('audit.show');
 });

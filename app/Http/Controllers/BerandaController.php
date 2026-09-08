@@ -52,6 +52,10 @@ class BerandaController extends Controller
             'kategoriHambatan'
         ));
     }
+    public function tentang()
+{
+    return view('tentang');
+}
 
     /**
      * Mengelola Langganan Newsletter
