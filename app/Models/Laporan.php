@@ -129,6 +129,26 @@ class Laporan extends Model
     }
 
     /**
+ * Foto utama laporan.
+ *
+ * Kompatibilitas dengan view yang menggunakan
+ * $laporan->fotoUtama.
+ */
+    public function getFotoUtamaAttribute(): ?FotoLaporan
+    {
+        if (!$this->relationLoaded('foto')) {
+            $this->load('foto');
+        }
+
+        return $this->foto
+            ->sortBy([
+                ['adalah_utama', 'desc'],
+                ['urutan', 'asc'],
+            ])
+            ->first();
+    }
+
+    /**
      * Verifikasi laporan
      */
     public function verifikasi(): HasMany
@@ -229,6 +249,37 @@ class Laporan extends Model
             'selesai' => 'primary',
             'diarsipkan' => 'secondary',
             default => 'secondary',
+        };
+    }
+
+    /**
+ * Alias kompatibilitas untuk view lama
+ * yang menggunakan $laporan->warna.
+ */
+    public function getWarnaAttribute(): string
+    {
+        return match ($this->status) {
+
+            'menunggu_verifikasi' =>
+                'bg-amber-50 text-amber-800 border border-amber-200',
+
+            'diverifikasi' =>
+                'bg-emerald-50 text-emerald-800 border border-emerald-200',
+
+            'ditolak' =>
+                'bg-rose-50 text-rose-800 border border-rose-200',
+
+            'dalam_perbaikan' =>
+                'bg-sky-50 text-sky-800 border border-sky-200',
+
+            'selesai' =>
+                'bg-slate-100 text-slate-800 border border-slate-200',
+
+            'diarsipkan' =>
+                'bg-slate-100 text-slate-600 border border-slate-200',
+
+            default =>
+                'bg-slate-50 text-slate-600 border border-slate-200',
         };
     }
 

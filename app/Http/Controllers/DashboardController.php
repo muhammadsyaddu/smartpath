@@ -2,131 +2,495 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\FasilitasPublik;
+use App\Models\Audit;
 use App\Models\KategoriHambatan;
 use App\Models\Laporan;
-use App\Models\PengaturanPrioritas;
-use App\Models\User;
-use App\Models\Wilayah;
 use Illuminate\Http\Request;
 
 class DashboardController extends Controller
 {
     /**
-     * Dashboard administrator / dinas.
+     * Dashboard administrator.
+     *
+     * Dashboard admin dipisahkan dari dashboard dinas
+     * agar perubahan UI administrator tidak mempengaruhi
+     * alur dashboard dinas.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $totalLaporan = Laporan::induk()->count();
+        $search = trim((string) $request->query('search', ''));
+        $status = $request->query('status');
 
-        $menungguVerifikasi = Laporan::status('menunggu_verifikasi')->count();
-
-        $diverifikasi = Laporan::status('diverifikasi')->count();
-
-        $dalamPerbaikan = Laporan::status('dalam_perbaikan')->count();
-
-        $selesai = Laporan::status('selesai')->count();
-
-        $ditolak = Laporan::status('ditolak')->count();
-
-        /*
-         * Distribusi laporan berdasarkan kategori.
-         */
-        $perKategori = KategoriHambatan::withCount([
-            'laporan' => function ($query) {
-                $query->induk();
-            },
-        ])
-            ->aktif()
-            ->urutTampil()
-            ->get();
+        $allowedStatuses = [
+            'menunggu_verifikasi',
+            'diverifikasi',
+            'ditolak',
+            'dalam_perbaikan',
+            'selesai',
+            'diarsipkan',
+        ];
 
         /*
-         * Distribusi laporan berdasarkan wilayah.
+         * Query dasar:
+         * - hanya laporan induk
+         * - soft deleted otomatis tidak ikut
          */
-        $perWilayah = Wilayah::withCount([
-            'laporan' => function ($query) {
-                $query->induk();
-            },
-        ])
-            ->aktif()
-            ->level('kecamatan')
-            ->having('laporan_count', '>', 0)
-            ->get();
+        $laporanDasar = Laporan::query()
+            ->induk()
+            ->aktif();
 
         /*
-         * Laporan dengan prioritas tinggi.
+         * Query khusus tabel laporan terbaru.
          */
-        $prioritasTinggi = Laporan::induk()
+        $laporanTerfilter = clone $laporanDasar;
+
+        if ($search !== '') {
+            $laporanTerfilter->where(function ($query) use ($search) {
+                $query->where('kode_laporan', 'like', "%{$search}%")
+                    ->orWhere('judul', 'like', "%{$search}%")
+                    ->orWhere('alamat_lengkap', 'like', "%{$search}%");
+            });
+        }
+
+        if (in_array($status, $allowedStatuses, true)) {
+            $laporanTerfilter->status($status);
+        }
+
+        /*
+         * ==========================================================
+         * KPI UTAMA
+         * ==========================================================
+         */
+
+        $totalLaporan = (clone $laporanDasar)->count();
+
+        $menungguVerifikasi = (clone $laporanDasar)
+            ->status('menunggu_verifikasi')
+            ->count();
+
+        /*
+         * Terverifikasi mencakup:
+         * diverifikasi
+         * dalam_perbaikan
+         * selesai
+         */
+        $laporanTerverifikasi = (clone $laporanDasar)
+            ->terverifikasi()
+            ->count();
+
+        $dalamPerbaikan = (clone $laporanDasar)
+            ->status('dalam_perbaikan')
+            ->count();
+
+        $selesai = (clone $laporanDasar)
+            ->status('selesai')
+            ->count();
+
+        $prioritasTinggiCount = (clone $laporanDasar)
+            ->whereNotNull('skor_prioritas')
+            ->where('skor_prioritas', '>=', 70)
+            ->count();
+
+        /*
+         * ==========================================================
+         * PERUBAHAN 7 HARI
+         * ==========================================================
+         */
+
+        $sekarang = now();
+
+        $awalPeriode = $sekarang->copy()->subDays(7);
+
+        $awalSebelumnya = $sekarang->copy()->subDays(14);
+
+        $laporanMingguIni = (clone $laporanDasar)
+            ->where('created_at', '>=', $awalPeriode)
+            ->count();
+
+        $laporanMingguSebelumnya = (clone $laporanDasar)
+            ->whereBetween(
+                'created_at',
+                [
+                    $awalSebelumnya,
+                    $awalPeriode
+                ]
+            )
+            ->count();
+
+        $persentasePerubahan = $laporanMingguSebelumnya > 0
+            ? round(
+                (
+                    ($laporanMingguIni - $laporanMingguSebelumnya)
+                    / $laporanMingguSebelumnya
+                ) * 100
+            )
+            : null;
+
+        /*
+         * ==========================================================
+         * TOP PRIORITAS
+         * ==========================================================
+         */
+
+        $laporanPrioritasTinggi = (clone $laporanDasar)
             ->with([
                 'kategoriHambatan',
                 'wilayah',
                 'pelapor',
+                'foto'
             ])
-            ->terverifikasi()
+            ->whereNotNull('skor_prioritas')
+            ->where('skor_prioritas', '>=', 70)
+            ->orderByDesc('skor_prioritas')
+            ->orderByDesc('created_at')
+            ->limit(5)
+            ->get();
+
+        /*
+         * ==========================================================
+         * LAPORAN TERBARU
+         * ==========================================================
+         */
+
+        $laporanTerbaru = $laporanTerfilter
+            ->with([
+                'kategoriHambatan',
+                'pelapor',
+                'wilayah',
+                'foto'
+            ])
+            ->orderByDesc('created_at')
+            ->limit(4)
+            ->get();
+
+        /*
+         * ==========================================================
+         * KATEGORI
+         * ==========================================================
+         */
+
+        $perKategori = KategoriHambatan::query()
+            ->aktif()
+            ->urutTampil()
+            ->withCount([
+                'laporan' => fn ($query) =>
+                    $query->induk()->aktif(),
+            ])
+            ->get();
+
+        /*
+         * ==========================================================
+         * DISTRIBUSI STATUS
+         * ==========================================================
+         */
+
+        $statusChart = [
+            'menunggu_verifikasi' => $menungguVerifikasi,
+
+            'diverifikasi' => (clone $laporanDasar)
+                ->status('diverifikasi')
+                ->count(),
+
+            'dalam_perbaikan' => $dalamPerbaikan,
+
+            'selesai' => $selesai,
+
+            'ditolak' => (clone $laporanDasar)
+                ->status('ditolak')
+                ->count(),
+        ];
+
+        /*
+         * ==========================================================
+         * TREN 7 HARI
+         * ==========================================================
+         */
+
+        $trenRaw = (clone $laporanDasar)
+            ->where(
+                'created_at',
+                '>=',
+                now()->startOfDay()->subDays(6)
+            )
+            ->selectRaw(
+                'DATE(created_at) as tanggal, COUNT(*) as jumlah'
+            )
+            ->groupByRaw('DATE(created_at)')
+            ->orderBy('tanggal')
+            ->pluck('jumlah', 'tanggal');
+
+        $tren7Hari = collect(range(6, 0))
+            ->map(function ($daysAgo) use ($trenRaw) {
+
+                $date = now()
+                    ->startOfDay()
+                    ->subDays($daysAgo);
+
+                $key = $date->format('Y-m-d');
+
+                return [
+                    'tanggal' => $key,
+                    'label' => $date->format('d M'),
+                    'jumlah' => (int) (
+                        $trenRaw[$key] ?? 0
+                    ),
+                ];
+            })
+            ->values();
+
+        /*
+         * ==========================================================
+         * DATA PETA LEAFLET
+         * ==========================================================
+         */
+
+        $petaLaporan = (clone $laporanDasar)
+            ->with([
+                'kategoriHambatan',
+                'wilayah',
+                'foto'
+            ])
+            ->whereNotNull('latitude')
+            ->whereNotNull('longitude')
+            ->get()
+            ->map(function (Laporan $laporan) {
+
+                return [
+                    'id' => $laporan->id,
+
+                    'kode' => $laporan->kode_laporan,
+
+                    'judul' => $laporan->judul,
+
+                    'latitude' => (float) $laporan->latitude,
+
+                    'longitude' => (float) $laporan->longitude,
+
+                    'status' => $laporan->status,
+
+                    'status_label' => $laporan->status_label,
+
+                    'prioritas' => $laporan->tingkat_prioritas,
+
+                    'skor_prioritas' =>
+                        $laporan->skor_prioritas !== null
+                            ? (float) $laporan->skor_prioritas
+                            : null,
+
+                    'kategori_id' =>
+                        $laporan->kategori_hambatan_id,
+
+                    'kategori' =>
+                        $laporan->kategoriHambatan?->nama,
+
+                    'warna' =>
+                        $laporan->kategoriHambatan?->warna_penanda,
+
+                    'alamat' =>
+                        $laporan->alamat_lengkap,
+
+                    'created_at' =>
+                        $laporan->created_at?->toISOString(),
+                ];
+            })
+            ->values();
+
+        /*
+         * ==========================================================
+         * AKTIVITAS TERBARU
+         * ==========================================================
+         *
+         * Hanya aktivitas yang berhubungan dengan laporan.
+         * Login/logout tidak memenuhi panel aktivitas laporan.
+         */
+
+        $aktivitasTerbaru = Audit::query()
+            ->where('tabel_terkait', 'laporan')
+            ->with('pengguna')
+            ->orderByDesc('created_at')
+            ->limit(4)
+            ->get();
+
+        /*
+         * Jumlah area/wilayah unik yang memiliki laporan.
+         */
+
+        $areaDipantau = (clone $laporanDasar)
+            ->whereNotNull('wilayah_id')
+            ->distinct()
+            ->count('wilayah_id');
+
+        /*
+         * ==========================================================
+         * KIRIM DATA KE DASHBOARD ADMIN
+         * ==========================================================
+         */
+
+        return view('Dashboard.admin', [
+
+            'statistik' => [
+
+                'total' =>
+                    $totalLaporan,
+
+                'menunggu' =>
+                    $menungguVerifikasi,
+
+                'diverifikasi' =>
+                    $laporanTerverifikasi,
+
+                'dalam_perbaikan' =>
+                    $dalamPerbaikan,
+
+                'selesai' =>
+                    $selesai,
+
+                'kritis' =>
+                    $prioritasTinggiCount,
+            ],
+
+            'totalLaporan' =>
+                $totalLaporan,
+
+            'menungguVerifikasi' =>
+                $menungguVerifikasi,
+
+            'laporanTerverifikasi' =>
+                $laporanTerverifikasi,
+
+            'dalamPerbaikan' =>
+                $dalamPerbaikan,
+
+            'selesai' =>
+                $selesai,
+
+            'prioritasTinggiCount' =>
+                $prioritasTinggiCount,
+
+            'persentasePerubahan' =>
+                $persentasePerubahan,
+
+            'laporanMingguIni' =>
+                $laporanMingguIni,
+
+            'laporanPrioritasTinggi' =>
+                $laporanPrioritasTinggi,
+
+            'laporanTerbaru' =>
+                $laporanTerbaru,
+
+            'perKategori' =>
+                $perKategori,
+
+            'statusChart' =>
+                $statusChart,
+
+            'tren7Hari' =>
+                $tren7Hari,
+
+            'petaLaporan' =>
+                $petaLaporan,
+
+            'aktivitasTerbaru' =>
+                $aktivitasTerbaru,
+
+            'areaDipantau' =>
+                $areaDipantau,
+        ]);
+    }
+
+    /**
+     * Dashboard DINAS.
+     *
+     * Jangan diarahkan ke index() karena index()
+     * sekarang khusus administrator.
+     */
+    public function indexDinas()
+    {
+        $laporanDasar = Laporan::query()
+            ->induk()
+            ->aktif();
+
+        $statistik = [
+
+            'total' =>
+                (clone $laporanDasar)->count(),
+
+            'menunggu' =>
+                (clone $laporanDasar)
+                    ->status('menunggu_verifikasi')
+                    ->count(),
+
+            'dalam_perbaikan' =>
+                (clone $laporanDasar)
+                    ->status('dalam_perbaikan')
+                    ->count(),
+
+            'selesai' =>
+                (clone $laporanDasar)
+                    ->status('selesai')
+                    ->count(),
+
+            'kritis' =>
+                (clone $laporanDasar)
+                    ->where('skor_prioritas', '>=', 70)
+                    ->count(),
+        ];
+
+        $laporanPrioritasTinggi = (clone $laporanDasar)
+            ->with([
+                'kategoriHambatan',
+                'wilayah',
+                'pelapor',
+                'foto',
+                'fasilitasTerdekat'
+            ])
             ->where('skor_prioritas', '>=', 70)
             ->orderByDesc('skor_prioritas')
             ->limit(10)
             ->get();
 
-        /*
-         * Laporan terbaru.
-         */
-        $laporanBaru = Laporan::induk()
+        $laporanTerbaru = (clone $laporanDasar)
             ->with([
                 'kategoriHambatan',
                 'pelapor',
+                'wilayah',
+                'foto'
             ])
-            ->status('menunggu_verifikasi')
-            ->orderBy('created_at')
+            ->orderByDesc('created_at')
             ->limit(10)
             ->get();
 
-        /*
-         * Rata-rata skor prioritas.
-         */
-        $rataRataSkor = Laporan::induk()
-            ->terverifikasi()
-            ->whereNotNull('skor_prioritas')
-            ->avg('skor_prioritas');
+        $petaLaporan = (clone $laporanDasar)
+            ->whereNotNull('latitude')
+            ->whereNotNull('longitude')
+            ->get([
+                'id',
+                'kode_laporan',
+                'judul',
+                'latitude',
+                'longitude',
+                'status',
+                'skor_prioritas',
+            ]);
 
         /*
-         * Total pelapor berdasarkan agregasi.
+         * Belum ada tabel anggaran dalam schema SmartPath.
+         * Gunakan collection kosong agar Dashboard Dinas
+         * menggunakan fallback yang sudah tersedia di view.
          */
-        $totalPelapor = Laporan::induk()
-            ->sum('jumlah_pelapor');
+        $dataAnggaran = collect();
 
-        /*
-         * Pengaturan prioritas aktif.
-         */
-        $pengaturanAktif = PengaturanPrioritas::where(
-            'adalah_aktif',
-            true
-        )->first();
-
-        return view('dashboard.dinas', compact(
-            'totalLaporan',
-            'menungguVerifikasi',
-            'diverifikasi',
-            'dalamPerbaikan',
-            'selesai',
-            'ditolak',
-            'perKategori',
-            'perWilayah',
-            'prioritasTinggi',
-            'laporanBaru',
-            'rataRataSkor',
-            'totalPelapor',
-            'pengaturanAktif'
-        ));
-    }
-
-    /**
-     * Dashboard dinas.
-     */
-    public function indexDinas()
-    {
-        return $this->index();
+        return view(
+            'Dashboard.dinas',
+            compact(
+                'statistik',
+                'laporanPrioritasTinggi',
+                'laporanTerbaru',
+                'petaLaporan',
+                'dataAnggaran'
+            )
+        );
     }
 
     /**
@@ -142,7 +506,7 @@ class DashboardController extends Controller
         )->count();
 
         return view(
-            'dashboard.warga',
+            'Dashboard.warga',
             compact(
                 'user',
                 'jumlahLaporan'
@@ -151,90 +515,127 @@ class DashboardController extends Controller
     }
 
     /**
-     * Endpoint data chart dashboard.
+     * Endpoint chart lama.
+     *
+     * Tetap dipertahankan agar route yang sudah ada
+     * tidak rusak.
      */
     public function getChartData(Request $request)
     {
-        $type = $request->get('type', 'status');
+        $type = $request->query(
+            'type',
+            'status'
+        );
 
         return match ($type) {
-            'status' => $this->getStatusChartData(),
-            'kategori' => $this->getKategoriChartData(),
-            'tren' => $this->getTrenChartData(),
-            'prioritas' => $this->getPrioritasChartData(),
-            default => response()->json([]),
+
+            'status' =>
+                $this->getStatusChartData(),
+
+            'kategori' =>
+                $this->getKategoriChartData(),
+
+            'tren' =>
+                $this->getTrenChartData(),
+
+            'prioritas' =>
+                $this->getPrioritasChartData(),
+
+            default =>
+                response()->json([]),
         };
     }
 
     /**
-     * Chart berdasarkan status.
+     * Chart status.
      */
     protected function getStatusChartData()
     {
-        $data = [
+        $base = Laporan::query()
+            ->induk()
+            ->aktif();
+
+        return response()->json([
+
             [
                 'status' => 'Menunggu Verifikasi',
-                'count' => Laporan::status('menunggu_verifikasi')
-                    ->induk()
-                    ->count(),
+                'count' =>
+                    (clone $base)
+                        ->status('menunggu_verifikasi')
+                        ->count(),
             ],
+
             [
                 'status' => 'Terverifikasi',
-                'count' => Laporan::status('diverifikasi')
-                    ->induk()
-                    ->count(),
+                'count' =>
+                    (clone $base)
+                        ->status('diverifikasi')
+                        ->count(),
             ],
+
             [
                 'status' => 'Dalam Perbaikan',
-                'count' => Laporan::status('dalam_perbaikan')
-                    ->induk()
-                    ->count(),
+                'count' =>
+                    (clone $base)
+                        ->status('dalam_perbaikan')
+                        ->count(),
             ],
+
             [
                 'status' => 'Selesai',
-                'count' => Laporan::status('selesai')
-                    ->induk()
-                    ->count(),
+                'count' =>
+                    (clone $base)
+                        ->status('selesai')
+                        ->count(),
             ],
+
             [
                 'status' => 'Ditolak',
-                'count' => Laporan::status('ditolak')
-                    ->induk()
-                    ->count(),
+                'count' =>
+                    (clone $base)
+                        ->status('ditolak')
+                        ->count(),
             ],
-        ];
-
-        return response()->json($data);
+        ]);
     }
 
     /**
-     * Chart berdasarkan kategori.
+     * Chart kategori.
      */
     protected function getKategoriChartData()
     {
-        $data = KategoriHambatan::withCount([
-            'laporan' => function ($query) {
-                $query->induk();
-            },
-        ])
+        $data = KategoriHambatan::query()
             ->aktif()
             ->urutTampil()
+            ->withCount([
+                'laporan' =>
+                    fn ($query) =>
+                        $query->induk()->aktif(),
+            ])
             ->get()
             ->map(fn ($kategori) => [
-                'nama' => $kategori->nama,
-                'count' => $kategori->laporan_count,
-                'warna' => $kategori->warna_penanda,
+
+                'nama' =>
+                    $kategori->nama,
+
+                'count' =>
+                    (int) $kategori->laporan_count,
+
+                'warna' =>
+                    $kategori->warna_penanda,
             ]);
 
         return response()->json($data);
     }
 
     /**
-     * Chart tren laporan 30 hari terakhir.
+     * Chart tren 30 hari.
      */
     protected function getTrenChartData()
     {
-        $data = Laporan::induk()
+        $data = Laporan::query()
+            ->induk()
+            ->aktif()
             ->selectRaw(
                 'DATE(created_at) as tanggal, COUNT(*) as jumlah'
             )
@@ -255,42 +656,44 @@ class DashboardController extends Controller
      */
     protected function getPrioritasChartData()
     {
-        $tinggi = Laporan::induk()
-            ->terverifikasi()
-            ->where('skor_prioritas', '>=', 70)
-            ->count();
-
-        $sedang = Laporan::induk()
-            ->terverifikasi()
-            ->whereBetween(
-                'skor_prioritas',
-                [40, 69.99]
-            )
-            ->count();
-
-        $rendah = Laporan::induk()
-            ->terverifikasi()
-            ->where(
-                'skor_prioritas',
-                '<',
-                40
-            )
-            ->count();
+        $base = Laporan::query()
+            ->induk()
+            ->aktif()
+            ->terverifikasi();
 
         return response()->json([
+
             [
                 'tingkat' => 'Tinggi',
-                'count' => $tinggi,
+                'count' =>
+                    (clone $base)
+                        ->where('skor_prioritas', '>=', 70)
+                        ->count(),
                 'warna' => '#DC2626',
             ],
+
             [
                 'tingkat' => 'Sedang',
-                'count' => $sedang,
+                'count' =>
+                    (clone $base)
+                        ->whereBetween(
+                            'skor_prioritas',
+                            [40, 69.99]
+                        )
+                        ->count(),
                 'warna' => '#D97706',
             ],
+
             [
                 'tingkat' => 'Rendah',
-                'count' => $rendah,
+                'count' =>
+                    (clone $base)
+                        ->where(
+                            'skor_prioritas',
+                            '<',
+                            40
+                        )
+                        ->count(),
                 'warna' => '#059669',
             ],
         ]);

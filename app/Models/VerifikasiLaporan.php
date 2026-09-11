@@ -69,4 +69,25 @@ class VerifikasiLaporan extends Model
             default => 'secondary',
         };
     }
+
+    /**
+ * Alias kompatibilitas untuk view lama.
+ */
+        public function getWarnaAttribute(): string
+        {
+            return match ($this->keputusan) {
+
+                'disetujui' =>
+                    'bg-emerald-50 text-emerald-800 border border-emerald-200',
+
+                'ditolak' =>
+                    'bg-rose-50 text-rose-800 border border-rose-200',
+
+                'dikembalikan' =>
+                    'bg-amber-50 text-amber-800 border border-amber-200',
+
+                default =>
+                    'bg-slate-50 text-slate-600 border border-slate-200',
+            };
+        }
 }
