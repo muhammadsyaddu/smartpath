@@ -1317,7 +1317,7 @@
                         <a href="/peta" class="btn btn-primary-custom btn-lg">
                             <i class="fa-solid fa-map me-2"></i>Jelajahi Peta
                         </a>
-                        <a href="/lapor" class="btn btn-outline-light-custom btn-lg">
+                        <a href="{{ route('laporan.create') }}" class="btn btn-outline-light-custom btn-lg">
                             <i class="fa-solid fa-bullhorn me-2"></i>Laporkan Sekarang
                         </a>
                     </div>

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Laporan;
+use App\Models\Wilayah;
 use App\Models\FotoLaporan;
 use App\Models\RiwayatStatusLaporan;
 use App\Models\Notifikasi;

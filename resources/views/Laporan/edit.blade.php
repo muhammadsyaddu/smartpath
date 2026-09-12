@@ -116,7 +116,7 @@
                 <label for="wilayah_id" class="block text-sm font-medium text-slate-700 mb-1.5">Wilayah</label>
                 <select id="wilayah_id" name="wilayah_id" class="w-full rounded-xl border-slate-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 text-sm" required>
                     <option value="">Pilih Wilayah</option>
-                    @foreach($wilayah as $w)
+                    @foreach($wilayahList as $w)
                         <option value="{{ $w->id }}" {{ old('wilayah_id', $laporan->wilayah_id) == $w->id ? 'selected' : '' }}>{{ $w->nama }}</option>
                     @endforeach
                 </select>

@@ -343,13 +343,13 @@
                     </label>
 
 
-                    <a
-                        href="#"
-                        class="text-sm font-bold text-emerald-600 transition hover:text-emerald-700"
-                    >
-                        Lupa kata sandi?
-                    </a>
-
+                   <a 
+    href="{{ route('password.request') }}" 
+    style="position: relative; z-index: 9999; pointer-events: auto; display: inline-block;"
+    class="text-sm font-bold text-emerald-600 transition hover:text-emerald-700"
+>
+    Lupa kata sandi?
+</a>
                 </div>
 
 

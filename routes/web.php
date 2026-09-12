@@ -16,6 +16,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\NotifikasiController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\AuditController;
+use App\Http\Controllers\ForgotPasswordController;
 
 
 // ============================================
@@ -60,6 +61,16 @@ Route::get('auth/google', [AuthController::class, 'redirectToGoogle'])
 Route::get('auth/google/callback', [AuthController::class, 'handleGoogleCallback'])
 ->name('auth.google.callback');
 
+// Rute lupa password untuk semua pengguna.
+Route::get('forgot-password', [ForgotPasswordController::class, 'showLinkRequestForm'])
+    ->name('password.request');
+Route::post('forgot-password', [ForgotPasswordController::class, 'sendResetLinkEmail'])
+    ->name('password.email');
+Route::get('reset-password/{token}', [ForgotPasswordController::class, 'showResetForm'])
+    ->name('password.reset');
+Route::post('reset-password', [ForgotPasswordController::class, 'resetPassword'])
+    ->name('password.update');
+
 // ============================================
 // RUTE WARGA / TERAUTENTIKASI
 // ============================================
@@ -67,7 +78,7 @@ Route::middleware(['auth'])->group(function () {
 // Laporan
 Route::resource('laporan', LaporanController::class)->except(['index']);
 Route::get('laporan', [LaporanController::class, 'index'])->name('laporan.index');
-
+Route::get('/dinas/laporan/unduh', [LaporanController::class, 'unduh'])->name('dinas.laporan.unduh');
 // Notifikasi
 Route::get('notifikasi', [NotifikasiController::class, 'index'])->name('notifikasi.index');
 Route::post('notifikasi/{notifikasi}/baca', [NotifikasiController::class, 'markAsRead'])->name('notifikasi.read');
@@ -147,4 +158,11 @@ Route::resource('user', UserController::class);
 // Audit Log
 Route::get('audit', [AuditController::class, 'index'])->name('audit.index');
 Route::get('audit/{audit}', [AuditController::class, 'show'])->name('audit.show');
+
+
+// Rute lupa password
+// 1. Tampilkan halaman input email (Lupa Password)
+// 2. Proses kirim link reset ke email
+// 3. Tampilkan halaman input password baru (diklik dari email)
+// 4. Proses simpan password baru ke database
 });

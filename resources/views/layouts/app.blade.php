@@ -62,7 +62,7 @@
 <body class="bg-white text-slate-800 dark:bg-slate-950 dark:text-slate-100 antialiased min-h-screen flex flex-col justify-between transition-colors duration-200">
 
     
-`
+
     <!-- Flash Message Notification -->
     @if(session('success_newsletter'))
         <div id="flash-banner" class="bg-emerald-600 text-white px-4 py-3 text-sm font-semibold text-center sticky top-0 z-50 flex items-center justify-between shadow-md">
