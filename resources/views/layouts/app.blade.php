@@ -11,6 +11,9 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
+    <!-- Leaflet CSS (Wajib dipanggil di Head agar peta tidak pecah/berantakan) -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
     <!-- Tailwind CSS (CDN Standalone) -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -45,13 +48,22 @@
         body { font-family: 'Inter', sans-serif; }
         .line-clamp-1 { display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; }
         .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        
+        /* Fix khusus kontainer peta agar tidak collapse/gepeng */
+        #location-map {
+            width: 100% !important;
+            min-height: 350px !important;
+        }
     </style>
+
+    {{-- Stack untuk CSS Tambahan dari view anak --}}
+    @stack('styles')
 </head>
 <body class="bg-white text-slate-800 dark:bg-slate-950 dark:text-slate-100 antialiased min-h-screen flex flex-col justify-between transition-colors duration-200">
 
     {{-- Top Navbar --}}
     @include('partials.nav-public')
-`
+
     <!-- Flash Message Notification -->
     @if(session('success_newsletter'))
         <div id="flash-banner" class="bg-emerald-600 text-white px-4 py-3 text-sm font-semibold text-center sticky top-0 z-50 flex items-center justify-between shadow-md">
@@ -70,13 +82,19 @@
         @yield('content')
     </main>
 
+    <!-- Leaflet JS (Dipanggil sebelum script view anak) -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
     <!-- Lucide Icons Initialization -->
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            lucide.createIcons();
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
         });
     </script>
 
+    {{-- Stack untuk JavaScript Tambahan dari view anak --}}
     @stack('scripts')
 </body>
 </html>

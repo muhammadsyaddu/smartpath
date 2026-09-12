@@ -22,7 +22,8 @@ class LaporanController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Laporan::induk()->with(['kategoriHambatan', 'pelapor', 'wilayah', 'foto']);
+        // PERBAIKAN: Menggunakan fotoLaporan agar konsisten dengan view
+        $query = Laporan::induk()->with(['kategoriHambatan', 'pelapor', 'wilayah', 'fotoLaporan']);
 
         if ($request->filled('status')) {
             $query->status($request->status);
@@ -157,11 +158,12 @@ class LaporanController extends Controller
      */
     public function show(Laporan $laporan)
     {
+        // PERBAIKAN: Mengubah 'foto' menjadi 'fotoLaporan' agar sesuai dengan pemanggilan di Blade
         $laporan->load([
             'kategoriHambatan',
             'pelapor',
             'wilayah',
-            'foto',
+            'fotoLaporan',
             'verifikasi.admin',
             'riwayatStatus.diubahOleh',
             'laporanAnak.pelapor',
