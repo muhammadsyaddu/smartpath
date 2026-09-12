@@ -60,17 +60,23 @@
                         
                         {{-- Box Placeholder Gambar Wireframe / Foto --}}
                         <div class="w-full sm:w-36 h-28 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-center shrink-0 overflow-hidden relative">
-                            @if(isset($item->foto))
-                                <img src="{{ asset('storage/' . $item->foto) }}" alt="Foto Laporan" class="w-full h-full object-cover">
-                            @else
-                                {{-- Visual Silang Wireframe Sesuai Design --}}
-                                <div class="absolute inset-0 flex items-center justify-center">
-                                    <div class="w-full h-full border-t border-b border-slate-200 transform -rotate-12 scale-125"></div>
-                                    <div class="w-full h-full border-t border-b border-slate-200 transform rotate-12 scale-125 absolute"></div>
-                                    <i data-lucide="image" class="w-7 h-7 text-slate-300 z-10 bg-slate-50 rounded-full p-1"></i>
-                                </div>
-                            @endif
-                        </div>
+    @if($item->fotoUtama)
+        <img src="{{ Storage::url($item->fotoUtama->path_file) }}" 
+             alt="{{ $item->judul }}" 
+             class="w-full h-full object-cover">
+    @elseif($item->fotoLaporan && $item->fotoLaporan->isNotEmpty())
+        <img src="{{ Storage::url($item->fotoLaporan->first()->path_file) }}" 
+             alt="{{ $item->judul }}" 
+             class="w-full h-full object-cover">
+    @else
+        {{-- Visual Silang Wireframe Sesuai Design --}}
+        <div class="absolute inset-0 flex items-center justify-center">
+            <div class="w-full h-full border-t border-b border-slate-200 transform -rotate-12 scale-125"></div>
+            <div class="w-full h-full border-t border-b border-slate-200 transform rotate-12 scale-125 absolute"></div>
+            <i data-lucide="image" class="w-7 h-7 text-slate-300 z-10 bg-slate-50 rounded-full p-1"></i>
+        </div>
+    @endif
+</div>
 
                         {{-- Info Detail Laporan --}}
                         <div class="flex-1 space-y-1.5">
