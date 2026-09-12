@@ -142,11 +142,15 @@
 
             {{-- HEADER --}}
 
-            @include(
-                'partials.header-admin'
-            )
+           @if(auth()->user()->isAdmin())
 
+    @include('partials.header-admin')
 
+@elseif(auth()->user()->isDinas())
+
+    @include('partials.header-dinas')
+
+@endif
             {{-- MAIN CONTENT --}}
 
             <main

@@ -6,13 +6,12 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'SmartPath - Pemetaan Aksesibilitas Infrastruktur Disabilitas')</title>
 
-    <!-- Google Fonts: Inter (WCAG Readability) -->
+    <!-- Google Fonts: Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
-    
-    <!-- Tailwind CSS (CDN Standalone - Tanpa Perlu Vite / Node.js di Laragon) -->
+    <!-- Tailwind CSS (CDN Standalone) -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -50,6 +49,9 @@
 </head>
 <body class="bg-white text-slate-800 dark:bg-slate-950 dark:text-slate-100 antialiased min-h-screen flex flex-col justify-between transition-colors duration-200">
 
+    {{-- Top Navbar --}}
+    @include('partials.nav-public')
+`
     <!-- Flash Message Notification -->
     @if(session('success_newsletter'))
         <div id="flash-banner" class="bg-emerald-600 text-white px-4 py-3 text-sm font-semibold text-center sticky top-0 z-50 flex items-center justify-between shadow-md">

@@ -22,6 +22,7 @@ use App\Http\Controllers\AuditController;
 // RUTE PUBLIK (Tanpa Autentikasi)
 // ============================================
 Route::get('/', [BerandaController::class, 'index'])->name('beranda');
+route::get('/tentang', [BerandaController::class, 'tentang'])->name('tentang');
 
 
 // Rute Newsletter

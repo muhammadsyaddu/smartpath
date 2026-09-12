@@ -232,14 +232,10 @@
                 </span>
 
                 <span
-                    class="block text-[10px] text-slate-500"
-                >
-                    {{
-                        auth()->user()->isAdmin()
-                            ? 'Admin PUPR'
-                            : 'Petugas Dinas'
-                    }}
-                </span>
+    class="block text-[10px] text-slate-500"
+>
+    Admin PUPR
+</span>
 
             </span>
 
