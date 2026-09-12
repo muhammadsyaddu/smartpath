@@ -49,8 +49,7 @@
 </head>
 <body class="bg-white text-slate-800 dark:bg-slate-950 dark:text-slate-100 antialiased min-h-screen flex flex-col justify-between transition-colors duration-200">
 
-    {{-- Top Navbar --}}
-    @include('partials.nav-public')
+    
 `
     <!-- Flash Message Notification -->
     @if(session('success_newsletter'))
