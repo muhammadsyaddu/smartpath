@@ -121,7 +121,7 @@ class Laporan extends Model
     }
 
     /**
-     * Foto laporan
+     * Foto laporan (Alias 'foto' agar aman jika ada fungsi lama yang memanggil)
      */
     public function foto(): HasMany
     {
@@ -129,18 +129,24 @@ class Laporan extends Model
     }
 
     /**
- * Foto utama laporan.
- *
- * Kompatibilitas dengan view yang menggunakan
- * $laporan->fotoUtama.
- */
+     * Foto laporan (Relasi standar yang dipanggil di View & Controller baru)
+     */
+    public function fotoLaporan(): HasMany
+    {
+        return $this->hasMany(FotoLaporan::class, 'laporan_id');
+    }
+
+    /**
+     * Foto utama laporan.
+     * Kompatibilitas dengan view yang menggunakan $laporan->fotoUtama.
+     */
     public function getFotoUtamaAttribute(): ?FotoLaporan
     {
-        if (!$this->relationLoaded('foto')) {
-            $this->load('foto');
-        }
+        $fotoCollection = $this->relationLoaded('fotoLaporan') 
+            ? $this->fotoLaporan 
+            : ($this->relationLoaded('foto') ? $this->foto : $this->fotoLaporan);
 
-        return $this->foto
+        return $fotoCollection
             ->sortBy([
                 ['adalah_utama', 'desc'],
                 ['urutan', 'asc'],
@@ -253,33 +259,18 @@ class Laporan extends Model
     }
 
     /**
- * Alias kompatibilitas untuk view lama
- * yang menggunakan $laporan->warna.
- */
+     * Alias kompatibilitas untuk view lama yang menggunakan $laporan->warna.
+     */
     public function getWarnaAttribute(): string
     {
         return match ($this->status) {
-
-            'menunggu_verifikasi' =>
-                'bg-amber-50 text-amber-800 border border-amber-200',
-
-            'diverifikasi' =>
-                'bg-emerald-50 text-emerald-800 border border-emerald-200',
-
-            'ditolak' =>
-                'bg-rose-50 text-rose-800 border border-rose-200',
-
-            'dalam_perbaikan' =>
-                'bg-sky-50 text-sky-800 border border-sky-200',
-
-            'selesai' =>
-                'bg-slate-100 text-slate-800 border border-slate-200',
-
-            'diarsipkan' =>
-                'bg-slate-100 text-slate-600 border border-slate-200',
-
-            default =>
-                'bg-slate-50 text-slate-600 border border-slate-200',
+            'menunggu_verifikasi' => 'bg-amber-50 text-amber-800 border border-amber-200',
+            'diverifikasi' => 'bg-emerald-50 text-emerald-800 border border-emerald-200',
+            'ditolak' => 'bg-rose-50 text-rose-800 border border-rose-200',
+            'dalam_perbaikan' => 'bg-sky-50 text-sky-800 border border-sky-200',
+            'selesai' => 'bg-slate-100 text-slate-800 border border-slate-200',
+            'diarsipkan' => 'bg-slate-100 text-slate-600 border border-slate-200',
+            default => 'bg-slate-50 text-slate-600 border border-slate-200',
         };
     }
 
