@@ -1,1186 +1,1520 @@
 <!DOCTYPE html>
-<html lang="id" class="scroll-smooth">
+<html lang="id" data-bs-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SmartPath - Kota yang Lebih Aksesibel</title>
-    <meta name="description" content="SmartPath adalah platform partisipatif untuk melaporkan dan memetakan hambatan aksesibilitas di ruang publik.">
+    <title>Tentang SmartPath - Teknologi untuk Ruang Publik Inklusif</title>
 
-    <!-- Font Inter -->
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Google Font: Plus Jakarta Sans -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-
-    <!-- FontAwesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-
-    <!-- Leaflet CSS -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif']
-                    },
-                    colors: {
-                        emerald: {
-                            50:'#ecfdf5',100:'#d1fae5',200:'#a7f3d0',300:'#6ee7b7',
-                            400:'#34d399',500:'#10b981',600:'#059669',700:'#047857',
-                            800:'#065f46',900:'#064e3b',950:'#022c22'
-                        }
-                    }
-                }
-            }
-        }
-    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
     <style>
-        /* ===== RESET & BASE ===== */
-        * { box-sizing: border-box; }
-        body {
-            margin: 0;
-            font-family: 'Inter', sans-serif;
-            color: #172033;
-            background: #f8fafc;
-            transition: background 0.3s ease, color 0.3s ease;
-        }
-        html.dark body {
-            background: #0f172a;
-            color: #f1f5f9;
-        }
+        /* ============================================================
+           SMARTPATH - ABOUT PAGE STYLES
+           ============================================================ */
 
-        /* ===== SKIP LINK ===== */
-        .skip-link {
-            position: absolute;
-            top: -9999px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #059669;
-            color: #ffffff;
-            padding: 12px 24px;
-            border-radius: 8px;
-            z-index: 9999;
-            font-weight: 600;
-            transition: top 0.3s;
-        }
-        .skip-link:focus {
-            top: 16px;
-        }
-
-        /* ===== SCROLL PROGRESS BAR ===== */
-        .scroll-progress {
-            position: fixed;
-            top: 0;
-            left: 0;
-            height: 3px;
-            background: linear-gradient(90deg, #10b981, #059669, #34d399);
-            z-index: 99999;
-            width: 0%;
-            transition: width 0.1s ease;
-        }
-
-        /* ===== FIX ANCHOR SCROLL (AGAR TIDAK TERTUTUP HEADER) ===== */
-        .section-anchor {
-            scroll-margin-top: 100px;
-        }
-
-        /* ===== HERO ===== */
-        .hero {
-            background: linear-gradient(90deg, rgba(0,45,37,.98) 0%, rgba(0,54,45,.95) 45%, rgba(0,45,37,.78) 100%);
-        }
-        html.dark .hero {
-            background: linear-gradient(90deg, rgba(2,8,23,.98) 0%, rgba(4,20,30,.95) 45%, rgba(2,8,23,.78) 100%);
-        }
-
-        .hero-photo {
-            background-image: url('{{ asset('foto-tunanetra.png') }}');
-            background-size: cover;
-            background-position: center;
-            opacity: .17;
-        }
-
-        .hero-glow {
-            background: radial-gradient(circle, rgba(16,185,129,.18), transparent 65%);
-        }
-
-        .map-shell {
-            background: rgba(9,25,36,.76);
-            border: 1px solid rgba(16,185,129,.75);
-            box-shadow: 0 25px 80px rgba(0,0,0,.35);
-        }
-
-        #smartpath-map .leaflet-tile {
-            filter: brightness(.42) saturate(.65) contrast(1.12);
-        }
-
-        #smartpath-map .leaflet-control-zoom {
-            display: none;
-        }
-
-        .map-report {
-            position: absolute;
-            z-index: 1000;
-            left: 50%;
-            bottom: 28px;
-            transform: translateX(-50%);
-            width: 82%;
-            max-width: 320px;
-            background: #fff;
-            border-radius: 12px;
-            padding: 9px;
-            box-shadow: 0 18px 45px rgba(0,0,0,.32);
-            display: flex;
-            gap: 10px;
-            align-items: center;
-        }
-        html.dark .map-report {
-            background: #1e293b;
-        }
-
-        .map-report img {
-            width: 76px;
-            height: 66px;
-            border-radius: 8px;
-            object-fit: cover;
-        }
-
-        .status {
-            display: inline-flex;
-            align-items: center;
-            padding: 3px 8px;
-            border-radius: 999px;
-            font-size: 9px;
-            font-weight: 700;
-            background: #fef3c7;
-            color: #d97706;
-        }
-        .dark .status {
-            background: #f59e0b30;
-            color: #f59e0b;
-        }
-
-        /* ===== FEATURE CARDS ===== */
-        .feature-card {
-            background: #fff;
-            border: 1px solid #eef2f7;
-            border-radius: 13px;
-            box-shadow: 0 8px 25px rgba(15,23,42,.05);
-            transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
-        }
-        html.dark .feature-card {
-            background: #1e293b;
-            border-color: #334155;
-        }
-        .feature-card:hover {
-            transform: translateY(-5px) scale(1.02);
-            box-shadow: 0 18px 35px rgba(15,23,42,.10);
-        }
-
-        .icon-circle {
-            width: 56px;
-            height: 56px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: linear-gradient(135deg,#e6f7ed,#d9f3e7);
-            color: #059669;
-            font-size: 22px;
-        }
-        html.dark .icon-circle {
-            background: linear-gradient(135deg,#064e3b,#065f46);
-            color: #34d399;
-        }
-
-        /* ===== STATS ===== */
-        .stats-box {
-            background: linear-gradient(135deg,#243545,#1c2b39);
-            border-radius: 12px;
-            box-shadow: 0 14px 35px rgba(15,23,42,.10);
-        }
-        html.dark .stats-box {
-            background: linear-gradient(135deg,#0f172a,#1e293b);
-        }
-
-        .stat-icon {
-            width: 56px;
-            height: 56px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: rgba(255,255,255,.10);
-            color: #fff;
-            font-size: 21px;
-        }
-
-        /* ===== STEPS ===== */
-        .step-icon {
-            width: 62px;
-            height: 62px;
-            border-radius: 50%;
-            background: linear-gradient(135deg,#e6f8f1,#d8f2ee);
-            color: #087f6d;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            margin: 0 auto 15px;
-            position: relative;
-            z-index: 2;
-        }
-        html.dark .step-icon {
-            background: linear-gradient(135deg,#064e3b,#065f46);
-            color: #34d399;
-        }
-
-        .step-number {
-            position: absolute;
-            top: 0;
-            left: 50%;
-            transform: translate(-50%,-12px);
-            width: 23px;
-            height: 23px;
-            border-radius: 50%;
-            background: #10b981;
-            color: #fff;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 11px;
-            font-weight: 800;
-            z-index: 3;
-        }
-
-        .steps-line {
-            position: absolute;
-            top: 31px;
-            left: 12%;
-            right: 12%;
-            height: 1px;
-            border-top: 1px dashed #72cdbd;
-        }
-
-        /* ===== CTA ===== */
-        .cta-mini {
-            background: linear-gradient(145deg,#004b40,#003c35);
-            border-radius: 12px;
-        }
-        html.dark .cta-mini {
-            background: linear-gradient(145deg,#022c22,#064e3b);
-        }
-
-        /* ===== FOOTER ===== */
-        .footer {
-            background: #0d1f2b;
-            color: #cbd5df;
-        }
-        html.dark .footer {
-            background: #020617;
-            color: #94a3b8;
-        }
-
-        .footer-divider {
-            border-color: rgba(255,255,255,.10);
-        }
-        html.dark .footer-divider {
-            border-color: rgba(255,255,255,.05);
-        }
-
-        /* ===== SCROLLBAR ===== */
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #f1f5f9; }
-        ::-webkit-scrollbar-thumb { 
-            background: linear-gradient(180deg, #10b981, #059669);
-            border-radius: 4px;
-        }
-        html.dark ::-webkit-scrollbar-track { background: #1e293b; }
-        html.dark ::-webkit-scrollbar-thumb { 
-            background: linear-gradient(180deg, #34d399, #10b981);
-        }
-
-        /* ===== ANIMASI ===== */
-        @keyframes fadeInUp {
-            0% { opacity: 0; transform: translateY(30px); }
-            100% { opacity: 1; transform: translateY(0); }
-        }
-        .animate-on-scroll {
-            opacity: 0;
-            transform: translateY(30px);
-            transition: all 0.6s cubic-bezier(0.22, 1, 0.36, 1);
-        }
-        .animate-on-scroll.visible {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        /* ===== RESPONSIVE ===== */
-        @media (max-width: 1023px) {
-            .steps-line { display:none; }
-            .mobile-menu { display: none; }
-            .mobile-menu.open { display: block; }
-        }
-
-        /* ===== SMARTPATH PROFESSIONAL UI REFINEMENT ===== */
+        /* ---------- ROOT VARIABLES ---------- */
         :root {
-            --sp-primary: #10b981;
-            --sp-primary-dark: #047857;
-            --sp-ink: #0f2f2b;
-            --sp-muted: #64748b;
-            --sp-border: rgba(15, 23, 42, .08);
+            --dark-teal: #062a25;
+            --dark-green: #004b40;
+            --primary-mint: #10b981;
+            --primary-mint-dark: #059669;
+            --primary-mint-light: #34d399;
+            --light-mint: #d1fae5;
+            --white: #FFFFFF;
+            --light-bg: #f8fafc;
+            --dark-text: #172033;
+            --secondary-text: #64748b;
+            --footer-bg: #0d1f2b;
+            --card-radius: 16px;
+            --btn-radius: 12px;
+            --shadow-sm: 0 2px 8px rgba(6, 42, 37, 0.06);
+            --shadow-md: 0 8px 24px rgba(6, 42, 37, 0.08);
+            --shadow-lg: 0 16px 48px rgba(6, 42, 37, 0.12);
+            --transition: all 0.3s ease;
         }
 
-        html { scroll-behavior: smooth; }
+        /* ---------- BASE ---------- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
 
         body {
-            letter-spacing: -0.01em;
-            -webkit-font-smoothing: antialiased;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            color: var(--dark-text);
+            background-color: var(--white);
+            overflow-x: hidden;
+            transition: background-color 0.3s ease, color 0.3s ease;
         }
 
-        .hero {
-            min-height: 610px;
-            background:
-                radial-gradient(circle at 78% 35%, rgba(16,185,129,.16), transparent 30%),
-                linear-gradient(115deg, #032f29 0%, #063d35 52%, #082e2a 100%);
-        }
-
-        .hero-photo { opacity: .13; }
-
-        .hero-grid {
-            position: relative;
-        }
-
-        .hero-copy {
-            max-width: 590px;
-        }
-
-        .hero-kicker {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 7px 12px;
-            border-radius: 999px;
-            background: rgba(16,185,129,.10);
-            border: 1px solid rgba(110,231,183,.22);
-            color: #a7f3d0;
-            font-size: 11px;
+        h1, h2, h3, h4, h5, h6 {
             font-weight: 700;
-            letter-spacing: .02em;
+            color: var(--dark-text);
         }
 
-        .hero-title {
-            font-size: clamp(2.7rem, 5vw, 4.2rem);
-            line-height: .99;
-            letter-spacing: -.045em;
+        p {
+            color: var(--secondary-text);
+            line-height: 1.7;
         }
 
-        .hero-subtitle {
-            max-width: 560px;
-            font-size: 15px;
-            line-height: 1.8;
-            color: rgba(236,253,245,.78);
+        a {
+            text-decoration: none;
+            transition: var(--transition);
         }
 
-        .hero-trust {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 12px 22px;
-            margin-top: 28px;
-        }
-
-        .hero-trust span {
-            color: rgba(236,253,245,.82);
-            font-size: 11px;
-            font-weight: 600;
-        }
-
-        .hero-trust i { color: #34d399; margin-right: 7px; }
-
-        .map-shell {
-            padding: 10px;
-            border-radius: 22px;
-            background: rgba(2, 20, 25, .72);
-            border: 1px solid rgba(110,231,183,.28);
-            box-shadow: 0 30px 90px rgba(0,0,0,.32), inset 0 1px 0 rgba(255,255,255,.06);
-        }
-
-        .map-shell::before {
-            content: "LIVE ACCESSIBILITY MAP";
-            display: block;
-            padding: 3px 4px 9px;
-            color: rgba(167,243,208,.7);
-            font-size: 8px;
-            font-weight: 800;
-            letter-spacing: .16em;
-        }
-
-        #smartpath-map { height: 350px !important; }
-
-        .map-report {
-            width: min(86%, 340px);
-            bottom: 20px;
-            border: 1px solid rgba(15,23,42,.06);
-            border-radius: 14px;
-        }
-
+        /* ---------- SECTION LABEL ---------- */
         .section-label {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 10px;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: .16em;
-            color: #059669;
-        }
-
-        .section-label::before {
-            content: "";
-            width: 22px;
-            height: 2px;
-            border-radius: 999px;
-            background: #10b981;
-        }
-
-        .section-title {
-            font-size: clamp(1.75rem, 3vw, 2.45rem);
-            line-height: 1.12;
-            letter-spacing: -.035em;
-        }
-
-        .section-lead {
-            color: #64748b;
-            font-size: 13px;
-            line-height: 1.8;
-        }
-
-        .dark .section-lead { color: #94a3b8; }
-
-        .about-hero {
-            position: relative;
-            overflow: hidden;
-            background:
-                radial-gradient(circle at 75% 20%, rgba(16,185,129,.12), transparent 28%),
-                linear-gradient(135deg, #062a25 0%, #0a3a33 100%);
-        }
-
-        .about-hero::after {
-            content: "";
-            position: absolute;
-            width: 280px;
-            height: 280px;
-            right: -100px;
-            bottom: -140px;
-            border: 1px solid rgba(110,231,183,.16);
-            border-radius: 50%;
-            box-shadow: 0 0 0 35px rgba(110,231,183,.03), 0 0 0 70px rgba(110,231,183,.02);
-        }
-
-        .about-image {
-            border-radius: 22px;
-            border: 1px solid rgba(255,255,255,.12);
-            box-shadow: 0 28px 70px rgba(0,0,0,.28);
-        }
-
-        .about-stat {
             display: flex;
             align-items: center;
             gap: 12px;
-            padding: 12px 14px;
+        }
+
+        .label-line {
+            display: inline-block;
+            width: 32px;
+            height: 2px;
+            background-color: var(--primary-mint);
+            border-radius: 2px;
+        }
+
+        .label-text {
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            color: var(--primary-mint);
+            text-transform: uppercase;
+        }
+
+        /* ---------- SECTION TITLE & DESC ---------- */
+        .section-title {
+            font-size: 2.25rem;
+            font-weight: 800;
+            line-height: 1.2;
+            color: var(--dark-text);
+        }
+
+        .section-desc {
+            font-size: 1rem;
+            color: var(--secondary-text);
+            max-width: 600px;
+        }
+
+        .text-mint {
+            color: var(--primary-mint) !important;
+        }
+
+        .text-light-muted {
+            color: rgba(255, 255, 255, 0.75) !important;
+        }
+
+        .text-justify {
+            text-align: justify;
+        }
+
+        /* ============================================================
+           NAVBAR (Bootstrap 5)
+           ============================================================ */
+        #mainNavbar {
+            background-color: rgba(6, 42, 37, 0.95);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            padding: 0.75rem 0;
+            transition: var(--transition);
+            border-bottom: 1px solid rgba(16, 185, 129, 0.1);
+        }
+
+        #mainNavbar.scrolled {
+            background-color: rgba(6, 42, 37, 0.98);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .logo-icon {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, #34d399, #059669);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--dark-teal);
+            font-size: 1.1rem;
+            flex-shrink: 0;
+        }
+
+        .logo-text {
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: var(--white);
+            letter-spacing: -0.5px;
+        }
+
+        .navbar-nav .nav-link {
+            color: rgba(255, 255, 255, 0.8);
+            font-weight: 500;
+            font-size: 0.9rem;
+            padding: 0.5rem 1rem;
+            position: relative;
+            transition: var(--transition);
+        }
+
+        .navbar-nav .nav-link:hover {
+            color: var(--primary-mint-light);
+        }
+
+        .navbar-nav .nav-link.active {
+            color: var(--primary-mint-light);
+            font-weight: 600;
+        }
+
+        .navbar-nav .nav-link.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 1rem;
+            right: 1rem;
+            height: 2px;
+            background-color: var(--primary-mint-light);
+            border-radius: 2px;
+        }
+
+        .navbar-toggler {
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 0.4rem 0.6rem;
+        }
+
+        .navbar-toggler:focus {
+            box-shadow: none;
+        }
+
+        .navbar-toggler-icon {
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba(255,255,255,0.8)' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+        }
+
+        /* ---------- BUTTONS ---------- */
+        .btn-primary-custom {
+            background-color: var(--primary-mint);
+            color: var(--white);
+            font-weight: 700;
+            font-size: 0.875rem;
+            padding: 0.6rem 1.5rem;
+            border-radius: var(--btn-radius);
+            border: none;
+            transition: var(--transition);
+        }
+
+        .btn-primary-custom:hover {
+            background-color: var(--primary-mint-dark);
+            color: var(--white);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(16, 185, 129, 0.35);
+        }
+
+        .btn-outline-light-custom {
+            background-color: transparent;
+            color: var(--white);
+            font-weight: 600;
+            font-size: 0.875rem;
+            padding: 0.6rem 1.5rem;
+            border-radius: var(--btn-radius);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            transition: var(--transition);
+        }
+
+        .btn-outline-light-custom:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: var(--white);
+            border-color: rgba(52, 211, 153, 0.5);
+        }
+
+        .btn-dark-mode {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: var(--white);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: var(--btn-radius);
+            padding: 0.6rem 0.8rem;
+            transition: var(--transition);
+        }
+
+        .btn-dark-mode:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+            color: var(--primary-mint-light);
+        }
+
+        /* ============================================================
+           SECTION 1: HERO ABOUT
+           ============================================================ */
+        .hero-about {
+            background: linear-gradient(135deg, var(--dark-teal) 0%, var(--dark-green) 100%);
+            position: relative;
+            overflow: hidden;
+            padding-top: 80px;
+            padding-bottom: 50px;
+        }
+
+        .hero-about::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(16, 185, 129, 0.10) 0%, transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        .hero-about::after {
+            content: '';
+            position: absolute;
+            bottom: -30%;
+            left: -10%;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(16, 185, 129, 0.06) 0%, transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        .hero-title {
+            font-size: 2.75rem;
+            font-weight: 800;
+            color: var(--white);
+            line-height: 1.15;
+            letter-spacing: -1px;
+        }
+
+        .hero-desc {
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.75);
+            max-width: 520px;
+            text-align: justify;
+        }
+
+        .hero-cards .info-card {
+            background-color: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(16, 185, 129, 0.18);
+            border-radius: var(--card-radius);
+            padding: 1.25rem 1rem;
+            transition: var(--transition);
+            height: 100%;
+        }
+
+        .hero-cards .info-card:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-color: rgba(52, 211, 153, 0.4);
+            transform: translateY(-4px);
+        }
+
+        .hero-cards .card-icon {
+            width: 40px;
+            height: 40px;
+            background-color: rgba(16, 185, 129, 0.18);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary-mint-light);
+            font-size: 1rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .hero-cards .card-title {
+            color: var(--white);
+            font-size: 0.9rem;
+            font-weight: 700;
+            margin-bottom: 0.35rem;
+        }
+
+        .hero-cards .card-text {
+            color: rgba(255, 255, 255, 0.65);
+            font-size: 0.8rem;
+            line-height: 1.5;
+            margin: 0;
+        }
+
+        .hero-image {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .image-wrapper {
+            position: relative;
+            max-width: 520px;
+            width: 100%;
+        }
+
+        .main-image {
+            border-radius: 20px;
+            box-shadow: 0 24px 64px rgba(0, 0, 0, 0.3);
+            width: 100%;
+            height: auto;
+            object-fit: cover;
+            aspect-ratio: 4/3;
+        }
+
+        .floating-card {
+            position: absolute;
+            bottom: 24px;
+            left: -20px;
+            background-color: var(--white);
             border-radius: 14px;
-            background: rgba(255,255,255,.94);
-            box-shadow: 0 18px 45px rgba(0,0,0,.18);
+            padding: 1rem 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
+            animation: floatCard 3s ease-in-out infinite;
         }
 
-        .dark .about-stat { background: #1e293b; }
-
-        .about-stat-icon {
-            width: 38px;
-            height: 38px;
-            border-radius: 11px;
-            display: grid;
-            place-items: center;
-            background: #ecfdf5;
-            color: #059669;
+        @keyframes floatCard {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
         }
 
-        .feature-card {
-            border-radius: 18px;
-            padding: 24px;
-            box-shadow: 0 10px 35px rgba(15,23,42,.045);
+        .floating-icon {
+            width: 40px;
+            height: 40px;
+            background-color: var(--light-mint);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--dark-teal);
+            font-size: 1.1rem;
         }
 
-        .feature-card:hover {
-            transform: translateY(-6px);
-            border-color: rgba(16,185,129,.22);
-            box-shadow: 0 22px 45px rgba(15,23,42,.09);
+        .floating-card h6 {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--dark-text);
+            margin: 0;
         }
 
-        .icon-circle {
-            width: 50px;
-            height: 50px;
-            border-radius: 14px;
+        .floating-card p {
+            font-size: 0.75rem;
+            color: var(--secondary-text);
+            margin: 0;
+        }
+
+        /* ============================================================
+           SECTION 2: APA ITU SMARTPATH
+           ============================================================ */
+        .section-about-what {
+            background-color: var(--white);
+        }
+
+        .visual-wrapper img {
+            border-radius: 20px;
+            box-shadow: var(--shadow-md);
+            width: 100%;
+            height: auto;
+            object-fit: cover;
+            aspect-ratio: 4/3;
+        }
+
+        /* ============================================================
+           SECTION 3: MENGAPA SMARTPATH
+           ============================================================ */
+        .section-why {
+            background-color: var(--light-bg);
         }
 
         .problem-card {
-            border: 1px solid #eef2f7;
-            border-radius: 16px;
-            background: #fff;
-            padding: 17px;
-            transition: .25s ease;
+            background-color: var(--white);
+            border-radius: var(--card-radius);
+            padding: 2rem 1.5rem;
+            height: 100%;
+            transition: var(--transition);
+            border: 1px solid rgba(6, 42, 37, 0.06);
+            box-shadow: var(--shadow-sm);
         }
 
         .problem-card:hover {
-            transform: translateX(4px);
-            border-color: rgba(16,185,129,.25);
-            box-shadow: 0 14px 30px rgba(15,23,42,.06);
+            transform: translateY(-6px);
+            box-shadow: var(--shadow-md);
+            border-color: rgba(16, 185, 129, 0.25);
         }
 
-        .dark .problem-card {
-            background: #111c2d;
-            border-color: #263449;
+        .problem-card .card-icon {
+            width: 48px;
+            height: 48px;
+            background-color: var(--light-mint);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary-mint-dark);
+            font-size: 1.25rem;
+            margin-bottom: 1rem;
         }
 
-        .vision-panel {
+        .problem-card h5 {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--dark-text);
+            margin-bottom: 0.5rem;
+        }
+
+        .problem-card p {
+            font-size: 0.875rem;
+            color: var(--secondary-text);
+            margin: 0;
+        }
+
+        /* ============================================================
+           SECTION 4: SOLUSI SMARTPATH
+           ============================================================ */
+        .section-solution {
+            background: linear-gradient(135deg, var(--dark-teal) 0%, var(--dark-green) 100%);
             position: relative;
             overflow: hidden;
-            border-radius: 22px;
-            background: #fff;
-            border: 1px solid #e8edf2;
-            box-shadow: 0 16px 45px rgba(15,23,42,.06);
         }
 
-        .dark .vision-panel {
-            background: #111c2d;
-            border-color: #263449;
+        .section-solution::before {
+            content: '';
+            position: absolute;
+            top: -30%;
+            left: -10%;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(16, 185, 129, 0.08) 0%, transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
         }
 
-        .metric {
-            padding: 14px;
-            border-radius: 14px;
-            background: #f8fafc;
-            border: 1px solid #edf2f7;
-        }
-
-        .dark .metric {
-            background: #172235;
-            border-color: #29374a;
-        }
-
-        .step-item {
+        .solution-flow {
             position: relative;
-            padding: 20px 14px;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 22px;
+            align-items: stretch;
+        }
+
+        .solution-card {
+            position: relative;
+            background: rgba(255, 255, 255, 0.055);
+            border: 1px solid rgba(110, 231, 183, 0.22);
             border-radius: 18px;
-            border: 1px solid #edf2f7;
-            background: #fff;
-            transition: .25s ease;
+            padding: 24px 20px;
+            min-height: 230px;
+            display: flex;
+            flex-direction: column;
+            transition: transform .3s ease, border-color .3s ease, background .3s ease, box-shadow .3s ease;
         }
 
-        .dark .step-item {
-            background: #111c2d;
-            border-color: #263449;
+        .solution-card:hover {
+            transform: translateY(-6px);
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(52, 211, 153, 0.55);
+            box-shadow: 0 18px 40px rgba(0, 0, 0, .18);
         }
 
-        .step-item:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 18px 38px rgba(15,23,42,.07);
+        .solution-icon {
+            width: 52px;
+            height: 52px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 15px;
+            background: rgba(16, 185, 129, .14);
+            border: 1px solid rgba(16, 185, 129, .18);
+            color: var(--primary-mint-light);
+            font-size: 20px;
+            margin-bottom: 18px;
         }
 
-        .cta-professional {
-            border-radius: 24px;
-            background:
-                radial-gradient(circle at 90% 10%, rgba(52,211,153,.24), transparent 26%),
-                linear-gradient(120deg, #063b34, #087f6d);
-            box-shadow: 0 25px 65px rgba(4,120,87,.18);
+        .solution-number {
+            position: absolute;
+            top: 16px;
+            right: 18px;
+            width: 27px;
+            height: 27px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: var(--primary-mint-light);
+            color: var(--dark-teal);
+            font-size: 11px;
+            font-weight: 800;
         }
 
-        @media (max-width: 767px) {
-            .hero { min-height: auto; }
-            #smartpath-map { height: 290px !important; }
-            .hero-title { font-size: 2.65rem; }
-            .hero-subtitle { font-size: 13px; line-height: 1.7; }
+        .solution-card h3 {
+            margin: 0;
+            color: #ffffff;
+            font-size: 15px;
+            font-weight: 800;
+            letter-spacing: -.01em;
         }
 
+        .solution-card p {
+            margin-top: 10px;
+            color: rgba(236, 253, 245, .72);
+            font-size: 11px;
+            line-height: 1.75;
+            text-align: justify;
+        }
+
+        .solution-arrow {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary-mint-light);
+            font-size: 17px;
+            z-index: 5;
+            pointer-events: none;
+        }
+
+        .solution-arrow.arrow-1 { left: calc(25% - 15px); }
+        .solution-arrow.arrow-2 { left: calc(50% - 15px); }
+        .solution-arrow.arrow-3 { left: calc(75% - 15px); }
+
+        /* ============================================================
+           SECTION 5: NILAI UTAMA
+           ============================================================ */
+        .section-values {
+            background-color: var(--white);
+        }
+
+        .value-card {
+            background-color: var(--white);
+            border: 1px solid rgba(6, 42, 37, 0.08);
+            border-radius: var(--card-radius);
+            padding: 2rem 1.5rem;
+            height: 100%;
+            transition: var(--transition);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .value-card:hover {
+            transform: translateY(-6px);
+            box-shadow: var(--shadow-md);
+            border-color: rgba(16, 185, 129, 0.3);
+        }
+
+        .value-card .card-icon {
+            width: 48px;
+            height: 48px;
+            background-color: var(--light-mint);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary-mint-dark);
+            font-size: 1.25rem;
+            margin-bottom: 1rem;
+        }
+
+        .value-card h5 {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--dark-text);
+            margin-bottom: 0.5rem;
+        }
+
+        .value-card p {
+            font-size: 0.875rem;
+            color: var(--secondary-text);
+            margin: 0;
+        }
+
+        
+        
+
+        .benefit-card {
+            background-color: var(--white);
+            border-radius: var(--card-radius);
+            padding: 2rem 1.5rem;
+            height: 100%;
+            transition: var(--transition);
+            border: 1px solid rgba(6, 42, 37, 0.06);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .benefit-card:hover {
+            transform: translateY(-6px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .benefit-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 1.25rem;
+        }
+
+        .benefit-header .card-icon {
+            width: 44px;
+            height: 44px;
+            background-color: var(--light-mint);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary-mint-dark);
+            font-size: 1.1rem;
+            flex-shrink: 0;
+        }
+
+        .benefit-header h5 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--dark-text);
+            margin: 0;
+        }
+
+        .benefit-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .benefit-list li {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            font-size: 0.875rem;
+            color: var(--secondary-text);
+            padding: 0.5rem 0;
+            border-bottom: 1px solid rgba(6, 42, 37, 0.04);
+        }
+
+        .benefit-list li:last-child {
+            border-bottom: none;
+        }
+
+        .benefit-list li i {
+            color: var(--primary-mint);
+            font-size: 0.75rem;
+            margin-top: 4px;
+            flex-shrink: 0;
+        }
+
+        /* ============================================================
+           SECTION 7: VISI
+           ============================================================ */
+        .section-vision {
+            background: linear-gradient(135deg, var(--dark-teal) 0%, var(--dark-green) 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .section-vision::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 800px;
+            height: 800px;
+            background: radial-gradient(circle, rgba(16, 185, 129, 0.08) 0%, transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        /* ============================================================
+           FOOTER
+           ============================================================ */
+        .footer {
+            background-color: var(--footer-bg);
+            border-top: 1px solid rgba(16, 185, 129, 0.1);
+        }
+
+        .footer-brand .logo-text {
+            color: var(--white);
+        }
+
+        .footer-desc {
+            color: rgba(255, 255, 255, 0.55);
+            font-size: 0.9rem;
+            max-width: 280px;
+        }
+
+        .footer-title {
+            color: var(--white);
+            font-size: 0.9rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            letter-spacing: 0.5px;
+        }
+
+        .footer-links {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .footer-links li {
+            margin-bottom: 0.5rem;
+            color: rgba(255, 255, 255, 0.55);
+            font-size: 0.875rem;
+        }
+
+        .footer-links a {
+            color: rgba(255, 255, 255, 0.55);
+            font-size: 0.875rem;
+            transition: var(--transition);
+        }
+
+        .footer-links a:hover {
+            color: var(--primary-mint-light);
+            padding-left: 4px;
+        }
+
+        .footer-links li i {
+            color: var(--primary-mint-light);
+            font-size: 0.8rem;
+            width: 16px;
+        }
+
+        .social-links {
+            display: flex;
+            gap: 12px;
+        }
+
+        .social-links a {
+            width: 40px;
+            height: 40px;
+            background-color: rgba(255, 255, 255, 0.08);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+
+        .social-links a:hover {
+            background-color: var(--primary-mint-dark);
+            color: var(--white);
+            transform: translateY(-3px);
+        }
+
+        .footer-divider {
+            border-color: rgba(255, 255, 255, 0.08);
+        }
+
+        .footer-copy {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.8rem;
+        }
+
+        .footer-tagline {
+            color: var(--primary-mint-light);
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .footer-tagline:hover {
+            color: var(--primary-mint-light);
+            text-decoration: underline;
+        }
+
+        /* ============================================================
+           DARK MODE
+           ============================================================ */
+        [data-bs-theme="dark"] body {
+            background-color: #0f172a;
+            color: #f1f5f9;
+        }
+
+        [data-bs-theme="dark"] h1,
+        [data-bs-theme="dark"] h2,
+        [data-bs-theme="dark"] h3,
+        [data-bs-theme="dark"] h4,
+        [data-bs-theme="dark"] h5,
+        [data-bs-theme="dark"] h6 {
+            color: #f1f5f9;
+        }
+
+        [data-bs-theme="dark"] p {
+            color: #94a3b8;
+        }
+
+        [data-bs-theme="dark"] .section-about-what,
+        [data-bs-theme="dark"] .section-values {
+            background-color: #0f172a;
+        }
+
+        [data-bs-theme="dark"] .section-why,
+        [data-bs-theme="dark"] .section-benefits {
+            background-color: #020617;
+        }
+
+        [data-bs-theme="dark"] .problem-card,
+        [data-bs-theme="dark"] .value-card,
+        [data-bs-theme="dark"] .benefit-card {
+            background-color: #1e293b;
+            border-color: #334155;
+        }
+
+        [data-bs-theme="dark"] .problem-card h5,
+        [data-bs-theme="dark"] .value-card h5,
+        [data-bs-theme="dark"] .benefit-header h5 {
+            color: #f1f5f9;
+        }
+
+        [data-bs-theme="dark"] .problem-card p,
+        [data-bs-theme="dark"] .value-card p,
+        [data-bs-theme="dark"] .benefit-list li {
+            color: #94a3b8;
+        }
+
+        [data-bs-theme="dark"] .floating-card {
+            background-color: #1e293b;
+        }
+
+        [data-bs-theme="dark"] .floating-card h6 {
+            color: #f1f5f9;
+        }
+
+        [data-bs-theme="dark"] .floating-card p {
+            color: #94a3b8;
+        }
+
+        [data-bs-theme="dark"] .section-title {
+            color: #f1f5f9;
+        }
+
+        [data-bs-theme="dark"] .section-desc {
+            color: #94a3b8;
+        }
+
+        [data-bs-theme="dark"] .footer {
+            background-color: #020617;
+        }
+
+        /* ============================================================
+           RESPONSIVE
+           ============================================================ */
+
+        /* Tablet */
+        @media (max-width: 991.98px) {
+            .hero-title {
+                font-size: 2.25rem;
+            }
+
+            .section-title {
+                font-size: 1.875rem;
+            }
+
+            .hero-image {
+                margin-top: 3rem;
+            }
+
+            .floating-card {
+                left: 10px;
+                bottom: 16px;
+            }
+
+            .solution-flow {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .solution-arrow {
+                display: none;
+            }
+
+            .navbar-nav .nav-link.active::after {
+                display: none;
+            }
+        }
+
+        /* Mobile */
+        @media (max-width: 767.98px) {
+            .hero-title {
+                font-size: 1.875rem;
+            }
+
+            .section-title {
+                font-size: 1.625rem;
+            }
+
+            .hero-about .row {
+                min-height: auto !important;
+                padding-top: 100px;
+                padding-bottom: 60px;
+            }
+
+            .hero-cards .col-md-4 {
+                margin-bottom: 0.5rem;
+            }
+
+            .floating-card {
+                position: relative;
+                left: 0;
+                bottom: 0;
+                margin-top: -30px;
+                margin-left: 16px;
+                margin-right: 16px;
+                animation: none;
+            }
+
+            .footer .row > div {
+                text-align: center;
+            }
+
+            .footer-desc {
+                margin: 0 auto;
+            }
+
+            .social-links {
+                justify-content: center;
+            }
+
+            .footer-links {
+                text-align: center;
+            }
+
+            .footer-brand {
+                justify-content: center;
+            }
+
+            .solution-flow {
+                grid-template-columns: 1fr;
+                gap: 14px;
+            }
+
+            .solution-card {
+                min-height: auto;
+                padding: 20px;
+            }
+
+            .solution-card p {
+                text-align: left;
+            }
+        }
+
+        /* Small Mobile */
+        @media (max-width: 575.98px) {
+            .hero-title {
+                font-size: 1.625rem;
+            }
+
+            .section-title {
+                font-size: 1.375rem;
+            }
+
+            .hero-desc {
+                font-size: 0.9rem;
+            }
+
+            .btn-primary-custom,
+            .btn-outline-light-custom {
+                padding: 0.5rem 1.25rem;
+                font-size: 0.8rem;
+            }
+        }
     </style>
 </head>
-
 <body>
 
-    <!-- ===== SKIP LINK ===== -->
-    <a href="#main-content" class="skip-link">Langsung ke konten utama</a>
-
-    <!-- ===== SCROLL PROGRESS ===== -->
-    <div class="scroll-progress" id="scrollProgress"></div>
-
-    <!-- ===== NAVBAR ===== -->
-    <header class="sticky top-0 z-50 bg-[#062a25]/95 dark:bg-[#020617]/95 backdrop-blur-md border-b border-white/10">
-        <div class="max-w-[1180px] mx-auto px-6 h-16 flex items-center justify-between">
-            <a href="{{ url('/') }}" class="flex items-center gap-3 text-white">
-                <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-emerald-400 to-emerald-700 flex items-center justify-center">
+    <!-- ================= NAVBAR (Bootstrap 5) ================= -->
+    <nav class="navbar navbar-expand-lg fixed-top" id="mainNavbar">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center gap-2" href="{{ route('beranda') }}">
+                <div class="logo-icon">
                     <i class="fa-solid fa-route"></i>
                 </div>
-                <span class="text-xl font-extrabold tracking-tight">SmartPath</span>
+                <span class="logo-text">SmartPath</span>
             </a>
 
-          <nav class="hidden lg:flex items-center gap-8 text-[12px]">
-    <!-- Beranda -->
-    <a href="{{ url('/') }}" class="nav-link {{ request()->routeIs('landing') ? 'text-white border-b-2 border-emerald-400 pb-5' : 'text-slate-300 hover:text-white transition' }}">Beranda</a>
-    
-    <!-- Tentang -->
-    <a href="{{ route('tentang') }}" class="nav-link {{ request()->routeIs('tentang') ? 'text-white border-b-2 border-emerald-400 pb-5' : 'text-slate-300 hover:text-white transition' }}">Tentang</a>
-    
-    <!-- Fitur (Kembali ke Beranda bagian #fitur) -->
-    <a href="{{ url('/#fitur') }}" class="nav-link text-slate-300 hover:text-white transition">Fitur</a>
-    
-    <!-- Peta (Halaman terpisah - sesuai kode Anda) -->
-    <a href="{{ route('peta.fasilitas') }}" class="nav-link text-slate-300 hover:text-white transition">Peta</a>
-    
-    <!-- Cara Kerja (Kembali ke Beranda bagian #cara-kerja) -->
-    <a href="{{ url('/#cara-kerja') }}" class="nav-link text-slate-300 hover:text-white transition">Cara Kerja</a>
-    
-    <!-- Kontak (Kembali ke Beranda bagian #kontak) -->
-    <a href="{{ url('/#kontak') }}" class="nav-link text-slate-300 hover:text-white transition">Kontak</a>
-</nav>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
 
-            <div class="flex items-center gap-3">
-                <div class="hidden sm:flex items-center gap-2">
-                    <a href="{{ route('login') }}" class="inline-flex items-center justify-center rounded-xl border border-white/20 bg-white/5 px-5 py-2.5 text-sm font-semibold text-white backdrop-blur-sm transition-all duration-300 hover:bg-white/10 hover:border-emerald-400/50 hover:text-emerald-300">Masuk</a>
-                    <a href="{{ route('auth.register') }}" class="inline-flex items-center justify-center rounded-xl bg-emerald-600 hover:bg-emerald-500 px-5 py-2.5 text-sm font-bold text-white transition-all duration-300 hover:scale-105">Daftar</a>
-                    <button id="themeToggle" type="button" class="w-11 h-11 rounded-xl border border-white/20 bg-white/5 text-white backdrop-blur-sm transition-all duration-300 hover:bg-white/10 hover:border-emerald-400/50 hover:text-emerald-300">
-                        <i id="themeIcon" class="fa-solid fa-moon"></i>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav mx-auto">
+                    <li class="nav-item"><a class="nav-link" href="{{ route('beranda') }}">Beranda</a></li>
+                    <li class="nav-item"><a class="nav-link active" aria-current="page" href="{{ route('tentang') }}">Tentang</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ route('beranda') }}#fitur">Fitur</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ route('peta.index') }}">Peta</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ route('beranda') }}#cara-kerja">Cara Kerja</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ route('beranda') }}#kontak">Kontak</a></li>
+                </ul>
+
+                <div class="d-flex align-items-center gap-2 nav-actions">
+                    <a href="{{ route('login') }}" class="btn btn-outline-light-custom">Masuk</a>
+                    <a href="{{ route('auth.register') }}" class="btn btn-primary-custom">Daftar</a>
+                    <button class="btn btn-dark-mode" id="darkModeToggle" aria-label="Toggle Dark Mode">
+                        <i class="fa-solid fa-moon"></i>
                     </button>
                 </div>
-                <button id="mobileMenuBtn" type="button" class="lg:hidden text-white text-xl" aria-label="Buka menu">
-                    <i class="fa-solid fa-bars"></i>
-                </button>
             </div>
         </div>
-
-       <div id="mobileMenu" class="lg:hidden mobile-menu bg-[#062a25]/95 dark:bg-[#020617]/95 px-6 py-4 border-t border-white/10">
-    <nav class="flex flex-col space-y-3 text-[14px]">
-        <a href="{{ url('/') }}" class="{{ request()->routeIs('landing') ? 'text-white font-semibold' : 'text-slate-300 hover:text-white transition' }}">Beranda</a>
-        <a href="{{ route('tentang') }}" class="{{ request()->routeIs('tentang') ? 'text-white font-semibold' : 'text-slate-300 hover:text-white transition' }}">Tentang</a>
-        <a href="{{ url('/#fitur') }}" class="text-slate-300 hover:text-white transition">Fitur</a>
-        <a href="{{ route('peta.fasilitas') }}" class="text-slate-300 hover:text-white transition">Peta</a>
-        <a href="{{ url('/#cara-kerja') }}" class="text-slate-300 hover:text-white transition">Cara Kerja</a>
-        <a href="{{ url('/#kontak') }}" class="text-slate-300 hover:text-white transition">Kontak</a>
     </nav>
-</div>
-    </header>
 
-    <!-- ===== MAIN CONTENT ===== -->
-    <main id="main-content">
-
-        <!-- ===== TENTANG SMARTPATH (HERO) ===== -->
-     <main id="main-content">
-
-    <!-- ===== TENTANG SMARTPATH (HERO) ===== -->
-    <section id="tentang" class="about-hero relative py-16 lg:py-24 section-anchor">
-        <div class="max-w-[1180px] mx-auto px-6 relative z-10">
-            <div class="grid lg:grid-cols-[.9fr_1.1fr] gap-12 lg:gap-16 items-center">
-                <div class="text-white">
-                    <span class="section-label text-emerald-300">Tentang SmartPath</span>
-                    <h2 class="section-title text-white mt-4">
-                        Teknologi untuk ruang publik yang
-                        <span class="text-emerald-400">lebih inklusif.</span>
-                    </h2>
-
-                    <!-- Paragraf lebih pendek & padat -->
-                    <p class="mt-5 text-sm leading-7 text-emerald-50/75 max-w-xl">
-                        Bayangkan jika Anda harus melewati trotoar rusak dengan kursi roda. <strong class="text-emerald-200">Aksesibilitas bukan hanya untuk penyandang disabilitas</strong>—itu untuk semua orang, termasuk lansia dan ibu hamil.
+    <!-- ================= SECTION 1: HERO TENTANG ================= -->
+    <section class="hero-about" id="heroAbout">
+        <div class="container">
+            <div class="row align-items-center min-vh-100 pt-5">
+                <div class="col-lg-6 hero-text" data-aos="fade-up">
+                    <div class="section-label mb-3">
+                        <span class="label-line"></span>
+                        <span class="label-text">TENTANG SMARTPATH</span>
+                    </div>
+                    <h1 class="hero-title">
+                        Teknologi untuk ruang<br>
+                        publik yang <span class="text-mint">lebih inklusif.</span>
+                    </h1>
+                    <p class="hero-desc mt-4">
+                        SmartPath adalah platform digital yang menghubungkan masyarakat dan pemerintah untuk menciptakan ruang publik yang lebih aman, mudah diakses, dan inklusif.
                     </p>
-                    <p class="mt-3 text-sm leading-7 text-emerald-50/75 max-w-xl">
-                        SmartPath adalah <strong class="text-emerald-200">jembatan gotong royong</strong> antara warga dan pemerintah untuk memperbaiki infrastruktur tepat sasaran.
+                    <p class="hero-desc">
+                        Melalui pelaporan, verifikasi, dan pemetaan berbasis data, SmartPath membantu mengidentifikasi berbagai hambatan aksesibilitas di ruang publik agar dapat ditindaklanjuti dengan lebih tepat.
                     </p>
 
-                    <div class="grid sm:grid-cols-2 gap-3 mt-8">
-                        <!-- Card Partisipatif -->
-                        <div class="flex items-start gap-3 p-4 rounded-2xl bg-white/5 border border-white/10">
-                            <div class="w-10 h-10 rounded-xl bg-emerald-500/15 text-emerald-300 grid place-items-center shrink-0">
-                                <i class="fa-solid fa-users"></i>
-                            </div>
-                            <div>
-                                <p class="font-bold text-sm text-white">Partisipatif</p>
-                                <p class="text-[11px] text-emerald-50/60 mt-1 leading-5">Masyarakat ikut menyampaikan kondisi di lapangan.</p>
+                    <div class="row g-3 mt-4 hero-cards">
+                        <div class="col-md-4">
+                            <div class="info-card">
+                                <div class="card-icon"><i class="fa-solid fa-users"></i></div>
+                                <h6 class="card-title">Partisipatif</h6>
+                                <p class="card-text">Masyarakat ikut menyampaikan kondisi di lapangan.</p>
                             </div>
                         </div>
-                        <!-- Card Berbasis Peta -->
-                        <div class="flex items-start gap-3 p-4 rounded-2xl bg-white/5 border border-white/10">
-                            <div class="w-10 h-10 rounded-xl bg-emerald-500/15 text-emerald-300 grid place-items-center shrink-0">
-                                <i class="fa-solid fa-map-location-dot"></i>
-                            </div>
-                            <div>
-                                <p class="font-bold text-sm text-white">Berbasis Peta</p>
-                                <p class="text-[11px] text-emerald-50/60 mt-1 leading-5">Laporan divisualisasikan agar mudah dipantau.</p>
+                        <div class="col-md-4">
+                            <div class="info-card">
+                                <div class="card-icon"><i class="fa-solid fa-map"></i></div>
+                                <h6 class="card-title">Berbasis Peta</h6>
+                                <p class="card-text">Laporan divisualisasikan agar mudah dipantau.</p>
                             </div>
                         </div>
-                        <!-- Card Berbasis Data (Baru) -->
-                        <div class="flex items-start gap-3 p-4 rounded-2xl bg-white/5 border border-white/10 sm:col-span-2">
-                            <div class="w-10 h-10 rounded-xl bg-emerald-500/15 text-emerald-300 grid place-items-center shrink-0">
-                                <i class="fa-solid fa-database"></i>
-                            </div>
-                            <div>
-                                <p class="font-bold text-sm text-white">Berbasis Data</p>
-                                <p class="text-[11px] text-emerald-50/60 mt-1 leading-5">Laporan terverifikasi menjadi data prioritas perbaikan yang akurat.</p>
+                        <div class="col-md-4">
+                            <div class="info-card">
+                                <div class="card-icon"><i class="fa-solid fa-database"></i></div>
+                                <h6 class="card-title">Berbasis Data</h6>
+                                <p class="card-text">Data terverifikasi membantu menentukan prioritas perbaikan.</p>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="relative">
-                    <div class="about-image overflow-hidden bg-slate-900">
-                        <img src="{{ asset('foto-tunanetra.png') }}" alt="Ilustrasi aksesibilitas ruang publik" class="w-full h-[360px] object-cover opacity-90">
-                        <div class="absolute inset-0 bg-gradient-to-t from-[#062a25]/90 via-transparent to-transparent"></div>
-
-                        <!-- Overlay Data SmartPath pada Gambar -->
-                        <div class="absolute top-4 left-4 right-4 flex justify-between gap-3">
-                            <div class="bg-emerald-400 text-emerald-950 rounded-xl px-3 py-2 shadow-lg">
-                                <p class="text-lg font-extrabold leading-none">1.245</p>
-                                <p class="text-[9px] font-bold mt-1">Laporan Masuk</p>
-                            </div>
-                            <div class="bg-white/90 backdrop-blur rounded-xl px-3 py-2 shadow-lg">
-                                <p class="text-lg font-extrabold text-slate-800 leading-none">876</p>
-                                <p class="text-[9px] font-bold text-slate-500 mt-1">Terverifikasi</p>
+                <div class="col-lg-6 hero-image" data-aos="fade-left" data-aos-delay="200">
+                    <div class="image-wrapper">
+                        <img src="foto-tunanetra.png" alt="Aksesibilitas ruang publik" class="img-fluid main-image">
+                        <div class="floating-card">
+                            <div class="floating-icon"><i class="fa-solid fa-wheelchair"></i></div>
+                            <div>
+                                <h6>Ruang Publik Inklusif</h6>
+                                <p>Akses untuk semua orang.</p>
                             </div>
                         </div>
-
-                        <div class="absolute left-5 right-5 bottom-5">
-                            <div class="about-stat">
-                                <div class="about-stat-icon">
-                                    <i class="fa-solid fa-heart-pulse"></i>
-                                </div>
-                                <div>
-                                    <p class="text-slate-900 dark:text-white font-extrabold text-sm">Setiap jalan berhak untuk semua orang</p>
-                                    <p class="text-slate-500 dark:text-slate-400 text-[11px] mt-1">Mendorong kota yang aman, mudah diakses, dan inklusif.</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="absolute -top-4 -right-4 hidden sm:flex items-center gap-2 rounded-2xl bg-emerald-400 text-emerald-950 px-4 py-3 shadow-xl">
-                        <i class="fa-solid fa-universal-access"></i>
-                        <span class="text-xs font-extrabold">Akses untuk semua</span>
                     </div>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- ===== MASALAH ===== -->
-    <section id="masalah" class="py-12 bg-white dark:bg-slate-950 section-anchor">
-        <div class="max-w-[1180px] mx-auto px-6 grid lg:grid-cols-2 gap-12 items-center">
-            <div>
-                <span class="text-emerald-600 dark:text-emerald-400 text-[10px] font-bold uppercase tracking-widest">Masalah</span>
-                <h2 class="text-2xl font-extrabold text-slate-800 dark:text-white mt-2">Masih banyak hambatan di ruang publik</h2>
-                <!-- Paragraf lebih pendek -->
-                <p class="text-slate-500 dark:text-slate-400 text-sm leading-relaxed mt-4">
-                    Trotoar rusak, ramp hilang, atau guiding block terputus membatasi mobilitas semua orang. Saat seorang ayah mengangkat kereta bayi atau kakek takut keluar rumah, itulah kegagalan infrastruktur publik.
+    <!-- ================= SECTION 2: APA ITU SMARTPATH? ================= -->
+    <section class="section-about-what py-5" id="whatIs">
+        <div class="container py-5">
+            <div class="row align-items-center g-5">
+                <div class="col-lg-6" data-aos="fade-right">
+                    <div class="section-label mb-3">
+                        <span class="label-line"></span>
+                        <span class="label-text">TENTANG KAMI</span>
+                    </div>
+                    <h2 class="section-title">Apa itu SmartPath?</h2>
+
+                    <p class="section-desc mt-3 text-justify">
+                        SmartPath merupakan platform digital yang dirancang untuk membantu
+                        masyarakat melaporkan berbagai kondisi fasilitas publik yang belum
+                        ramah aksesibilitas.
+                    </p>
+
+                    <p class="section-desc text-justify">
+                        Platform ini memungkinkan laporan mengenai trotoar rusak, ramp yang
+                        tidak tersedia, guiding block yang rusak, penerangan yang kurang,
+                        maupun hambatan lainnya untuk dikumpulkan dan dipetakan secara digital.
+                    </p>
+                </div>
+                <div class="col-lg-6" data-aos="fade-left">
+                    <div class="visual-wrapper">
+                        <img src="foto-trotoar.jpeg" alt="Peta digital SmartPath" class="img-fluid rounded-4 shadow-sm">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ================= SECTION 3: MENGAPA SMARTPATH DIBUTUHKAN? ================= -->
+    <section class="section-why py-5" id="whySmartPath">
+        <div class="container py-5">
+            <div class="text-center mb-5" data-aos="fade-up">
+                <div class="section-label justify-content-center mb-3">
+                    <span class="label-line"></span>
+                    <span class="label-text">KENAPA SMARTPATH?</span>
+                </div>
+                <h2 class="section-title">Masih banyak ruang publik<br>yang belum ramah aksesibilitas.</h2>
+                <p class="section-desc mx-auto" style="max-width: 600px;">
+                    Berbagai hambatan sederhana di ruang publik dapat menjadi masalah besar bagi sebagian masyarakat.
                 </p>
             </div>
-            <div class="space-y-4">
-                <div class="problem-card flex items-start gap-4">
-                    <div class="w-10 h-10 shrink-0 rounded-full bg-emerald-50 dark:bg-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400"><i class="fa-solid fa-road"></i></div>
-                    <div>
-                        <h3 class="font-bold text-slate-800 dark:text-white text-sm">Infrastruktur tidak ramah</h3>
-                        <p class="text-slate-500 dark:text-slate-400 text-xs mt-1 leading-relaxed">Banyak fasilitas publik belum memenuhi standar aksesibilitas.</p>
+
+            <div class="row g-4">
+                <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="100">
+                    <div class="problem-card">
+                        <div class="card-icon"><i class="fa-solid fa-road"></i></div>
+                        <h5>Trotoar Rusak</h5>
+                        <p>Menghambat dan membahayakan perjalanan pejalan kaki.</p>
                     </div>
                 </div>
-                <div class="problem-card flex items-start gap-4">
-                    <div class="w-10 h-10 shrink-0 rounded-full bg-emerald-50 dark:bg-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400"><i class="fa-solid fa-eye"></i></div>
-                    <div>
-                        <h3 class="font-bold text-slate-800 dark:text-white text-sm">Informasi tidak terpusat</h3>
-                        <p class="text-slate-500 dark:text-slate-400 text-xs mt-1 leading-relaxed">Data hambatan tidak terdokumentasi dengan baik.</p>
+                <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="200">
+                    <div class="problem-card">
+                        <div class="card-icon"><i class="fa-solid fa-wheelchair"></i></div>
+                        <h5>Ramp Tidak Tersedia</h5>
+                        <p>Menyulitkan pengguna kursi roda, lansia, dan ibu hamil.</p>
                     </div>
                 </div>
-                <div class="problem-card flex items-start gap-4">
-                    <div class="w-10 h-10 shrink-0 rounded-full bg-emerald-50 dark:bg-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400"><i class="fa-solid fa-chart-column"></i></div>
-                    <div>
-                        <h3 class="font-bold text-slate-800 dark:text-white text-sm">Perbaikan tidak tepat sasaran</h3>
-                        <p class="text-slate-500 dark:text-slate-400 text-xs mt-1 leading-relaxed">Pemerintah kesulitan menentukan prioritas tanpa data lapangan.</p>
+                <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="300">
+                    <div class="problem-card">
+                        <div class="card-icon"><i class="fa-solid fa-universal-access"></i></div>
+                        <h5>Guiding Block Rusak</h5>
+                        <p>Mengganggu mobilitas penyandang tunanetra.</p>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="400">
+                    <div class="problem-card">
+                        <div class="card-icon"><i class="fa-solid fa-building"></i></div>
+                        <h5>Fasilitas Kurang Memadai</h5>
+                        <p>Seperti penerangan, akses transportasi, dan fasilitas pendukung lainnya.</p>
                     </div>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- ===== SOLUSI KAMI ===== -->
-    <section id="solusi" class="py-12 bg-white dark:bg-slate-950 section-anchor">
-        <div class="max-w-[1180px] mx-auto px-6 text-center">
-            <span class="section-label">Solusi Kami</span>
-            <h2 class="section-title text-slate-800 dark:text-white mt-3">Apa itu SmartPath?</h2>
-            <!-- Paragraf lebih pendek -->
-            <p class="section-lead mt-4 max-w-2xl mx-auto">
-                SmartPath mengubah laporan warga menjadi data terstruktur untuk perbaikan yang tepat sasaran.
-            </p>
-            <div class="grid sm:grid-cols-3 gap-4 mt-10 text-left">
-                <div class="feature-card p-6 animate-on-scroll">
-                    <div class="icon-circle mb-4"><i class="fa-solid fa-file-pen"></i></div>
-                    <h3 class="text-[12px] font-bold text-slate-800 dark:text-white">Laporkan</h3>
-                    <p class="mt-2 text-[10px] leading-5 text-slate-500 dark:text-slate-400">Masyarakat dapat melaporkan hambatan aksesibilitas di sekitar mereka dengan mudah.</p>
+    <!-- ================= SECTION 4: SOLUSI SMARTPATH ================= -->
+    <section class="section-solution py-5" id="solution">
+        <div class="container py-5">
+            <div class="text-center mb-5" data-aos="fade-up">
+                <div class="section-label justify-content-center mb-3">
+                    <span class="label-line"></span>
+                    <span class="label-text text-mint">SOLUSI SMARTPATH</span>
                 </div>
-                <div class="feature-card p-6 animate-on-scroll">
-                    <div class="icon-circle mb-4"><i class="fa-solid fa-map-location-dot"></i></div>
-                    <h3 class="text-[12px] font-bold text-slate-800 dark:text-white">Petakan</h3>
-                    <p class="mt-2 text-[10px] leading-5 text-slate-500 dark:text-slate-400">Laporan divisualisasikan pada peta interaktif agar mudah dipantau.</p>
-                </div>
-                <div class="feature-card p-6 animate-on-scroll">
-                    <div class="icon-circle mb-4"><i class="fa-solid fa-shield-halved"></i></div>
-                    <h3 class="text-[12px] font-bold text-slate-800 dark:text-white">Verifikasi & Prioritaskan</h3>
-                    <p class="mt-2 text-[10px] leading-5 text-slate-500 dark:text-slate-400">Laporan diverifikasi dan ditindaklanjuti secara tepat sasaran.</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- ===== VISI KAMI ===== -->
-    <section id="visi" class="py-16 lg:py-20 bg-slate-50 dark:bg-slate-900 section-anchor">
-        <div class="max-w-[1180px] mx-auto px-6">
-            <div class="vision-panel p-5 sm:p-7 lg:p-8">
-                <div class="grid lg:grid-cols-[.95fr_1.05fr] gap-9 lg:gap-12 items-center">
-                    <div class="overflow-hidden rounded-2xl">
-                        <img src="{{ asset('trotoar-depok.jpg') }}" alt="Contoh aksesibilitas ruang publik" class="w-full h-[320px] object-cover">
-                    </div>
-                    <div>
-                        <span class="section-label">Visi Kami</span>
-                        <h2 class="section-title text-slate-800 dark:text-white mt-3">Dampak yang ingin kami wujudkan</h2>
-                        <!-- Paragraf lebih pendek, tetap manusiawi -->
-                        <p class="section-lead mt-4">
-                            Di balik angka <strong class="text-slate-700 dark:text-white">17,8 juta</strong> penyandang disabilitas, ada potensi yang terhalang infrastruktur. Kami membuka jalan agar semua orang bisa bergerak bebas.
-                        </p>
-                        <div class="grid sm:grid-cols-2 gap-3 mt-7">
-                            <div class="metric">
-                                <p class="text-lg font-extrabold text-slate-800 dark:text-white">17,8 juta</p>
-                                <p class="text-[10px] text-slate-500 dark:text-slate-400 mt-1">Penyandang disabilitas di Indonesia (BPS 2024)</p>
-                            </div>
-                            <div class="metric">
-                                <p class="text-lg font-extrabold text-slate-800 dark:text-white">23,04%</p>
-                                <p class="text-[10px] text-slate-500 dark:text-slate-400 mt-1">Partisipasi angkatan kerja penyandang disabilitas</p>
-                            </div>
-                            <div class="metric">
-                                <p class="text-lg font-extrabold text-slate-800 dark:text-white">Lebih inklusif</p>
-                                <p class="text-[10px] text-slate-500 dark:text-slate-400 mt-1">Ruang publik untuk semua orang</p>
-                            </div>
-                            <div class="metric">
-                                <p class="text-lg font-extrabold text-slate-800 dark:text-white">Berkelanjutan</p>
-                                <p class="text-[10px] text-slate-500 dark:text-slate-400 mt-1">Perbaikan yang tepat guna dan efisien</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- ===== CTA ===== -->
-    <section id="cta" class="py-10 bg-slate-50 dark:bg-slate-900">
-        <div class="max-w-[1180px] mx-auto px-6">
-            <div class="cta-professional p-8 lg:p-10 flex flex-col md:flex-row justify-between items-center gap-6 relative overflow-hidden">
-                <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
-                <h2 class="text-white text-2xl font-extrabold text-center md:text-left relative z-10">
-                    Mari bersama-sama ciptakan kota<br class="hidden md:block"> yang lebih inklusif & aksesibel!
-                </h2>
-                <a href="{{ route('laporan.create') }}" class="relative z-10 bg-white text-emerald-700 px-6 py-3 rounded-lg font-bold hover:bg-slate-100 transition shadow-lg">
-                    Laporkan Sekarang
-                </a>
-            </div>
-        </div>
-    </section>
-
-    <!-- ===== CARA KERJA ===== -->
-    <section id="cara-kerja" class="py-16 lg:py-20 bg-white dark:bg-slate-950 section-anchor">
-        <div class="max-w-[1180px] mx-auto px-6">
-            <div class="text-center max-w-2xl mx-auto">
-                <span class="section-label">Cara Kerja</span>
-                <h2 class="section-title text-slate-800 dark:text-white mt-3">Bersama dalam 4 Langkah Mudah</h2>
-                <p class="section-lead mt-4">
-                    Laporkan hambatan aksesibilitas dengan mudah hingga mendapatkan tindak lanjut.
+                <h2 class="section-title text-white">Data, partisipasi, dan teknologi<br>untuk perubahan yang nyata.</h2>
+                <p class="section-desc text-light-muted mx-auto" style="max-width: 700px;">
+                    SmartPath membantu menghubungkan laporan masyarakat dengan data yang dapat digunakan pemerintah sebagai dasar perbaikan infrastruktur.
                 </p>
             </div>
-            <div class="relative grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mt-12">
-                <div class="hidden lg:block absolute top-[45px] left-[12%] right-[12%] border-t-2 border-dashed border-emerald-200 dark:border-emerald-900 z-0"></div>
-                <div class="step-item text-center relative z-10">
-                    <div class="step-icon"><span class="step-number">1</span><i class="fa-solid fa-file-circle-plus"></i></div>
-                    <h3 class="text-sm font-bold text-slate-800 dark:text-white">Laporkan</h3>
-                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 leading-relaxed">Isi formulir dan unggah foto hambatan.</p>
+
+            <div class="solution-flow">
+                <!-- Panah -->
+                <div class="solution-arrow arrow-1"><i class="fa-solid fa-arrow-right"></i></div>
+                <div class="solution-arrow arrow-2"><i class="fa-solid fa-arrow-right"></i></div>
+                <div class="solution-arrow arrow-3"><i class="fa-solid fa-arrow-right"></i></div>
+
+                <!-- Card 1 -->
+                <article class="solution-card">
+                    <span class="solution-number">1</span>
+                    <div class="solution-icon"><i class="fa-solid fa-file-circle-plus"></i></div>
+                    <h3>Laporkan</h3>
+                    <p>Masyarakat mengirim laporan berupa foto, lokasi, dan kategori hambatan aksesibilitas yang ditemukan di ruang publik.</p>
+                </article>
+
+                <!-- Card 2 -->
+                <article class="solution-card">
+                    <span class="solution-number">2</span>
+                    <div class="solution-icon"><i class="fa-solid fa-shield-halved"></i></div>
+                    <h3>Verifikasi</h3>
+                    <p>Laporan diperiksa untuk memastikan informasi, kondisi, dan lokasi yang disampaikan dapat dipastikan keakuratannya.</p>
+                </article>
+
+                <!-- Card 3 -->
+                <article class="solution-card">
+                    <span class="solution-number">3</span>
+                    <div class="solution-icon"><i class="fa-solid fa-map-location-dot"></i></div>
+                    <h3>Petakan</h3>
+                    <p>Laporan yang telah terverifikasi ditampilkan pada peta digital sehingga kondisi aksesibilitas dapat dipantau dengan lebih mudah.</p>
+                </article>
+
+                <!-- Card 4 -->
+                <article class="solution-card">
+                    <span class="solution-number">4</span>
+                    <div class="solution-icon"><i class="fa-solid fa-chart-column"></i></div>
+                    <h3>Tindak Lanjut</h3>
+                    <p>Data laporan digunakan sebagai informasi pendukung untuk menentukan prioritas perbaikan aksesibilitas ruang publik.</p>
+                </article>
+            </div>
+        </div>
+    </section>
+
+    <!-- ================= SECTION 5: NILAI UTAMA ================= -->
+    <section class="section-values py-5" id="values">
+        <div class="container py-5">
+            <div class="text-center mb-5" data-aos="fade-up">
+                <div class="section-label justify-content-center mb-3">
+                    <span class="label-line"></span>
+                    <span class="label-text">NILAI UTAMA</span>
                 </div>
-                <div class="step-item text-center relative z-10">
-                    <div class="step-icon"><span class="step-number">2</span><i class="fa-solid fa-shield-halved"></i></div>
-                    <h3 class="text-sm font-bold text-slate-800 dark:text-white">Verifikasi</h3>
-                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 leading-relaxed">Tim memeriksa dan memverifikasi laporan.</p>
+                <h2 class="section-title">Teknologi yang berfokus<br>pada dampak nyata.</h2>
+            </div>
+
+            <div class="row g-4">
+                <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="100">
+                    <div class="value-card">
+                        <div class="card-icon"><i class="fa-solid fa-users"></i></div>
+                        <h5>Partisipatif</h5>
+                        <p>Mendorong masyarakat untuk ikut menyampaikan kondisi ruang publik.</p>
+                    </div>
                 </div>
-                <div class="step-item text-center relative z-10">
-                    <div class="step-icon"><span class="step-number">3</span><i class="fa-solid fa-chart-column"></i></div>
-                    <h3 class="text-sm font-bold text-slate-800 dark:text-white">Prioritaskan</h3>
-                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 leading-relaxed">Sistem menentukan skala prioritas.</p>
+                <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="200">
+                    <div class="value-card">
+                        <div class="card-icon"><i class="fa-solid fa-eye"></i></div>
+                        <h5>Transparan</h5>
+                        <p>Informasi laporan dapat dikelola dan dipantau dengan lebih terstruktur.</p>
+                    </div>
                 </div>
-                <div class="step-item text-center relative z-10">
-                    <div class="step-icon"><span class="step-number">4</span><i class="fa-solid fa-circle-check"></i></div>
-                    <h3 class="text-sm font-bold text-slate-800 dark:text-white">Tindak Lanjut</h3>
-                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 leading-relaxed">Perbaikan dilakukan sesuai prioritas.</p>
+                <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="300">
+                    <div class="value-card">
+                        <div class="card-icon"><i class="fa-solid fa-chart-simple"></i></div>
+                        <h5>Berbasis Data</h5>
+                        <p>Data terverifikasi membantu menentukan prioritas perbaikan.</p>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="400">
+                    <div class="value-card">
+                        <div class="card-icon"><i class="fa-solid fa-hand-holding-heart"></i></div>
+                        <h5>Inklusif</h5>
+                        <p>Mendorong ruang publik yang dapat digunakan oleh semua orang.</p>
+                    </div>
                 </div>
             </div>
         </div>
     </section>
 
-</main>
-    <!-- ===== FOOTER ===== -->
-    <footer id="kontak" class="footer bg-[#0d1f2b] dark:bg-[#020617] text-slate-400 pt-10 pb-5 section-anchor">
-        <div class="max-w-[1180px] mx-auto px-6">
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 pb-8 border-b border-white/10">
-                <div>
-                    <div class="flex items-center gap-3 text-white mb-4">
-                        <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-emerald-400 to-emerald-700 flex items-center justify-center"><i class="fa-solid fa-route"></i></div>
-                        <span class="text-xl font-extrabold">SmartPath</span>
-                    </div>
-                    <p class="text-xs leading-5">Bersama membangun ruang publik yang lebih inklusif dan aksesibel.</p>
-                    <div class="flex gap-2 mt-4">
-                        <a href="#" class="w-7 h-7 rounded-full bg-slate-700 flex items-center justify-center text-xs hover:bg-emerald-600 transition"><i class="fa-brands fa-facebook-f"></i></a>
-                        <a href="#" class="w-7 h-7 rounded-full bg-slate-700 flex items-center justify-center text-xs hover:bg-emerald-600 transition"><i class="fa-brands fa-instagram"></i></a>
-                        <a href="#" class="w-7 h-7 rounded-full bg-slate-700 flex items-center justify-center text-xs hover:bg-emerald-600 transition"><i class="fa-brands fa-youtube"></i></a>
+    
+
+    <!-- ================= SECTION 7: VISI SMARTPATH ================= -->
+    <section class="section-vision py-5" id="vision">
+        <div class="container py-5">
+            <div class="row justify-content-center">
+                <div class="col-lg-8 text-center" data-aos="fade-up">
+                    <h2 class="section-title text-white">Menuju ruang publik<br>yang lebih inklusif.</h2>
+                    <p class="section-desc text-light-muted mt-4 mx-auto">
+                        Kami percaya bahwa aksesibilitas adalah hak semua orang. Dengan kolaborasi masyarakat, pemerintah, dan teknologi, SmartPath ingin membantu menciptakan lingkungan perkotaan yang lebih aman, nyaman, dan mudah diakses.
+                    </p>
+                    <div class="d-flex gap-3 justify-content-center mt-5 flex-wrap">
+                        <a href="/peta" class="btn btn-primary-custom btn-lg">
+                            <i class="fa-solid fa-map me-2"></i>Jelajahi Peta
+                        </a>
+                        <a href="/lapor" class="btn btn-outline-light-custom btn-lg">
+                            <i class="fa-solid fa-bullhorn me-2"></i>Laporkan Sekarang
+                        </a>
                     </div>
                 </div>
-                <div>
-                    <h4 class="text-sm font-bold text-white mb-4">Navigasi</h4>
-                    <ul class="space-y-2 text-xs">
-                        <li><a href="#beranda" class="hover:text-emerald-400 transition">Beranda</a></li>
-                        <li><a href="{{ route('tentang') }}" class="hover:text-emerald-400 transition">Tentang</a></li>
-                        <li><a href="#solusi" class="hover:text-emerald-400 transition">Fitur</a></li>
-                        <li><a href="#cara-kerja" class="hover:text-emerald-400 transition">Cara Kerja</a></li>
-                        <li><a href="#kontak" class="hover:text-emerald-400 transition">Kontak</a></li>
+            </div>
+        </div>
+    </section>
+
+    <!-- ================= FOOTER ================= -->
+    <footer id="kontak" class="footer pt-5 pb-4">
+        <div class="container">
+            <div class="row g-4 pb-4 border-bottom footer-divider">
+                <div class="col-lg-4 col-md-6">
+                    <a class="footer-brand d-flex align-items-center gap-2 mb-3" href="/">
+                        <div class="logo-icon"><i class="fa-solid fa-route"></i></div>
+                        <span class="logo-text">SmartPath</span>
+                    </a>
+                    <p class="footer-desc">
+                        SmartPath adalah platform partisipatif untuk melaporkan dan memetakan hambatan aksesibilitas di ruang publik.
+                    </p>
+                    <div class="social-links mt-3">
+                        <a href="#" aria-label="Facebook"><i class="fa-brands fa-facebook-f"></i></a>
+                        <a href="#" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
+                        <a href="#" aria-label="YouTube"><i class="fa-brands fa-youtube"></i></a>
+                    </div>
+                </div>
+
+                <div class="col-lg-2 col-md-6 col-6">
+                    <h6 class="footer-title">Navigasi</h6>
+                    <ul class="footer-links">
+                        <li><a href="#heroAbout">Beranda</a></li>
+                        <li><a href="/about">Tentang</a></li>
+                        <li><a href="#whatIs">Fitur</a></li>
+                        <li><a href="/peta">Peta</a></li>
+                        <li><a href="#solution">Cara Kerja</a></li>
+                        <li><a href="#kontak">Kontak</a></li>
                     </ul>
                 </div>
-                <div>
-                    <h4 class="text-sm font-bold text-white mb-4">Kategori Laporan</h4>
-                    <ul class="space-y-3 text-xs">
-                        <li><i class="fa-solid fa-road w-5 text-emerald-400"></i> Trotoar Rusak</li>
-                        <li><i class="fa-solid fa-wheelchair w-5 text-emerald-400"></i> Ramp Tidak Ada</li>
-                        <li><i class="fa-solid fa-grip-lines w-5 text-emerald-400"></i> Guiding Block Rusak</li>
-                        <li><i class="fa-solid fa-ellipsis w-5 text-emerald-400"></i> Lainnya</li>
+
+                <div class="col-lg-3 col-md-6 col-6">
+                    <h6 class="footer-title">Kategori Laporan</h6>
+                    <ul class="footer-links">
+                        <li><i class="fa-solid fa-road me-2"></i>Trotoar Rusak</li>
+                        <li><i class="fa-solid fa-wheelchair me-2"></i>Ramp Tidak Ada</li>
+                        <li><i class="fa-solid fa-grip-lines me-2"></i>Guiding Block Rusak</li>
+                        <li><i class="fa-solid fa-ellipsis me-2"></i>Lainnya</li>
                     </ul>
                 </div>
-                <div>
-                    <h4 class="text-sm font-bold text-white mb-4">Kontak</h4>
-                    <ul class="space-y-3 text-xs">
-                        <li><i class="fa-solid fa-envelope w-5 text-emerald-400"></i> hello@smartpath.id</li>
-                        <li><i class="fa-solid fa-phone w-5 text-emerald-400"></i> (021) 1234 5678</li>
-                        <li><i class="fa-solid fa-location-dot w-5 text-emerald-400"></i> Depok, Jawa Barat, Indonesia</li>
+
+                <div class="col-lg-3 col-md-6">
+                    <h6 class="footer-title">Alamat</h6>
+                    <ul class="footer-links">
+                        <li><i class="fa-solid fa-location-dot me-2"></i>Kota Depok, Jawa Barat, Indonesia</li>
+                        <li><i class="fa-solid fa-envelope me-2"></i>hello@smartpath.id</li>
+                        <li><i class="fa-solid fa-phone me-2"></i>(021) 1234 5678</li>
                     </ul>
                 </div>
             </div>
-            <div class="pt-5 flex flex-col sm:flex-row justify-between gap-3 text-xs text-slate-500">
-                <span>© 2026 SmartPath. Semua hak dilindungi.</span>
-                <div class="flex gap-6">
-                    <a href="#" class="hover:text-emerald-400">Kebijakan Privasi</a>
-                    <a href="#" class="hover:text-emerald-400">Syarat & Ketentuan →</a>
+
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-center gap-2 pt-4">
+                <p class="footer-copy mb-0">&copy; 2026 SmartPath. Semua hak dilindungi.</p>
+                <div class="d-flex gap-4">
+                    <a href="#" class="footer-tagline">Kebijakan Privasi</a>
+                    <a href="#" class="footer-tagline">Syarat &amp; Ketentuan →</a>
                 </div>
             </div>
         </div>
     </footer>
 
-    <!-- Scripts (Digabung agar rapi, tanpa mengubah logika) -->
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <!-- Bootstrap 5 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
+    <!-- ============================================================
+         SMARTPATH - ABOUT PAGE SCRIPTS
+         ============================================================ -->
     <script>
-        // ================================
-        // SCROLL PROGRESS
-        // ================================
-        window.addEventListener('scroll', () => {
-            const scrollTop = window.scrollY;
-            const docHeight = document.documentElement.scrollHeight - window.innerHeight;
-            const progress = (scrollTop / docHeight) * 100;
-            document.getElementById('scrollProgress').style.width = progress + '%';
-        });
+        document.addEventListener('DOMContentLoaded', function () {
 
-        // ================================
-        // DARK MODE TOGGLE
-        // ================================
-        const themeToggle = document.getElementById('themeToggle');
-        const themeIcon = document.getElementById('themeIcon');
+            /* ============================================================
+               NAVBAR SCROLL EFFECT
+               ============================================================ */
+            const navbar = document.getElementById('mainNavbar');
 
-        function setTheme(theme) {
-            if (theme === 'dark') {
-                document.documentElement.classList.add('dark');
-                themeIcon.className = 'fa-solid fa-sun';
-                localStorage.setItem('theme', 'dark');
-            } else {
-                document.documentElement.classList.remove('dark');
-                themeIcon.className = 'fa-solid fa-moon';
-                localStorage.setItem('theme', 'light');
+            function handleNavbarScroll() {
+                if (!navbar) return;
+                if (window.scrollY > 50) {
+                    navbar.classList.add('scrolled');
+                } else {
+                    navbar.classList.remove('scrolled');
+                }
             }
-        }
 
-        const savedTheme = localStorage.getItem('theme');
-        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-        if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
-            setTheme('dark');
-        } else {
-            setTheme('light');
-        }
+            window.addEventListener('scroll', handleNavbarScroll);
+            handleNavbarScroll();
 
-        themeToggle.addEventListener('click', () => {
-            const isDark = document.documentElement.classList.contains('dark');
-            setTheme(isDark ? 'light' : 'dark');
-        });
+            /* ============================================================
+               DARK MODE TOGGLE
+               ============================================================ */
+            const darkModeToggle = document.getElementById('darkModeToggle');
+            const htmlElement = document.documentElement;
 
-        // ================================
-        // MOBILE MENU
-        // ================================
-        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
-        const mobileMenu = document.getElementById('mobileMenu');
+            if (darkModeToggle) {
+                const icon = darkModeToggle.querySelector('i');
 
-        mobileMenuBtn.addEventListener('click', () => {
-            mobileMenu.classList.toggle('open');
-            const icon = mobileMenuBtn.querySelector('i');
-            if (mobileMenu.classList.contains('open')) {
-                icon.className = 'fa-solid fa-xmark';
-            } else {
-                icon.className = 'fa-solid fa-bars';
+                function updateIcon(theme) {
+                    if (!icon) return;
+                    if (theme === 'dark') {
+                        icon.classList.remove('fa-moon');
+                        icon.classList.add('fa-sun');
+                    } else {
+                        icon.classList.remove('fa-sun');
+                        icon.classList.add('fa-moon');
+                    }
+                }
+
+                const savedTheme = localStorage.getItem('smartpath-theme');
+                if (savedTheme) {
+                    htmlElement.setAttribute('data-bs-theme', savedTheme);
+                    updateIcon(savedTheme);
+                } else {
+                    htmlElement.setAttribute('data-bs-theme', 'light');
+                    updateIcon('light');
+                }
+
+                darkModeToggle.addEventListener('click', function () {
+                    const currentTheme = htmlElement.getAttribute('data-bs-theme');
+                    const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+
+                    htmlElement.setAttribute('data-bs-theme', newTheme);
+                    localStorage.setItem('smartpath-theme', newTheme);
+                    updateIcon(newTheme);
+                });
             }
-        });
 
-        // ================================
-        // NAVBAR ACTIVE LINK
-        // ================================
-        const navLinks = document.querySelectorAll('.nav-link');
+            /* ============================================================
+               SMOOTH SCROLLING FOR ANCHOR LINKS
+               ============================================================ */
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    const targetId = this.getAttribute('href');
+                    if (targetId === '#') return;
 
-        function removeActiveClass() {
-            navLinks.forEach(link => {
-                link.classList.remove('text-white', 'border-b-2', 'border-emerald-400', 'pb-5');
-                link.classList.add('text-slate-300');
-            });
-        }
-
-        function setActiveLink(activeLink) {
-            removeActiveClass();
-            activeLink.classList.remove('text-slate-300');
-            activeLink.classList.add('text-white', 'border-b-2', 'border-emerald-400', 'pb-5');
-        }
-
-        navLinks.forEach(link => {
-            link.addEventListener('click', function() {
-                setActiveLink(this);
-            });
-        });
-
-        // ================================
-        // SMARTPATH MAP
-        // ================================
-        const map = L.map('smartpath-map', { zoomControl: false }).setView([-6.4025, 106.7942], 13);
-
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; OpenStreetMap contributors',
-            maxZoom: 19
-        }).addTo(map);
-
-        const reports = [
-            {lat:-6.4025,lng:106.7942,title:'Trotoar Rusak',location:'Jl. Margonda Raya, Depok',status:'Pending',color:'#f59e0b',time:'2 jam lalu'},
-            {lat:-6.4100,lng:106.8000,title:'Guiding Block Rusak',location:'Jl. Ciliwung, Depok',status:'Pending',color:'#f59e0b',time:'4 jam lalu'},
-            {lat:-6.3950,lng:106.7880,title:'Ramp Tidak Tersedia',location:'Jl. Kalimantan, Depok',status:'Pending',color:'#f59e0b',time:'6 jam lalu'},
-            {lat:-6.3915,lng:106.8218,title:'Akses Kursi Roda',location:'Jl. Juanda, Depok',status:'Diverifikasi',color:'#2dd4bf',time:'5 jam lalu'},
-            {lat:-6.3800,lng:106.8100,title:'Trotoar Rusak',location:'Jl. Sumatra, Depok',status:'Diverifikasi',color:'#2dd4bf',time:'1 hari lalu'},
-            {lat:-6.4180,lng:106.8250,title:'Guiding Block Rusak',location:'Jl. Papua, Depok',status:'Diverifikasi',color:'#2dd4bf',time:'2 hari lalu'},
-            {lat:-6.4280,lng:106.8050,title:'Ramp Tidak Tersedia',location:'Jl. Kartini, Depok',status:'Dalam Perbaikan',color:'#60a5fa',time:'2 hari lalu'},
-            {lat:-6.4120,lng:106.7920,title:'Trotoar Rusak',location:'Jl. Pahlawan, Depok',status:'Dalam Perbaikan',color:'#60a5fa',time:'3 hari lalu'},
-            {lat:-6.3855,lng:106.7920,title:'Guiding Block Rusak',location:'Jl. Nusantara, Depok',status:'Selesai',color:'#34d399',time:'3 hari lalu'},
-            {lat:-6.4050,lng:106.8150,title:'Akses Kursi Roda',location:'Jl. Diponegoro, Depok',status:'Selesai',color:'#34d399',time:'5 hari lalu'},
-            {lat:-6.4170,lng:106.8320,title:'Trotoar Rusak',location:'Jl. Raya Sawangan, Depok',status:'Ditolak',color:'#ef4444',time:'1 hari lalu'},
-            {lat:-6.3980,lng:106.8200,title:'Ramp Tidak Tersedia',location:'Jl. Merdeka, Depok',status:'Ditolak',color:'#ef4444',time:'2 hari lalu'}
-        ];
-
-        reports.forEach(report => {
-            const marker = L.marker([report.lat, report.lng], { icon: L.divIcon({
-                className: 'custom-pin-icon',
-                html: `<i class="fa-solid fa-location-dot text-2xl" style="color: ${report.color};"></i>`,
-                iconSize: [24, 24],
-                iconAnchor: [12, 24],
-                popupAnchor: [0, -24]
-            })}).addTo(map);
-
-            marker.bindPopup(`
-                <div style="font-family:Inter,sans-serif;padding:4px">
-                    <b style="font-size:13px">${report.title}</b>
-                    <div style="font-size:10px;color:#64748b;margin-top:5px">${report.location}</div>
-                    <div style="margin-top:7px;font-size:9px;font-weight:700;color:${report.color}">${report.status}</div>
-                    <div style="font-size:9px;color:#94a3b8;margin-top:3px">${report.time}</div>
-                </div>
-            `);
-        });
-
-        document.getElementById('mapSearch').addEventListener('keydown', function(e) {
-            if (e.key !== 'Enter') return;
-            const q = this.value.trim().toLowerCase();
-            if (!q) return;
-
-            const found = reports.find(r =>
-                r.title.toLowerCase().includes(q) ||
-                r.location.toLowerCase().includes(q)
-            );
-
-            if (found) {
-                map.setView([found.lat, found.lng], 16, {animate:true, duration:1});
-                map.eachLayer(layer => {
-                    if (layer.getLatLng && 
-                        Math.abs(layer.getLatLng().lat - found.lat) < 0.001 && 
-                        Math.abs(layer.getLatLng().lng - found.lng) < 0.001) {
-                        layer.openPopup();
+                    const targetElement = document.querySelector(targetId);
+                    if (targetElement) {
+                        e.preventDefault();
+                        targetElement.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
                     }
                 });
-            } else {
-                this.value = '';
-                this.placeholder = '❌ Lokasi tidak ditemukan';
-                this.style.borderColor = '#ef4444';
-                setTimeout(() => {
-                    this.placeholder = 'Cari lokasi di peta...';
-                    this.style.borderColor = 'inherit';
-                }, 2000);
-            }
-        });
+            });
 
-        const counterObserver = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    const el = entry.target;
-                    const target = parseInt(el.getAttribute('data-target'));
-                    const duration = 2000;
-                    const increment = target / (duration / 16);
-                    let current = 0;
+            /* ============================================================
+               FADE-IN ANIMATION ON SCROLL
+               ============================================================ */
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            };
 
-                    const updateCounter = () => {
-                        current += increment;
-                        if (current < target) {
-                            el.textContent = Math.round(current);
-                            requestAnimationFrame(updateCounter);
-                        } else {
-                            el.textContent = target;
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translateY(0)';
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, observerOptions);
+
+            document.querySelectorAll('[data-aos]').forEach(el => {
+                el.style.opacity = '0';
+                el.style.transform = 'translateY(30px)';
+                el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+                observer.observe(el);
+            });
+
+            /* ============================================================
+               CLOSE MOBILE NAVBAR ON LINK CLICK (Bootstrap)
+               ============================================================ */
+            const navbarCollapse = document.getElementById('navbarNav');
+
+            if (navbarCollapse && typeof bootstrap !== 'undefined') {
+                const bsCollapse = new bootstrap.Collapse(navbarCollapse, { toggle: false });
+
+                document.querySelectorAll('.navbar-nav .nav-link').forEach(link => {
+                    link.addEventListener('click', () => {
+                        if (window.innerWidth < 992) {
+                            bsCollapse.hide();
                         }
-                    };
-                    updateCounter();
-                    counterObserver.unobserve(el);
-                }
-            });
-        }, { threshold: 0.3 });
+                    });
+                });
+            }
 
-        document.querySelectorAll('.animated-counter').forEach(el => {
-            counterObserver.observe(el);
-        });
-
-        const scrollObserver = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('visible');
-                }
-            });
-        }, { threshold: 0.15, rootMargin: '0px 0px -50px 0px' });
-
-        document.querySelectorAll('.animate-on-scroll').forEach(el => {
-            scrollObserver.observe(el);
+            console.log('SmartPath About Page loaded successfully.');
         });
     </script>
-
 </body>
 </html>

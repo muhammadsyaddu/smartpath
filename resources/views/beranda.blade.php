@@ -349,12 +349,12 @@
             <!-- Desktop Menu (Semua ke halaman yang sama) -->
             <nav class="hidden lg:flex items-center gap-8 text-[12px]">
                 <!-- Tambahkan class nav-link ke semua menu, dan ganti href ke #id_section -->
-                <a href="#beranda" class="nav-link text-white border-b-2 border-emerald-400 pb-5">Beranda</a>
+                <a href="#beranda" data-section="beranda" class="nav-link text-white border-b-2 border-emerald-400 pb-5">Beranda</a>
                 <a href="{{ route('tentang') }}" class="nav-link text-slate-300 hover:text-white transition">Tentang</a>
-                <a href="#fitur" class="nav-link text-slate-300 hover:text-white transition">Fitur</a>
-                <a href="{{ route('peta.fasilitas') }}" class="nav-link text-slate-300 hover:text-white transition">Peta</a>
-                <a href="#cara-kerja" class="nav-link text-slate-300 hover:text-white transition">Cara Kerja</a>
-                <a href="#kontak" class="nav-link text-slate-300 hover:text-white transition">Kontak</a>
+                <a href="#fitur" data-section="fitur" class="nav-link text-slate-300 hover:text-white transition">Fitur</a>
+                <a href="{{ route('peta.index') }}" class="nav-link text-slate-300 hover:text-white transition">Peta</a>
+                <a href="#cara-kerja" data-section="cara-kerja" class="nav-link text-slate-300 hover:text-white transition">Cara Kerja</a>
+                <a href="#kontak" data-section="kontak" class="nav-link text-slate-300 hover:text-white transition">Kontak</a>
             </nav>
 
             <!-- Actions -->
@@ -413,7 +413,7 @@
                 <a href="#beranda" class="text-white font-semibold">Beranda</a>
                 <a href="{{ route('tentang') }}" class="text-slate-300 hover:text-white transition">Tentang</a>
                 <a href="#fitur" class="text-slate-300 hover:text-white transition">Fitur</a>
-                <a href="{{ route('peta.fasilitas') }}" class="text-slate-300 hover:text-white transition">Peta</a>
+                <a href="{{ route('peta.index') }}" class="text-slate-300 hover:text-white transition">Peta</a>
                 <a href="#cara-kerja" class="text-slate-300 hover:text-white transition">Cara Kerja</a>
                 <a href="#kontak" class="text-slate-300 hover:text-white transition">Kontak</a>
             </nav>
@@ -808,6 +808,25 @@
             link.addEventListener('click', function() {
                 setActiveLink(this);
             });
+        });
+
+        // Pindahkan menu aktif mengikuti section yang sedang terlihat.
+        const sectionLinks = document.querySelectorAll('.nav-link[data-section]');
+        const sectionObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (!entry.isIntersecting) return;
+
+                const activeLink = document.querySelector(`.nav-link[data-section="${entry.target.id}"]`);
+                if (activeLink) setActiveLink(activeLink);
+            });
+        }, {
+            rootMargin: '-25% 0px -60% 0px',
+            threshold: 0
+        });
+
+        sectionLinks.forEach(link => {
+            const section = document.getElementById(link.dataset.section);
+            if (section) sectionObserver.observe(section);
         });
 
         // ================================
